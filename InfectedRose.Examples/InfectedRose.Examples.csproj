@@ -7,6 +7,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\InfectedRose.Database\InfectedRose.Database.csproj" />
+      <ProjectReference Include="..\InfectedRose.Geometry\InfectedRose.Geometry.csproj" />
       <ProjectReference Include="..\InfectedRose.Luz\InfectedRose.Luz.csproj" />
       <ProjectReference Include="..\InfectedRose.Lvl\InfectedRose.Lvl.csproj" />
       <ProjectReference Include="..\InfectedRose.Terrain\InfectedRose.Terrain.csproj" />

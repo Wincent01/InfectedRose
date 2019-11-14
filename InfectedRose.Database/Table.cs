@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection;
 
 namespace InfectedRose.Database
 {
@@ -152,9 +154,11 @@ namespace InfectedRose.Database
             set => throw new NotSupportedException();
         }
 
-        public Column Create() => Create(out _);
+        public Column Create() => Create(null);
         
-        public Column Create(out int index)
+        public Column Create(object values) => Create(out _, values);
+        
+        public Column Create(out int index, object values)
         {
             var list = Data.RowHeader.RowInfos.ToList();
 
@@ -178,7 +182,23 @@ namespace InfectedRose.Database
             list.Add(column);
 
             Data.RowHeader.RowInfos = list.ToArray();
+            
+            foreach (var property in values.GetType().GetProperties())
+            {
+                var id = property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
 
+                var value = property.GetValue(values);
+                
+                if (value is null)
+                {
+                    this[index][id].Type = DataType.Nothing;
+
+                    value = 0;
+                }
+                
+                this[index][id].Value = value;
+            }
+            
             return new Column(column, this);
         }
 

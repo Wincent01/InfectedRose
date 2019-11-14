@@ -10,7 +10,6 @@ namespace InfectedRose.Database
         internal override void Compile(DatabaseFile databaseFile)
         {
             databaseFile.Structure.Add(this);
-            Console.WriteLine(NextPowerOf2(RowHeader.RowInfos.Length));
             databaseFile.Structure.Add(NextPowerOf2(RowHeader.RowInfos.Length));
             
             databaseFile.Structure.Add(RowHeader);

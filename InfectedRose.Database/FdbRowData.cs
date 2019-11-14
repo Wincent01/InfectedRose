@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -22,7 +23,7 @@ namespace InfectedRose.Database
                 databaseFile.Structure.Add(Fields[i].value);
             }
 
-            foreach (var o in Fields)
+            foreach (var o in Fields.Where(f => f.type != DataType.Nothing))
                 if (o.value is DatabaseData data)
                     data.Compile(databaseFile);
         }

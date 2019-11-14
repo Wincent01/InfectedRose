@@ -21,7 +21,19 @@ namespace InfectedRose.Database
         
         public object Value
         {
-            get => Data.Fields[Index].value;
+            get
+            {
+                var data = Data.Fields[Index].value;
+
+                data = data switch
+                {
+                    FdbString str => str.Value,
+                    FdbBitInt lon => lon.Value,
+                    _ => data
+                };
+
+                return data;
+            }
             set
             {
                 var dataField = Data.Fields[Index];

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using InfectedRose.Database;
 using InfectedRose.Database.Generic;
+using InfectedRose.Geometry;
 using InfectedRose.Luz;
 using InfectedRose.Lvl;
 using InfectedRose.Terrain;
@@ -37,6 +38,44 @@ namespace InfectedRose.Examples
                 case 4:
                     await Database(args);
                     return;
+                case 5:
+                    await Geometry(args);
+                    return;
+            }
+        }
+
+        private static async Task Geometry(IReadOnlyList<string> args)
+        {
+            string file;
+
+            if (args.Count > 0)
+            {
+                file = args[0];
+            }
+            else
+            {
+                Console.Write("File: ");
+
+                file = Console.ReadLine();
+            }
+            
+            var attr = File.GetAttributes(file);
+            if ((attr & FileAttributes.ReadOnly) != 0) File.SetAttributes(file, attr & ~ FileAttributes.ReadOnly);
+            
+            var geometryFile = new GeometryFile();
+            
+            await using (var fileStream = File.OpenRead(file))
+            {
+                using var reader = new BitReader(fileStream);
+
+                geometryFile.Deserialize(reader);
+            }
+
+            await using (var fileStream = File.OpenWrite($"{file}.new.g"))
+            {
+                using var writer = new BitWriter(fileStream);
+
+                geometryFile.Serialize(writer);
             }
         }
 
@@ -66,18 +105,12 @@ namespace InfectedRose.Examples
             
             var database = new AccessDatabase(databaseFile);
 
-            var table = database.Typed<ZoneSummary>();
+            var table = database["ZoneLoadingTips"];
 
-            foreach (var col in table)
+            foreach (var tip in table)
             {
-                Console.WriteLine(col["ZoneId"].Value);
+                tip["imagelocation"].Value = "mod\\tips\\amazing_tip.dds";
             }
-
-            var newColumn = table.Create();
-
-            newColumn.ZoneId = 42;
-
-            table.Save();
 
             var margin = 0;
             var bytes = databaseFile.Compile(i =>

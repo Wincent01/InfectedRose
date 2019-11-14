@@ -31,7 +31,7 @@ namespace InfectedRose.Database
         ///     This is a really long process and should be run in a Task.
         /// </remarks>
         /// <returns>Compiled database</returns>
-        public byte[] Compile(Action<int> onData)
+        public byte[] Compile(Action<int> onData = default)
         {
             Structure = new List<object>
             {
@@ -47,7 +47,7 @@ namespace InfectedRose.Database
             int index = default;
             foreach (var obj in Structure)
             {
-                onData(++index);
+                onData?.Invoke(++index);
                 
                 switch (obj)
                 {
