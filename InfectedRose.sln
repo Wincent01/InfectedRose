@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Terrain", "InfectedRose.Terrain\InfectedRose.Terrain.csproj", "{C5948668-31F0-457F-A1D7-A32DB85A6A5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Examples", "InfectedRose.Examples\InfectedRose.Examples.csproj", "{135A3A1D-3C81-45AB-9195-DEB44D2581F4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Core", "InfectedRose.Core\InfectedRose.Core.csproj", "{2D0A3B97-ACED-487E-AF18-F6E81627D0F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Luz", "InfectedRose.Luz\InfectedRose.Luz.csproj", "{0C38A6FC-7EF9-4B97-B767-6A2F40962D29}"
