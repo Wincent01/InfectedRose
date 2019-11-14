@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Geometry", "In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Triggers", "InfectedRose.Triggers\InfectedRose.Triggers.csproj", "{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RakDotNet.IO", "RakDotNet.IO\RakDotNet.IO\RakDotNet.IO.csproj", "{2E756C26-720A-47C1-B1C9-7D936DB766DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RakDotNet.IO", "RakDotNet.IO\RakDotNet.IO\RakDotNet.IO.csproj", "{EF13D25E-0044-4529-A8D5-4511D856D316}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,5 +70,9 @@ Global
 		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF13D25E-0044-4529-A8D5-4511D856D316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF13D25E-0044-4529-A8D5-4511D856D316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF13D25E-0044-4529-A8D5-4511D856D316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF13D25E-0044-4529-A8D5-4511D856D316}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
