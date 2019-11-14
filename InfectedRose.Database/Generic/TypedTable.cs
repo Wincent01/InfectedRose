@@ -49,7 +49,7 @@ namespace InfectedRose.Database.Generic
 
         public new T Create()
         {
-            base.Create(out var index);
+            base.Create(out var index, default);
 
             return this[index];
         }

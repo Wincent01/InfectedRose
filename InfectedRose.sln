@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RakDotNet.IO", "RakDotNet.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Nif", "InfectedRose.Nif\InfectedRose.Nif.csproj", "{BDCD4970-7BFF-4C69-B866-F022583D9E18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Geometry", "InfectedRose.Geometry\InfectedRose.Geometry.csproj", "{FB5AAB34-0F07-474D-8D4E-98809D405E7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Triggers", "InfectedRose.Triggers\InfectedRose.Triggers.csproj", "{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +58,13 @@ Global
 		{BDCD4970-7BFF-4C69-B866-F022583D9E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDCD4970-7BFF-4C69-B866-F022583D9E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDCD4970-7BFF-4C69-B866-F022583D9E18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB5AAB34-0F07-474D-8D4E-98809D405E7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB5AAB34-0F07-474D-8D4E-98809D405E7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB5AAB34-0F07-474D-8D4E-98809D405E7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB5AAB34-0F07-474D-8D4E-98809D405E7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
