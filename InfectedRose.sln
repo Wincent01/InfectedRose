@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Triggers", "In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RakDotNet.IO", "RakDotNet.IO\RakDotNet.IO\RakDotNet.IO.csproj", "{EF13D25E-0044-4529-A8D5-4511D856D316}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Patcher", "InfectedRose.Patcher\InfectedRose.Patcher.csproj", "{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +74,9 @@ Global
 		{EF13D25E-0044-4529-A8D5-4511D856D316}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF13D25E-0044-4529-A8D5-4511D856D316}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF13D25E-0044-4529-A8D5-4511D856D316}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
