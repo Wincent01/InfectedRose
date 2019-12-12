@@ -6,7 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace Lvl
+namespace InfectedRose.Lvl
 {
     public class LegoDataDictionary : IDictionary<string, object>
     {
@@ -209,14 +209,17 @@ namespace Lvl
                         }
                         else if (val.Contains('\u001F'))
                         {
-                            var floats = val.Split('\u001F').Select(s => float.Parse(s, CultureInfo.InvariantCulture)).ToArray();
+                            var floats = val.Split('\u001F')
+                                .Select(s => float.TryParse(s, out var res) ? res : 0).ToArray();
 
-                            v =
-                                floats.Length == 1 ? floats[0] :
-                                floats.Length == 2 ? new Vector2(floats[0], floats[1]) :
-                                floats.Length == 3 ? new Vector3(floats[0], floats[1], floats[2]) :
-                                floats.Length == 4 ? new Vector4(floats[0], floats[1], floats[2], floats[3]) :
-                                (object) val;
+                            v = floats.Length switch
+                            {
+                                1 => floats[0],
+                                2 => new Vector2(floats[0], floats[1]),
+                                3 => new Vector3(floats[0], floats[1], floats[2]),
+                                4 => new Vector4(floats[0], floats[1], floats[2], floats[3]),
+                                _ => (object) val
+                            };
                         }
                         else
                         {

@@ -1,7 +1,6 @@
-using System.IO;
+using System;
 using System.Numerics;
 using InfectedRose.Core;
-using Lvl;
 using RakDotNet.IO;
 
 namespace InfectedRose.Lvl
@@ -16,6 +15,8 @@ namespace InfectedRose.Lvl
         
         public uint UnknownInt { get; set; }
         
+        public uint UnknownInt1 { get; set; }
+
         public Vector3 Position { get; set; }
         
         public Quaternion Rotation { get; set; }
@@ -60,11 +61,11 @@ namespace InfectedRose.Lvl
             ObjectId = reader.Read<ulong>();
 
             Lot = reader.Read<int>();
-
-            if (LvlVersion >= 0x26)
+            
+            if (LvlVersion >= 38)
                 AssetType = reader.Read<uint>();
 
-            if (LvlVersion >= 0x20)
+            if (LvlVersion >= 32)
                 UnknownInt = reader.Read<uint>();
 
             Position = reader.Read<Vector3>();
@@ -74,11 +75,14 @@ namespace InfectedRose.Lvl
             Scale = reader.Read<float>();
 
             var legoInfo = reader.ReadNiString(true);
-            
-            LegoInfo = LegoDataDictionary.FromString(legoInfo);
 
-            if (LvlVersion >= 0x7)
-                reader.Read<uint>();
+            if (legoInfo.Length > 0)
+            {
+                LegoInfo = LegoDataDictionary.FromString(legoInfo);
+            }
+
+            if (LvlVersion >= 7)
+                UnknownInt1 = reader.Read<uint>();
         }
     }
 }

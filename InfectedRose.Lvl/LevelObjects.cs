@@ -1,4 +1,4 @@
-using System.IO;
+using System;
 using RakDotNet.IO;
 
 namespace InfectedRose.Lvl
@@ -30,6 +30,8 @@ namespace InfectedRose.Lvl
         {
             Templates = new LevelObjectTemplate[reader.Read<uint>()];
 
+            Console.WriteLine($"LEN: {Templates.Length}");
+            
             for (var i = 0; i < Templates.Length; i++)
             {
                 var template = new LevelObjectTemplate(LvlVersion);

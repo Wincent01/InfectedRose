@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using InfectedRose.Core;
+using InfectedRose.Lvl.Old;
 using RakDotNet.IO;
 
 namespace InfectedRose.Lvl
@@ -10,14 +11,16 @@ namespace InfectedRose.Lvl
     public class LvlFile : IConstruct
     {
         public uint LvlVersion { get; set; }
+
+        public OldLevelHeader OldLevelHeader { get; set; }
         
-        public LevelInfo LevelInfo;
+        public LevelInfo LevelInfo { get; set; }
 
-        public LevelSkyConfig LevelSkyConfig;
+        public LevelSkyConfig LevelSkyConfig { get; set; }
 
-        public LevelObjects LevelObjects;
+        public LevelObjects LevelObjects { get; set; }
 
-        public LevelEnvironmentConfig LevelEnvironmentConfig;
+        public LevelEnvironmentConfig LevelEnvironmentConfig { get; set; }
 
         private static readonly byte[] ChunkHeader = "CHNK".Select(c => (byte) c).ToArray();
         
@@ -27,7 +30,7 @@ namespace InfectedRose.Lvl
             var levelSkyData = WriteChunk(LevelSkyConfig);
             var levelObjectsData = WriteChunk(LevelObjects);
             var levelEnvData = WriteChunk(LevelEnvironmentConfig);
-            
+
             Console.WriteLine($"{levelInfoData.Length} - {levelSkyData.Length} - {levelObjectsData.Length} - {levelEnvData.Length}");
         }
 
@@ -47,8 +50,22 @@ namespace InfectedRose.Lvl
 
             if (magic != "CHNK")
             {
-                Console.WriteLine(new NotImplementedException("Older LVL files not yet supported."));
+                reader.BaseStream.Position = 0;
                 
+                OldLevelHeader = new OldLevelHeader();
+
+                OldLevelHeader.Deserialize(reader);
+
+                LvlVersion = OldLevelHeader.LvlVersion;
+                
+                Console.WriteLine($"VERSION: {LvlVersion}");
+
+                LevelObjects = new LevelObjects(LvlVersion);
+
+                LevelObjects.Deserialize(reader);
+                
+                Console.WriteLine($"LEFT: {reader.BaseStream.Length - reader.BaseStream.Position}");
+
                 return;
             }
 

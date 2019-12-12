@@ -13,8 +13,8 @@ namespace InfectedRose.Terrain
         public int ChunkCountX { get; set; }
 
         public int ChunkCountY { get; set; }
-        
-        public byte[] UnknownHeader { get; set; }
+
+        public byte[] UnknownHeader { get; set; } = {0x20, 0x00, 0x00};
 
         public void Serialize(BitWriter writer)
         {
