@@ -10,6 +10,26 @@ namespace InfectedRose.Database
         internal FdbRowInfo Data { get; private set; }
         
         internal Table Table { get; private set; }
+
+        public int Key
+        {
+            get
+            {
+                var key = this[0].Value;
+
+                var index = key switch
+                {
+                    int keyInt => keyInt,
+                    string val => (int) Hash(val.Select(k => (byte) k).ToArray()),
+                    FdbString keyStr => (int) Hash(keyStr.Value.Select(k => (byte) k).ToArray()),
+                    long lon => (int) lon,
+                    FdbBitInt bitInt => (int) bitInt.Value,
+                    _ => throw new ArgumentException($"Invalid primary key: [{key.GetType()}] {key}")
+                };
+
+                return index;
+            }
+        }
         
         internal Column(FdbRowInfo data, Table table)
         {
@@ -110,6 +130,58 @@ namespace InfectedRose.Database
 
                 return new Field(Data.DataHeader.Data, index, Table);
             }
+        }
+        
+        private static uint Hash(byte[] dataToHash)
+        {
+            var dataLength = dataToHash.Length;
+            if (dataLength == 0)
+                return 0;
+
+            var hash = Convert.ToUInt32(dataLength);
+            var remainingBytes = dataLength & 3; // mod 4
+            var numberOfLoops = dataLength >> 2; // div 4
+            var currentIndex = 0;
+            while (numberOfLoops > 0)
+            {
+                hash += BitConverter.ToUInt16(dataToHash, currentIndex);
+                var tmp = (uint) (BitConverter.ToUInt16(dataToHash, currentIndex + 2) << 11) ^ hash;
+                hash = (hash << 16) ^ tmp;
+                hash += hash >> 11;
+                currentIndex += 4;
+                numberOfLoops--;
+            }
+
+            switch (remainingBytes)
+            {
+                case 3:
+                    hash += BitConverter.ToUInt16(dataToHash, currentIndex);
+                    hash ^= hash << 16;
+                    hash ^= ((uint) dataToHash[currentIndex + 2]) << 18;
+                    hash += hash >> 11;
+                    break;
+                case 2:
+                    hash += BitConverter.ToUInt16(dataToHash, currentIndex);
+                    hash ^= hash << 11;
+                    hash += hash >> 17;
+                    break;
+                case 1:
+                    hash += dataToHash[currentIndex];
+                    hash ^= hash << 10;
+                    hash += hash >> 1;
+                    break;
+                default:
+                    break;
+            }
+
+            hash ^= hash << 3;
+            hash += hash >> 5;
+            hash ^= hash << 4;
+            hash += hash >> 17;
+            hash ^= hash << 25;
+            hash += hash >> 6;
+
+            return hash;
         }
     }
 }

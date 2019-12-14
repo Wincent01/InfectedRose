@@ -1,3 +1,4 @@
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -12,23 +13,6 @@ namespace InfectedRose.Database
         }
 
         public (FdbColumnHeader info, FdbRowBucket data)[] Tables { get; set; }
-
-        internal override void Compile(DatabaseFile databaseFile)
-        {
-            databaseFile.Structure.Add(this);
-
-            for (var i = 0; i < Tables.Length; i++)
-            {
-                databaseFile.Structure.Add(Tables[i].info);
-                databaseFile.Structure.Add(Tables[i].data);
-            }
-
-            for (var i = 0; i < Tables.Length; i++)
-            {
-                Tables[i].data.Compile(databaseFile);
-                Tables[i].info.Compile(databaseFile);
-            }
-        }
 
         public override void Deserialize(BitReader reader)
         {
@@ -47,6 +31,23 @@ namespace InfectedRose.Database
                     Tables[i].data = new FdbRowBucket();
                     Tables[i].data.Deserialize(reader);
                 }
+            }
+        }
+
+        public override void Compile(HashMap map)
+        {
+            map += this;
+
+            for (var i = 0; i < Tables.Length; i++)
+            {
+                map += Tables[i].info;
+                map += Tables[i].data;
+            }
+
+            for (var i = 0; i < Tables.Length; i++)
+            {
+                Tables[i].data.Compile(map);
+                Tables[i].info.Compile(map);
             }
         }
     }

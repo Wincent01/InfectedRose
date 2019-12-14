@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using InfectedRose.Core;
 using RakDotNet.IO;
@@ -9,7 +8,7 @@ namespace InfectedRose.Lvl
     {
         public IdStruct[] Identifiers { get; set; }
 
-        public string[] SkyFilesPaths { get; set; } = new string[6];
+        public string[] Skybox { get; set; } = new string[6];
         
         public float[] UnknownFloatArray0 { get; set; }
 
@@ -72,7 +71,7 @@ namespace InfectedRose.Lvl
 
             for (var i = 0; i < 6; i++)
             {
-                writer.WriteNiString(SkyFilesPaths[i]);
+                writer.WriteNiString(Skybox[i]);
             }
 
             return stream.ToArray();
@@ -127,7 +126,7 @@ namespace InfectedRose.Lvl
             
             for (var i = 0; i < 6; i++)
             {
-                SkyFilesPaths[i] = reader.ReadNiString();
+                Skybox[i] = reader.ReadNiString();
             }
 
             reader.BaseStream.Position = otherSectionAddress;

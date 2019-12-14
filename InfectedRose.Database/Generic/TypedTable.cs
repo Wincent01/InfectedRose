@@ -46,13 +46,6 @@ namespace InfectedRose.Database.Generic
                 return instance;
             }
         }
-
-        public new T Create()
-        {
-            base.Create(out var index, default);
-
-            return this[index];
-        }
         
         public void Save()
         {

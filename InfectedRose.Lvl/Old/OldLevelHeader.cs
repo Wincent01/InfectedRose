@@ -13,37 +13,106 @@ namespace InfectedRose.Lvl.Old
 
         public float UnknownFloat { get; set; } = 10f;
 
-        public byte[][] UnknownByteArrays { get; set; } = {
-            new byte[12],
-            new byte[12],
-            new byte[12]
-        };
-        
-        public float[] UnknownFloats { get; set; } = new float[12];
-        
-        public OldUnknownStruct[] UnknownStructs { get; set; }
+        public IdStruct[] UnknownStructArray { get; set; } = new IdStruct[0];
 
-        public float[] UnknownFloats1 { get; set; } = new float[2];
+        public float[] UnknownFloatArray { get; set; } = new float[12];
         
-        public byte[] UnknownByteArray { get; set; } = new byte[12];
+        public float[] UnknownFloatArray1 { get; set; } = new float[12];
+
+        public float[] UnknownFloatArray2 { get; set; } = new float[2];
         
-        public byte[] UnknownByteArray1 { get; set; } = new byte[12];
+        public float[] UnknownFloatArray3 { get; set; } = new float[3];
         
+        public float[] UnknownFloatArray4 { get; set; } = new float[3];
+        
+        public float[] UnknownFloatArray5 { get; set; } = new float[4];
+
         public Vector3 UnknownVector3 { get; set; }
-        
-        public byte[] UnknownByteArray2 { get; set; } = new byte[16];
 
         public string[] SkyBox { get; set; } = new string[6];
         
         public uint UnknownInt { get; set; }
         
         public uint UnknownInt1 { get; set; }
-        
-        public Vector3[] UnknownVectors { get; set; }
+
+        public Vector3[] UnknownVectorArray { get; set; } = new Vector3[0];
         
         public void Serialize(BitWriter writer)
         {
+            writer.Write(LvlVersion);
             
+            writer.Write(LvlVersion);
+
+            writer.Write<byte>(0);
+
+            if (LvlVersion >= 37)
+            {
+                writer.Write(Revision);
+            }
+
+            if (LvlVersion >= 45)
+            {
+                writer.Write(UnknownFloat);
+            }
+
+            writer.Write(UnknownFloatArray);
+
+            if (LvlVersion >= 31)
+            {
+                if (LvlVersion >= 39)
+                {
+                    writer.Write(UnknownFloatArray1);
+                    
+                    if (LvlVersion >= 40)
+                    {
+                        writer.Write((uint) UnknownStructArray.Length);
+
+                        foreach (var unknownStruct in UnknownStructArray)
+                        {
+                            unknownStruct.Serialize(writer);
+                        }
+                    }
+                }
+                else
+                {
+                    writer.Write(UnknownFloatArray2);
+                }
+
+                writer.Write(UnknownFloatArray3);
+            }
+
+            if (LvlVersion >= 36)
+            {
+                writer.Write(UnknownFloatArray4);
+            }
+
+            if (LvlVersion < 42)
+            {
+                writer.Write(UnknownVector3);
+
+                if (LvlVersion >= 33)
+                {
+                    writer.Write(UnknownFloatArray5);
+                }
+            }
+
+            foreach (var sky in SkyBox)
+            {
+                writer.WriteNiString(sky);
+            }
+
+            writer.Write(UnknownInt);
+
+            if (LvlVersion > 36)
+            {
+                writer.Write((uint) UnknownVectorArray.Length);
+
+                writer.Write(UnknownVectorArray);
+            }
+            else
+            {
+                writer.Write(UnknownInt1);
+            }
         }
 
         public void Deserialize(BitReader reader)
@@ -66,15 +135,12 @@ namespace InfectedRose.Lvl.Old
 
             if (LvlVersion >= 45)
             {
-                if (reader.ReadBit())
-                {
-                    UnknownFloat = reader.Read<float>();
-                }
+                UnknownFloat = reader.Read<float>();
             }
 
-            for (var i = 0; i < 4 * 3; i++)
+            for (var i = 0; i < 12; i++)
             {
-                reader.Read<float>();
+                UnknownFloatArray[i] = reader.Read<float>();
             }
             
             if (LvlVersion >= 31)
@@ -83,20 +149,20 @@ namespace InfectedRose.Lvl.Old
                 {
                     for (var i = 0; i < 12; i++)
                     {
-                        UnknownFloats[i] = reader.Read<float>();
+                        UnknownFloatArray1[i] = reader.Read<float>();
                     }
 
                     if (LvlVersion >= 40)
                     {
-                        UnknownStructs = new OldUnknownStruct[reader.Read<uint>()];
+                        UnknownStructArray = new IdStruct[reader.Read<uint>()];
 
-                        for (var i = 0; i < UnknownStructs.Length; i++)
+                        for (var i = 0; i < UnknownStructArray.Length; i++)
                         {
-                            var unknownStruct = new OldUnknownStruct();
+                            var unknownStruct = new IdStruct();
 
                             unknownStruct.Deserialize(reader);
 
-                            UnknownStructs[i] = unknownStruct;
+                            UnknownStructArray[i] = unknownStruct;
                         }
                     }
                 }
@@ -104,13 +170,13 @@ namespace InfectedRose.Lvl.Old
                 {
                     for (var i = 0; i < 2; i++)
                     {
-                        UnknownFloats1[i] = reader.Read<float>();
+                        UnknownFloatArray2[i] = reader.Read<float>();
                     }
                 }
 
                 for (var i = 0; i < 3; i++)
                 {
-                    reader.Read<float>();
+                     UnknownFloatArray3[i] = reader.Read<float>();
                 }
             }
 
@@ -118,7 +184,7 @@ namespace InfectedRose.Lvl.Old
             {
                 for (var i = 0; i < 3; i++)
                 {
-                    reader.Read<float>();
+                    UnknownFloatArray4[i] = reader.Read<float>();
                 }
             }
 
@@ -130,7 +196,7 @@ namespace InfectedRose.Lvl.Old
                 {
                     for (var i = 0; i < 4; i++)
                     {
-                        reader.Read<float>();
+                        UnknownFloatArray5[i] = reader.Read<float>();
                     }
                 }
             }
@@ -144,11 +210,11 @@ namespace InfectedRose.Lvl.Old
             
             if (LvlVersion > 36)
             {
-                UnknownVectors = new Vector3[reader.Read<uint>()];
+                UnknownVectorArray = new Vector3[reader.Read<uint>()];
 
-                for (var i = 0; i < UnknownVectors.Length; i++)
+                for (var i = 0; i < UnknownVectorArray.Length; i++)
                 {
-                    UnknownVectors[i] = reader.Read<Vector3>();
+                    UnknownVectorArray[i] = reader.Read<Vector3>();
                 }
             }
             else

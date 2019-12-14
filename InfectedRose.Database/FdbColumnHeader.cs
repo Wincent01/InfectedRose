@@ -1,3 +1,4 @@
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -7,17 +8,6 @@ namespace InfectedRose.Database
         public FdbString TableName { get; set; }
 
         public FdbColumnData Data { get; set; }
-
-        internal override void Compile(DatabaseFile databaseFile)
-        {
-            databaseFile.Structure.Add(this);
-            databaseFile.Structure.Add((uint) Data.Fields.Length);
-            databaseFile.Structure.Add(TableName);
-            databaseFile.Structure.Add(Data);
-
-            TableName.Compile(databaseFile);
-            Data.Compile(databaseFile);
-        }
 
         public override void Deserialize(BitReader reader)
         {
@@ -36,6 +26,17 @@ namespace InfectedRose.Database
         public override string ToString()
         {
             return TableName;
+        }
+
+        public override void Compile(HashMap map)
+        {
+            map += this;
+            map += (uint) Data.Fields.Length;
+            map += TableName;
+            map += Data;
+
+            TableName.Compile(map);
+            Data.Compile(map);
         }
     }
 }

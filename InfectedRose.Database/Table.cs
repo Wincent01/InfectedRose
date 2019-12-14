@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace InfectedRose.Database
 {
@@ -91,31 +92,38 @@ namespace InfectedRose.Database
         public bool Remove(Column item)
         {
             if (item == default) return false;
-            
-            foreach (var info in Data.RowHeader.RowInfos)
+
+            for (var index = 0; index < Data.RowHeader.RowInfos.Length; index++)
             {
+                var info = Data.RowHeader.RowInfos[index];
+                
                 var linked = info;
+
+                if (linked == default)
+                {
+                    continue;
+                }
 
                 if (linked == item.Data)
                 {
-                    var fields = Data.RowHeader.RowInfos.ToList();
+                    var keep = linked.Linked;
 
-                    fields.Remove(linked);
-
-                    Data.RowHeader.RowInfos = fields.ToArray();
+                    Data.RowHeader.RowInfos[index] = keep;
 
                     return true;
                 }
-
+                
                 while (linked != default)
                 {
                     if (linked.Linked == item.Data)
                     {
-                        linked.Linked = default;
+                        var keep = linked.Linked.Linked;
+
+                        linked.Linked = keep;
 
                         return true;
                     }
-                    
+
                     linked = linked.Linked;
                 }
             }
@@ -154,11 +162,29 @@ namespace InfectedRose.Database
             set => throw new NotSupportedException();
         }
 
-        public Column Create() => Create(null);
+        public Column Create()
+        {
+            if (TableInfo[0].Type != DataType.Integer)
+            {
+                throw new NotSupportedException("AccessDatabase can only generate primary keys for Int32 types.");
+            }
+
+            var max = Count > 0 ? this.Max(c => c.Key) : 0;
+
+            for (var i = 1; i < max; i++)
+            {
+                if (this.All(c => c.Key != i))
+                {
+                    return Create(i);
+                }
+            }
+
+            return Create(max + 1);
+        }
         
-        public Column Create(object values) => Create(out _, values);
+        public Column Create(object key) => Create(key, null);
         
-        public Column Create(out int index, object values)
+        public Column Create(object key, object values)
         {
             var list = Data.RowHeader.RowInfos.ToList();
 
@@ -177,31 +203,195 @@ namespace InfectedRose.Database
                 column.DataHeader.Data.Fields[i] = (type, GetDefault(type));
             }
 
-            index = list.Count;
+            var primaryKey = GetKey(key) % (list.Count > 0 ? list.Count : 1);
+            
+            Console.WriteLine($"Creating row: {key} -> {primaryKey}");
+
+            if (list.Count > 0)
+            {
+                var bucket = list[primaryKey];
+
+                if (bucket == default)
+                {
+                    list[primaryKey] = column;
+                    
+                    goto found;
+                }
+
+                while (true)
+                {
+                    if (bucket.Linked == default)
+                    {
+                        bucket.Linked = column;
+                        
+                        goto found;
+                    }
+
+                    bucket = bucket.Linked;
+                }
+            }
             
             list.Add(column);
+            
+            found:
 
+            column.DataHeader.Data.Fields[0].value = key;
+            
             Data.RowHeader.RowInfos = list.ToArray();
+
+            if (values == default) return new Column(column, this);
+
+            var col = new Column(column, this);
             
             foreach (var property in values.GetType().GetProperties())
             {
                 var id = property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
 
                 var value = property.GetValue(values);
-                
+
                 if (value is null)
                 {
-                    this[index][id].Type = DataType.Nothing;
+                    col[id].Type = DataType.Nothing;
 
                     value = 0;
                 }
-                
-                this[index][id].Value = value;
+
+                col[id].Value = value;
             }
-            
+
             return new Column(column, this);
         }
 
+        /// <summary>
+        ///     Warning! Work in progress, might brake table.
+        /// </summary>
+        /// <returns></returns>
+        public async Task RecalculateRows()
+        {
+            var list = new List<(int, List<FdbRowInfo>)>();
+            
+            var buckets = FdbRowBucket.NextPowerOf2(this.Max(m => m.Key));
+
+            var tasks = this.Select(row => Task.Run(() =>
+            {
+                var key = (int) (row.Key % buckets);
+                
+                (int, List<FdbRowInfo>) index;
+
+                lock (list)
+                {
+                    index = list.FirstOrDefault(l => l.Item1 == key);
+
+                    if (index == default)
+                    {
+                        index = (key, new List<FdbRowInfo>());
+                        list.Add(index);
+                    }
+                }
+
+                lock (index.Item2)
+                {
+                    index.Item2.Add(row.Data);
+                }
+            })).ToList();
+
+            await Task.WhenAll(tasks);
+
+            foreach (var row in this.ToArray())
+            {
+                row.Data.Linked = default;
+            }
+
+            var final = new FdbRowInfo[buckets];
+
+            foreach (var (id, rows) in list)
+            {
+                var original = rows[0];
+
+                var top = original;
+
+                rows.RemoveAt(0);
+
+                foreach (var row in rows)
+                {
+                    top.Linked = row;
+
+                    top = row;
+                }
+
+                final[id] = original;
+            }
+
+            Data.RowHeader.RowInfos = final.ToArray();
+        }
+
+        private static int GetKey(object key)
+        {
+            var index = key switch
+            {
+                int keyInt => keyInt,
+                string val => (int) Hash(val.Select(k => (byte) k).ToArray()),
+                FdbString keyStr => (int) Hash(keyStr.Value.Select(k => (byte) k).ToArray()),
+                long lon => (int) lon,
+                FdbBitInt bitInt => (int) bitInt.Value,
+                _ => throw new ArgumentException($"Invalid primary key: [{key.GetType()}] {key}")
+            };
+
+            return index;
+        }
+        
+        private static uint Hash(byte[] dataToHash)
+        {
+            var dataLength = dataToHash.Length;
+            if (dataLength == 0)
+                return 0;
+
+            var hash = Convert.ToUInt32(dataLength);
+            var remainingBytes = dataLength & 3; // mod 4
+            var numberOfLoops = dataLength >> 2; // div 4
+            var currentIndex = 0;
+            while (numberOfLoops > 0)
+            {
+                hash += BitConverter.ToUInt16(dataToHash, currentIndex);
+                var tmp = (uint) (BitConverter.ToUInt16(dataToHash, currentIndex + 2) << 11) ^ hash;
+                hash = (hash << 16) ^ tmp;
+                hash += hash >> 11;
+                currentIndex += 4;
+                numberOfLoops--;
+            }
+
+            switch (remainingBytes)
+            {
+                case 3:
+                    hash += BitConverter.ToUInt16(dataToHash, currentIndex);
+                    hash ^= hash << 16;
+                    hash ^= ((uint) dataToHash[currentIndex + 2]) << 18;
+                    hash += hash >> 11;
+                    break;
+                case 2:
+                    hash += BitConverter.ToUInt16(dataToHash, currentIndex);
+                    hash ^= hash << 11;
+                    hash += hash >> 17;
+                    break;
+                case 1:
+                    hash += dataToHash[currentIndex];
+                    hash ^= hash << 10;
+                    hash += hash >> 1;
+                    break;
+                default:
+                    break;
+            }
+
+            hash ^= hash << 3;
+            hash += hash >> 5;
+            hash ^= hash << 4;
+            hash += hash >> 17;
+            hash ^= hash << 25;
+            hash += hash >> 6;
+
+            return hash;
+        }
+        
         private object GetDefault(DataType type)
         {
             return type switch

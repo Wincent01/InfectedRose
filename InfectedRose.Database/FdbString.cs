@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Text;
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -17,12 +19,16 @@ namespace InfectedRose.Database
             return Value;
         }
 
-        internal override void Compile(DatabaseFile databaseFile)
+        public override void Compile(HashMap map)
         {
-            databaseFile.Structure.Add(this);
-            foreach (var c in Value) databaseFile.Structure.Add((byte) c);
+            map += (this);
 
-            databaseFile.Structure.Add((byte) 0);
+            if (Value != default)
+            {
+                map = Value.Aggregate(map, (current, c) => current + (byte) c);
+            }
+
+            map.Add((byte) 0);
         }
 
         public override void Deserialize(BitReader reader)

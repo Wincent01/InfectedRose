@@ -1,4 +1,5 @@
 using System;
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -7,15 +8,6 @@ namespace InfectedRose.Database
     {
         public FdbRowHeader RowHeader { get; set; }
 
-        internal override void Compile(DatabaseFile databaseFile)
-        {
-            databaseFile.Structure.Add(this);
-            databaseFile.Structure.Add(NextPowerOf2(RowHeader.RowInfos.Length));
-            
-            databaseFile.Structure.Add(RowHeader);
-
-            RowHeader?.Compile(databaseFile);
-        }
 
         public override void Deserialize(BitReader reader)
         {
@@ -33,8 +25,6 @@ namespace InfectedRose.Database
         {
             var count = 0;
 
-            // First n in the below condition  
-            // is for the case where n is 0  
             if (n > 0 && (n & (n - 1)) == 0)
                 return (uint) n;
 
@@ -45,6 +35,16 @@ namespace InfectedRose.Database
             }
 
             return (uint) (1 << count);
+        }
+
+        public override void Compile(HashMap map)
+        {
+            map += this;
+            map += NextPowerOf2(RowHeader.RowInfos.Length);
+            
+            map += RowHeader;
+
+            RowHeader?.Compile(map);
         }
     }
 }

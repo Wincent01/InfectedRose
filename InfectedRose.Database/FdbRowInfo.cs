@@ -1,3 +1,4 @@
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -7,20 +8,6 @@ namespace InfectedRose.Database
         public FdbRowDataHeader DataHeader { get; set; }
 
         public FdbRowInfo Linked { get; set; }
-
-        internal override void Compile(DatabaseFile databaseFile)
-        {
-            databaseFile.Structure.Add(this);
-            databaseFile.Structure.Add(DataHeader);
-            
-            if (Linked == default)
-                databaseFile.Structure.Add(-1);
-            else
-                databaseFile.Structure.Add(Linked);
-
-            DataHeader?.Compile(databaseFile);
-            Linked?.Compile(databaseFile);
-        }
 
         public override void Deserialize(BitReader reader)
         {
@@ -42,6 +29,20 @@ namespace InfectedRose.Database
 
                 Linked.Deserialize(reader);
             }
+        }
+
+        public override void Compile(HashMap map)
+        {
+            map += this;
+            map += DataHeader;
+            
+            if (Linked == default)
+                map += -1;
+            else
+                map += Linked;
+
+            DataHeader?.Compile(map);
+            Linked?.Compile(map);
         }
     }
 }

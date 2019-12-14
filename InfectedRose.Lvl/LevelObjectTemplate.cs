@@ -1,4 +1,3 @@
-using System;
 using System.Numerics;
 using InfectedRose.Core;
 using RakDotNet.IO;
@@ -50,7 +49,7 @@ namespace InfectedRose.Lvl
 
             writer.Write(Scale);
 
-            writer.WriteNiString(LegoInfo.ToString(), true);
+            writer.WriteNiString(LegoInfo.ToString("\n"), true);
 
             if (LvlVersion >= 0x7)
                 writer.Write(0u);

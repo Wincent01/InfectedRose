@@ -1,3 +1,4 @@
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -13,18 +14,6 @@ namespace InfectedRose.Database
 
         public (DataType type, FdbString name)[] Fields { get; set; }
 
-        internal override void Compile(DatabaseFile databaseFile)
-        {
-            databaseFile.Structure.Add(this);
-            for (var i = 0; i < Fields.Length; i++)
-            {
-                databaseFile.Structure.Add((uint) Fields[i].type);
-                databaseFile.Structure.Add(Fields[i].name);
-            }
-
-            foreach (var s in Fields) s.name.Compile(databaseFile);
-        }
-
         public override void Deserialize(BitReader reader)
         {
             Fields = new (DataType type, FdbString name)[_columnCount];
@@ -36,6 +25,18 @@ namespace InfectedRose.Database
                 Fields[i].name = new FdbString();
                 Fields[i].name.Deserialize(reader);
             }
+        }
+
+        public override void Compile(HashMap map)
+        {
+            map += this;
+            for (var i = 0; i < Fields.Length; i++)
+            {
+                map += (uint) Fields[i].type;
+                map += Fields[i].name;
+            }
+
+            foreach (var s in Fields) s.name.Compile(map);
         }
     }
 }

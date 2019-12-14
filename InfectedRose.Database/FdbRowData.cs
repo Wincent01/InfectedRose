@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
@@ -12,21 +13,6 @@ namespace InfectedRose.Database
         }
         
         public (DataType type, object value)[] Fields { get; set; }
-
-        internal override void Compile(DatabaseFile databaseFile)
-        {
-            databaseFile.Structure.Add(this);
-
-            for (var i = 0; i < Fields.Length; i++)
-            {
-                databaseFile.Structure.Add((uint) Fields[i].type);
-                databaseFile.Structure.Add(Fields[i].value);
-            }
-
-            foreach (var o in Fields.Where(f => f.type != DataType.Nothing))
-                if (o.value is DatabaseData data)
-                    data.Compile(databaseFile);
-        }
 
         public override void Deserialize(BitReader reader)
         {
@@ -76,6 +62,21 @@ namespace InfectedRose.Database
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        public override void Compile(HashMap map)
+        {
+            map += this;
+
+            for (var i = 0; i < Fields.Length; i++)
+            {
+                map += (uint) Fields[i].type;
+                map += Fields[i].value;
+            }
+
+            foreach (var o in Fields.Where(f => f.type != DataType.Nothing))
+                if (o.value is DatabaseData data)
+                    data.Compile(map);
         }
     }
 }

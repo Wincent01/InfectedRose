@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using InfectedRose.Core;
@@ -26,22 +25,17 @@ namespace InfectedRose.Lvl
         
         public void Serialize(BitWriter writer)
         {
-            var levelInfoData = WriteChunk(LevelInfo);
-            var levelSkyData = WriteChunk(LevelSkyConfig);
-            var levelObjectsData = WriteChunk(LevelObjects);
-            var levelEnvData = WriteChunk(LevelEnvironmentConfig);
+            if (OldLevelHeader == default)
+                throw new NotSupportedException("Writing new level files is not yet supported.");
 
-            Console.WriteLine($"{levelInfoData.Length} - {levelSkyData.Length} - {levelObjectsData.Length} - {levelEnvData.Length}");
-        }
+            OldLevelHeader.Serialize(writer);
 
-        private static byte[] WriteChunk(IConstruct chunk)
-        {
-            using var stream = new MemoryStream();
-            using var writer = new BitWriter(stream);
-            
-            chunk.Serialize(writer);
-            
-            return stream.ToArray();
+            LevelObjects.LvlVersion = OldLevelHeader.LvlVersion;
+
+            LevelObjects.Serialize(writer);
+
+            writer.Write<byte>(0);
+            writer.Write<byte>(0);
         }
 
         public void Deserialize(BitReader reader)
@@ -58,13 +52,9 @@ namespace InfectedRose.Lvl
 
                 LvlVersion = OldLevelHeader.LvlVersion;
                 
-                Console.WriteLine($"VERSION: {LvlVersion}");
-
                 LevelObjects = new LevelObjects(LvlVersion);
 
                 LevelObjects.Deserialize(reader);
-                
-                Console.WriteLine($"LEFT: {reader.BaseStream.Length - reader.BaseStream.Position}");
 
                 return;
             }
@@ -153,6 +143,11 @@ namespace InfectedRose.Lvl
                 
                 Console.WriteLine($"[END] -> {reader.BaseStream.Position}");
             }
+        }
+
+        public void ConvertToOld(ushort version = 39)
+        {
+            OldLevelHeader = new OldLevelHeader {LvlVersion = version, SkyBox = LevelSkyConfig.Skybox};
         }
     }
 }
