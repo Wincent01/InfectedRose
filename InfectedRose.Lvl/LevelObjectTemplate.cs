@@ -61,10 +61,10 @@ namespace InfectedRose.Lvl
 
             Lot = reader.Read<int>();
             
-            if (LvlVersion >= 38)
+            if (LvlVersion >= 0x26)
                 AssetType = reader.Read<uint>();
 
-            if (LvlVersion >= 32)
+            if (LvlVersion >= 0x20)
                 UnknownInt = reader.Read<uint>();
 
             Position = reader.Read<Vector3>();
@@ -80,7 +80,7 @@ namespace InfectedRose.Lvl
                 LegoInfo = LegoDataDictionary.FromString(legoInfo);
             }
 
-            if (LvlVersion >= 7)
+            if (LvlVersion >= 0x7)
                 UnknownInt1 = reader.Read<uint>();
         }
     }

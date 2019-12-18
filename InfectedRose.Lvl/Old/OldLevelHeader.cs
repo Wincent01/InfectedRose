@@ -98,7 +98,7 @@ namespace InfectedRose.Lvl.Old
 
             foreach (var sky in SkyBox)
             {
-                writer.WriteNiString(sky);
+                writer.WriteNiString(sky ?? "(invalid)");
             }
 
             writer.Write(UnknownInt);

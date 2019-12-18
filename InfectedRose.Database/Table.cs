@@ -268,61 +268,105 @@ namespace InfectedRose.Database
         /// <returns></returns>
         public async Task RecalculateRows()
         {
-            var list = new List<(int, List<FdbRowInfo>)>();
+            Console.WriteLine($"CORRECT: {Data.RowHeader.RowInfos.Length}");
+
+            var taken = new List<int>();
             
-            var buckets = FdbRowBucket.NextPowerOf2(this.Max(m => m.Key));
+            var all = new Dictionary<int, int>();
 
-            var tasks = this.Select(row => Task.Run(() =>
+            foreach (var row in this)
             {
-                var key = (int) (row.Key % buckets);
-                
-                (int, List<FdbRowInfo>) index;
-
-                lock (list)
+                if (!all.ContainsKey(row.Key))
                 {
-                    index = list.FirstOrDefault(l => l.Item1 == key);
+                    all[row.Key] = 0;
+                }
+                
+                all[row.Key] += 1;
+                
+                if (taken.Contains(row.Key)) continue;
 
-                    if (index == default)
+                taken.Add(row.Key);
+            }
+
+            var buckets = (int) FdbRowBucket.NextPowerOf2(taken.Count);
+            
+            Console.WriteLine($"Buckets: {taken.Count} | {all.Values.Max()} | {buckets}");
+            
+            var num = FdbRowBucket.NextPowerOf2(buckets);
+
+            var final = new FdbRowInfo[num];
+
+            var data = this.ToArray();
+
+            foreach (var column in data)
+            {
+                column.Data.Linked = default;
+            }
+            
+            for (var i = 0; i < num; i++)
+            {
+                /*
+                var correct = 0;
+
+                var ids = new List<int>();
+                */
+
+                for (var j = 0; j < data.Length; j++)
+                {
+                    var index = data[j].Key;
+                    
+                    var og = index;
+
+                    if (i % num == index % buckets)
                     {
-                        index = (key, new List<FdbRowInfo>());
-                        list.Add(index);
+                        //correct++;
+
+                        var bucket = final[index % buckets];
+                        
+                        if (bucket != default)
+                        {
+                            var linked = bucket;
+
+                            while (linked.Linked != default)
+                            {
+                                linked = linked.Linked;
+                            }
+
+                            linked.Linked = data[j].Data;
+                        }
+                        else
+                        {
+                            final[index % buckets] = data[j].Data;
+                        }
+                        
+                        //ids.Add(og);
                     }
                 }
+                
+                //Console.Write($"{list[i].Item1} [{string.Join(";", list[i].Item2)}]");
 
-                lock (index.Item2)
-                {
-                    index.Item2.Add(row.Data);
-                }
-            })).ToList();
-
-            await Task.WhenAll(tasks);
-
-            foreach (var row in this.ToArray())
-            {
-                row.Data.Linked = default;
+                //Console.Write($"{compare[i]} -> {correct} [{string.Join(";", ids)}]\n");
             }
-
-            var final = new FdbRowInfo[buckets];
-
-            foreach (var (id, rows) in list)
-            {
-                var original = rows[0];
-
-                var top = original;
-
-                rows.RemoveAt(0);
-
-                foreach (var row in rows)
-                {
-                    top.Linked = row;
-
-                    top = row;
-                }
-
-                final[id] = original;
-            }
-
+            
             Data.RowHeader.RowInfos = final.ToArray();
+            
+            //Console.WriteLine($"\n\n\nNEW:\n\n\n");
+
+            foreach (var info in Data.RowHeader.RowInfos)
+            {
+                var count = 0;
+                
+                var top = info;
+
+                while (top != default)
+                {
+                    top = top.Linked;
+
+                    count++;
+                }
+                
+                Console.WriteLine($"{count}");
+            }
         }
 
         private static int GetKey(object key)

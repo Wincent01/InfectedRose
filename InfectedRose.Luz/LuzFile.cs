@@ -29,10 +29,10 @@ namespace InfectedRose.Luz
         public string TerrainDescription { get; set; }
 
         public LuzSceneTransition[] Transitions { get; set; }
-
-        public LuzPathData[] PathData { get; set; }
         
-        //public LvlFile[] LvlFiles { get; set; }
+        public uint PathFormatVersion { get; set; }
+        
+        public LuzPathData[] PathData { get; set; }
 
         public void Serialize(BitWriter writer)
         {
@@ -99,11 +99,13 @@ namespace InfectedRose.Luz
         private void WritePaths(BitWriter writer)
         {
             writer.BaseStream.Position += 4;
+
+            writer.Write(PathFormatVersion);
+
+            writer.Write((uint) (PathData?.Length ?? 0));
+
+            if (PathData == default) return;
             
-            writer.Write((uint) 1);
-
-            writer.Write((uint) PathData.Length);
-
             foreach (var pathData in PathData)
             {
                 writer.Write(pathData.Version);
@@ -145,14 +147,11 @@ namespace InfectedRose.Luz
             var sceneCount = Version < 0x25 ? reader.Read<byte>() : reader.Read<uint>();
             
             Scenes = new LuzScene[sceneCount];
-            //LvlFiles = new LvlFile[sceneCount];
 
             for (var i = 0; i < sceneCount; i++)
             {
                 Scenes[i] = new LuzScene();
                 Scenes[i].Deserialize(reader);
-                
-                //LvlFiles[i] = new LvlFile($"{Path.GetDirectoryName(path)}/{Scenes[i].FileName}");
             }
 
             UnknownByte = reader.Read<byte>();
@@ -178,8 +177,8 @@ namespace InfectedRose.Luz
 
             if (Version < 0x23) return;
             {
-                Console.WriteLine(reader.Read<uint>());
                 reader.Read<uint>();
+                PathFormatVersion = reader.Read<uint>();
                 
                 var pathDataCount = reader.Read<uint>();
                 
@@ -190,8 +189,8 @@ namespace InfectedRose.Luz
                     var version = reader.Read<uint>();
                     var name = reader.ReadNiString(true, true);
                     var type = (PathType) reader.Read<uint>();
-                        
-                    Console.WriteLine($"[{i}:{name}] -> [{type}]");
+                    
+                    //Console.WriteLine($"[{i}:{name}] -> [{type}]");
 
                     PathData[i] = type switch
                     {

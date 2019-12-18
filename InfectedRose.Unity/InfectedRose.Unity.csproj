@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InfectedRose.Luz\InfectedRose.Luz.csproj" />
+      <ProjectReference Include="..\InfectedRose.Lvl\InfectedRose.Lvl.csproj" />
+    </ItemGroup>
+
+</Project>

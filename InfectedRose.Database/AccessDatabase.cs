@@ -188,6 +188,8 @@ namespace InfectedRose.Database
                         max = index;
                     }
                 }
+
+                var count = table.Data.RowHeader.RowInfos.Length;
                 
                 Console.WriteLine($"LEN: {list.Count} {FdbRowBucket.NextPowerOf2(max)}");
 
@@ -221,7 +223,9 @@ namespace InfectedRose.Database
 
                         var og = index;
 
-                        if (i % num == index % list.Count)
+                        Console.Write($"INDEX {(index % count)}\n");
+                        
+                        if (i % num == index % count)
                         {
                             correct++;
 
@@ -231,12 +235,9 @@ namespace InfectedRose.Database
 
                     if (list.Count > i + 1)
                     {
-                        if (list[i].Item1 != correct || list[i].Item2.Any(i1 => !ids.Contains(i1)))
-                        {
-                            Console.Write($"{list[i].Item1} [{string.Join(";", list[i].Item2)}]");
+                        Console.Write($"{list[i].Item1} [{string.Join(";", list[i].Item2)}]");
 
-                            Console.Write($" -> {correct} [{string.Join(";", ids)}]\n");
-                        }
+                        Console.Write($" -> {correct} [{string.Join(";", ids)}]\n");
                     }
                 }
             }
@@ -258,7 +259,7 @@ namespace InfectedRose.Database
                 tasks[index] = Task.Run(async () =>
                 {
                     var table = this[savedIndex];
-                
+                    
                     await table.RecalculateRows();
                     
                     Console.WriteLine($"{table.Name} '{table.Count}' [{++completed}/{Count}]");
