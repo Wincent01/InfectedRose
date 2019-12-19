@@ -71,7 +71,17 @@ namespace InfectedRose.Database
             for (var i = 0; i < Fields.Length; i++)
             {
                 map += (uint) Fields[i].type;
-                map += Fields[i].value;
+
+                switch (Fields[i].type)
+                {
+                    case DataType.Boolean:
+                        var b = (bool) Fields[i].value;
+                        map += b ? 1 : 0;
+                        break;
+                    default:
+                        map += Fields[i].value;
+                        break;
+                }
             }
 
             foreach (var o in Fields.Where(f => f.type != DataType.Nothing))

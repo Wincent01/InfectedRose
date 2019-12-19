@@ -42,7 +42,7 @@ namespace InfectedRose.Database
             int index = default;
 
             return Data.DataHeader.Data.Fields.Select(
-                field => new Field(Data.DataHeader.Data, index++, Table)
+                field => new Field(Data.DataHeader.Data, index++, Table, this)
             ).GetEnumerator();
         }
 
@@ -68,7 +68,7 @@ namespace InfectedRose.Database
             int index = default;
             
             var list = Data.DataHeader.Data.Fields.Select(
-                field => new Field(Data.DataHeader.Data, index++, Table)
+                field => new Field(Data.DataHeader.Data, index++, Table, this)
             ).ToList();
 
             return list.Any(c => c.Data == item.Data && c.Index == item.Index);
@@ -79,7 +79,7 @@ namespace InfectedRose.Database
             int index = default;
             
             var list = Data.DataHeader.Data.Fields.Select(
-                field => new Field(Data.DataHeader.Data, index++, Table)
+                field => new Field(Data.DataHeader.Data, index++, Table, this)
             ).ToList();
 
             list.CopyTo(array, arrayIndex);
@@ -111,7 +111,7 @@ namespace InfectedRose.Database
 
         public Field this[int index]
         {
-            get => new Field(Data.DataHeader.Data, index, Table);
+            get => new Field(Data.DataHeader.Data, index, Table, this);
             set => throw new NotSupportedException("Fields should fallow the table structure, and their signature should not be changed.");
         }
 
@@ -128,7 +128,7 @@ namespace InfectedRose.Database
                     if (column.Name == name) index = i;
                 }
 
-                return new Field(Data.DataHeader.Data, index, Table);
+                return new Field(Data.DataHeader.Data, index, Table, this);
             }
         }
         

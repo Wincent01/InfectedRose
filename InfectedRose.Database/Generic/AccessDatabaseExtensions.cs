@@ -15,7 +15,7 @@ namespace InfectedRose.Database.Generic
 
             var table = @this[id];
             
-            return new TypedTable<T>(table.Info, table.Data);
+            return new TypedTable<T>(table.Info, table.Data, @this);
         }
     }
 }

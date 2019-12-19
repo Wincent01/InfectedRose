@@ -10,7 +10,7 @@ namespace InfectedRose.Database.Generic
     {
         private readonly Dictionary<T, int> _managed;
         
-        internal TypedTable(FdbColumnHeader info, FdbRowBucket data) : base(info, data)
+        internal TypedTable(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database) : base(info, data, database)
         {
             _managed = new Dictionary<T, int>();
         }

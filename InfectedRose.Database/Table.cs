@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using InfectedRose.Database.Sql;
 
 namespace InfectedRose.Database
 {
@@ -13,6 +14,8 @@ namespace InfectedRose.Database
         internal FdbColumnHeader Info { get; private set; }
         
         internal FdbRowBucket Data { get; private set; }
+        
+        internal AccessDatabase Database { get; private set; }
 
         public string Name
         {
@@ -25,10 +28,11 @@ namespace InfectedRose.Database
 
         public TableInfo TableInfo => new TableInfo(this);
         
-        internal Table(FdbColumnHeader info, FdbRowBucket data)
+        internal Table(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database)
         {
             Info = info;
             Data = data;
+            Database = database;
         }
 
         private List<Column> Fields
@@ -238,11 +242,13 @@ namespace InfectedRose.Database
             column.DataHeader.Data.Fields[0].value = key;
             
             Data.RowHeader.RowInfos = list.ToArray();
-
-            if (values == default) return new Column(column, this);
-
-            var col = new Column(column, this);
             
+            var col = new Column(column, this);
+
+            Database.RegisterSql(col.SqlInsert());
+
+            if (values == default) return col;
+
             foreach (var property in values.GetType().GetProperties())
             {
                 var id = property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
@@ -444,7 +450,7 @@ namespace InfectedRose.Database
                 DataType.Integer => 0,
                 DataType.Unknown1 => 0,
                 DataType.Float => 0,
-                DataType.Boolean => 0,
+                DataType.Boolean => false,
                 DataType.Unknown2 => 0,
                 DataType.Varchar => new FdbString(),
                 DataType.Text => new FdbString(),

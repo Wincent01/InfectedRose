@@ -1,25 +1,40 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using InfectedRose.Database.Generic;
+using RakDotNet.IO;
 
 namespace InfectedRose.Database
 {
     public class AccessDatabase : IList<Table>
     {
-        public DatabaseFile File { get; private set; }
+        public event Action<string> OnSql;
+        
+        public DatabaseFile Source { get; private set; }
 
-        public AccessDatabase(DatabaseFile file)
+        public AccessDatabase(DatabaseFile source)
         {
-            File = file;
+            Source = source;
+        }
+
+        public static async Task<AccessDatabase> OpenAsync(string file)
+        {
+            await using var stream = File.OpenRead(file);
+
+            using var reader = new BitReader(stream);
+            
+            var source = new DatabaseFile();
+
+            source.Deserialize(reader);
+
+            return new AccessDatabase(source);
         }
 
         public IEnumerator<Table> GetEnumerator()
         {
-            return File.TableHeader.Tables.Select(t => new Table(t.info, t.data)).GetEnumerator();
+            return Source.TableHeader.Tables.Select(t => new Table(t.info, t.data, this)).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -31,14 +46,14 @@ namespace InfectedRose.Database
         {
             if (item == default) return;
 
-            var list = File.TableHeader.Tables.ToList();
+            var list = Source.TableHeader.Tables.ToList();
             list.Add((item.Info, item.Data));
-            File.TableHeader.Tables = list.ToArray();
+            Source.TableHeader.Tables = list.ToArray();
         }
 
         public void Clear()
         {
-            File.TableHeader.Tables = new (FdbColumnHeader info, FdbRowBucket data)[0];
+            Source.TableHeader.Tables = new (FdbColumnHeader info, FdbRowBucket data)[0];
         }
 
         public bool Contains(Table item)
@@ -48,7 +63,7 @@ namespace InfectedRose.Database
 
         public void CopyTo(Table[] array, int arrayIndex)
         {
-            var list = File.TableHeader.Tables.Select(t => new Table(t.info, t.data)).ToList();
+            var list = Source.TableHeader.Tables.Select(t => new Table(t.info, t.data, this)).ToList();
             list.CopyTo(array, arrayIndex);
         }
 
@@ -56,18 +71,18 @@ namespace InfectedRose.Database
         {
             if (item == default) return false;
 
-            var removal = File.TableHeader.Tables.FirstOrDefault(t => t.info == item.Info && t.data == item.Data);
+            var removal = Source.TableHeader.Tables.FirstOrDefault(t => t.info == item.Info && t.data == item.Data);
 
             if (removal == default) return false;
 
-            var list = File.TableHeader.Tables.ToList();
+            var list = Source.TableHeader.Tables.ToList();
             list.Remove(removal);
-            File.TableHeader.Tables = list.ToArray();
+            Source.TableHeader.Tables = list.ToArray();
 
             return true;
         }
 
-        public int Count => File.TableHeader.Tables.Length;
+        public int Count => Source.TableHeader.Tables.Length;
 
         public bool IsReadOnly => false;
 
@@ -75,8 +90,8 @@ namespace InfectedRose.Database
         {
             if (item == default) return -1;
 
-            return File.TableHeader.Tables.ToList().IndexOf(
-                File.TableHeader.Tables.First(t => t.info == item.Info && t.data == item.Data)
+            return Source.TableHeader.Tables.ToList().IndexOf(
+                Source.TableHeader.Tables.First(t => t.info == item.Info && t.data == item.Data)
             );
         }
 
@@ -84,16 +99,16 @@ namespace InfectedRose.Database
         {
             if (item == default) return;
 
-            var list = File.TableHeader.Tables.ToList();
+            var list = Source.TableHeader.Tables.ToList();
             list.Insert(index, (item.Info, item.Data));
-            File.TableHeader.Tables = list.ToArray();
+            Source.TableHeader.Tables = list.ToArray();
         }
 
         public void RemoveAt(int index)
         {
-            var list = File.TableHeader.Tables.ToList();
+            var list = Source.TableHeader.Tables.ToList();
             list.RemoveAt(index);
-            File.TableHeader.Tables = list.ToArray();
+            Source.TableHeader.Tables = list.ToArray();
         }
 
         /*
@@ -269,81 +284,34 @@ namespace InfectedRose.Database
             await Task.WhenAll(tasks);
         }
 
-        private static uint Hash(byte[] dataToHash)
-        {
-            var dataLength = dataToHash.Length;
-            if (dataLength == 0)
-                return 0;
-
-            var hash = Convert.ToUInt32(dataLength);
-            var remainingBytes = dataLength & 3; // mod 4
-            var numberOfLoops = dataLength >> 2; // div 4
-            var currentIndex = 0;
-            while (numberOfLoops > 0)
-            {
-                hash += BitConverter.ToUInt16(dataToHash, currentIndex);
-                var tmp = (uint) (BitConverter.ToUInt16(dataToHash, currentIndex + 2) << 11) ^ hash;
-                hash = (hash << 16) ^ tmp;
-                hash += hash >> 11;
-                currentIndex += 4;
-                numberOfLoops--;
-            }
-
-            switch (remainingBytes)
-            {
-                case 3:
-                    hash += BitConverter.ToUInt16(dataToHash, currentIndex);
-                    hash ^= hash << 16;
-                    hash ^= ((uint) dataToHash[currentIndex + 2]) << 18;
-                    hash += hash >> 11;
-                    break;
-                case 2:
-                    hash += BitConverter.ToUInt16(dataToHash, currentIndex);
-                    hash ^= hash << 11;
-                    hash += hash >> 17;
-                    break;
-                case 1:
-                    hash += dataToHash[currentIndex];
-                    hash ^= hash << 10;
-                    hash += hash >> 1;
-                    break;
-                default:
-                    break;
-            }
-
-            hash ^= hash << 3;
-            hash += hash >> 5;
-            hash ^= hash << 4;
-            hash += hash >> 17;
-            hash ^= hash << 25;
-            hash += hash >> 6;
-
-            return hash;
-        }
-
         public Table this[int index]
         {
             get
             {
-                var (info, data) = File.TableHeader.Tables[index];
+                var (info, data) = Source.TableHeader.Tables[index];
 
-                return new Table(info, data);
+                return new Table(info, data, this);
             }
-            set => File.TableHeader.Tables[index] = (value.Info, value.Data);
+            set => Source.TableHeader.Tables[index] = (value.Info, value.Data);
         }
 
         public Table this[string name]
         {
             get
             {
-                foreach (var (info, data) in File.TableHeader.Tables)
+                foreach (var (info, data) in Source.TableHeader.Tables)
                 {
                     if (info.TableName == name)
-                        return new Table(info, data);
+                        return new Table(info, data, this);
                 }
 
                 return default;
             }
+        }
+
+        internal void RegisterSql(string sql)
+        {
+            OnSql?.Invoke(sql);
         }
     }
 }

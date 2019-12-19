@@ -1,3 +1,5 @@
+using InfectedRose.Database.Sql;
+
 namespace InfectedRose.Database
 {
     public class Field
@@ -6,6 +8,12 @@ namespace InfectedRose.Database
         
         internal int Index { get; private set; }
 
+        internal Table Table { get; private set; }
+        
+        internal Column Column { get; private set; }
+
+        public string Name => Table.TableInfo[Index].Name;
+        
         public DataType Type
         {
             get => Data.Fields[Index].type;
@@ -36,6 +44,8 @@ namespace InfectedRose.Database
             }
             set
             {
+                var where = Column.WhereSegment();
+                
                 var dataField = Data.Fields[Index];
 
                 value = value switch
@@ -44,17 +54,23 @@ namespace InfectedRose.Database
                     long lon => new FdbBitInt {Value = lon},
                     _ => value
                 };
-
+                
                 dataField.value = value;
 
                 Data.Fields[Index] = dataField;
+                
+                Table.Database.RegisterSql(this.SqlUpdate(where));
             }
         }
-        
-        internal Field(FdbRowData data, int index, Table table)
+
+        public override string ToString() => Name;
+
+        internal Field(FdbRowData data, int index, Table table, Column column)
         {
             Data = data;
             Index = index;
+            Table = table;
+            Column = column;
         }
     }
 }
