@@ -54,6 +54,16 @@ namespace InfectedRose.Database
                     long lon => new FdbBitInt {Value = lon},
                     _ => value
                 };
+
+                Type = value switch
+                {
+                    string _ => DataType.Text,
+                    long _ => DataType.Bigint,
+                    float _ => DataType.Float,
+                    bool _ => DataType.Boolean,
+                    null => DataType.Nothing,
+                    _ => DataType.Integer
+                };
                 
                 dataField.value = value;
 

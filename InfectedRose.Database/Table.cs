@@ -209,8 +209,6 @@ namespace InfectedRose.Database
 
             var primaryKey = GetKey(key) % (list.Count > 0 ? list.Count : 1);
             
-            Console.WriteLine($"Creating row: {key} -> {primaryKey}");
-
             if (list.Count > 0)
             {
                 var bucket = list[primaryKey];
@@ -274,8 +272,6 @@ namespace InfectedRose.Database
         /// <returns></returns>
         public async Task RecalculateRows()
         {
-            Console.WriteLine($"CORRECT: {Data.RowHeader.RowInfos.Length}");
-
             var taken = new List<int>();
             
             var all = new Dictionary<int, int>();
@@ -295,8 +291,6 @@ namespace InfectedRose.Database
             }
 
             var buckets = (int) FdbRowBucket.NextPowerOf2(taken.Count);
-            
-            Console.WriteLine($"Buckets: {taken.Count} | {all.Values.Max()} | {buckets}");
             
             var num = FdbRowBucket.NextPowerOf2(buckets);
 
@@ -358,6 +352,7 @@ namespace InfectedRose.Database
             
             //Console.WriteLine($"\n\n\nNEW:\n\n\n");
 
+            /*
             foreach (var info in Data.RowHeader.RowInfos)
             {
                 var count = 0;
@@ -371,8 +366,9 @@ namespace InfectedRose.Database
                     count++;
                 }
                 
-                Console.WriteLine($"{count}");
+                //Console.WriteLine($"{count}");
             }
+            */
         }
 
         private static int GetKey(object key)
