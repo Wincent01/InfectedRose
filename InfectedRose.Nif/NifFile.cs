@@ -5,14 +5,18 @@ namespace InfectedRose.Nif
 {
     public class NifFile : IConstruct
     {
+        public NifHeader Header { get; set; }
+        
         public void Serialize(BitWriter writer)
         {
-            throw new System.NotImplementedException();
+            Header.Serialize(writer);
         }
 
         public void Deserialize(BitReader reader)
         {
-            throw new System.NotImplementedException();
+            Header = new NifHeader();
+
+            Header.Deserialize(reader);
         }
     }
 }

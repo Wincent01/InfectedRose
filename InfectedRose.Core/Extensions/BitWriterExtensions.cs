@@ -17,6 +17,17 @@ namespace InfectedRose.Core
             }
         }
         
+        public static void WriteLwoString(this BitWriter @this, string val, int length = 33, bool wide = false)
+        {
+            foreach (var c in val)
+            {
+                if (wide) @this.Write((short) c);
+                else @this.Write((byte) c);
+            }
+
+            Write(@this, new byte[(length - val.Length) * (wide ? sizeof(char) : sizeof(byte))]);
+        }
+
         public static void WriteNiQuaternion(this BitWriter @this, Quaternion quaternion)
         {
             @this.Write(quaternion.W);

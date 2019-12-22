@@ -1,13 +1,12 @@
+using System.IO;
 using System.Text;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Nif
 {
-    public class Header : IConstruct
+    public class NifHeader : IConstruct
     {
-        public string HeaderString { get; set; }
-        
         public NifVersion Version { get; set; }
         
         public Endian Endian { get; set; }
@@ -18,7 +17,7 @@ namespace InfectedRose.Nif
         
         public BlockInfo[] NodeInfo { get; set; }
         
-        public NifString[] NodeTypes { get; set; }
+        public string[] NodeTypes { get; set; }
         
         public uint MaxStringLength { get; set; }
         
@@ -26,7 +25,38 @@ namespace InfectedRose.Nif
         
         public void Serialize(BitWriter writer)
         {
-            throw new System.NotImplementedException();
+            foreach (var character in VersionString)
+            {
+                writer.Write((byte) character);
+            }
+
+            writer.Write<byte>(0xA);
+
+            writer.Write<byte>(0);
+
+            writer.Write((uint) Version);
+
+            writer.Write((byte) Endian);
+
+            writer.Write(UserVersion);
+
+            writer.Write((uint) NodeInfo.Length);
+            writer.Write((ushort) NodeTypes.Length);
+
+            foreach (var type in NodeTypes)
+            {
+                writer.WriteNiString(type);
+            }
+            
+            foreach (var blockInfo in NodeInfo)
+            {
+                writer.Write(blockInfo.TypeIndex);
+            }
+
+            foreach (var blockInfo in NodeInfo)
+            {
+                writer.Write(blockInfo.Size);
+            }
         }
 
         public void Deserialize(BitReader reader)
@@ -43,8 +73,6 @@ namespace InfectedRose.Nif
 
             VersionString = versionStringBuilder.ToString();
 
-            reader.Read<byte>();
-
             Version = (NifVersion) reader.Read<uint>();
 
             Endian = (Endian) reader.Read<byte>();
@@ -53,15 +81,11 @@ namespace InfectedRose.Nif
 
             NodeInfo = new BlockInfo[reader.Read<uint>()];
 
-            NodeTypes = new NifString[reader.Read<uint>()];
+            NodeTypes = new string[reader.Read<ushort>()];
 
             for (var i = 0; i < NodeTypes.Length; i++)
             {
-                var str = new NifString();
-
-                str.Deserialize(reader);
-
-                NodeTypes[i] = str;
+                NodeTypes[i] = reader.ReadNiString();
             }
 
             for (var i = 0; i < NodeInfo.Length; i++)

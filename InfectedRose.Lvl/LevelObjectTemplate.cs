@@ -26,7 +26,7 @@ namespace InfectedRose.Lvl
         
         public uint LvlVersion { get; set; }
         
-        public LevelObjectTemplate(uint lvlVersion)
+        public LevelObjectTemplate(uint lvlVersion = 0x26)
         {
             LvlVersion = lvlVersion;
         }

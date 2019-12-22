@@ -5,10 +5,12 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using InfectedRose.Core;
+using RakDotNet.IO;
 
 namespace InfectedRose.Lvl
 {
-    public class LegoDataDictionary : IDictionary<string, object>
+    public class LegoDataDictionary : IDictionary<string, object>, ISerializable
     {
         public const char InfoSeparator = '\u001F';
         private readonly Dictionary<string, (byte, object)> _map;
@@ -103,6 +105,85 @@ namespace InfectedRose.Lvl
 
         public override string ToString()
             => ToString("\r\n");
+
+        public void Serialize(BitWriter writer)
+        {
+            writer.Write((uint) _map.Count);
+
+            foreach (var (key, (type, value)) in _map)
+            {
+                writer.Write((byte) (key.Length * 2));
+                writer.WriteLwoString(key, key.Length, true);
+                writer.Write(type);
+
+                switch (type)
+                {
+                    case 1:
+                    case 2:
+                        writer.Write((int) value);
+                        break;
+
+                    case 3:
+                        writer.Write((float) value);
+                        break;
+
+                    case 4:
+                        writer.Write((double) value);
+                        break;
+
+                    case 5:
+                    case 6:
+                        writer.Write((uint) value);
+                        break;
+
+                    case 7:
+                        writer.WriteBit((bool) value);
+                        break;
+
+                    case 8:
+                    case 9:
+                        writer.Write((long) value);
+                        break;
+
+                    case 13:
+                        var bytes = (byte[]) value;
+
+                        writer.Write((uint) bytes.Length);
+                        writer.Write(bytes);
+                        break;
+
+                    default:
+                        string str;
+
+                        switch (value)
+                        {
+                            case Vector2 vec2:
+                                str = $"{vec2.X}{InfoSeparator}{vec2.Y}";
+                                break;
+
+                            case Vector3 vec3:
+                                str = $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}";
+                                break;
+
+                            case Vector4 vec4:
+                                str = $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}";
+                                break;
+
+                            case LegoDataList list:
+                                str = list.ToString();
+                                break;
+
+                            default:
+                                str = value.ToString();
+                                break;
+                        }
+
+                        writer.Write((uint) str.Length);
+                        writer.WriteLwoString(str, str.Length, true);
+                        break;
+                }
+            }
+        }
 
         public string ToString(string separator)
         {
