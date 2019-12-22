@@ -60,8 +60,6 @@ namespace InfectedRose.Luz
             DepartSound = reader.ReadNiString(true, true);
 
             ArriveSound = reader.ReadNiString(true, true);
-            
-            Console.WriteLine($"{DepartSound} -> {ArriveSound}");
         }
     }
 }

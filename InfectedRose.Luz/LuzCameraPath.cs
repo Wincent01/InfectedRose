@@ -29,8 +29,6 @@ namespace InfectedRose.Luz
             base.Deserialize(reader);
             
             NextPath = reader.ReadNiString(true, true);
-            
-            Console.WriteLine(NextPath);
 
             if (Version >= 14)
                 UnknownBool = reader.Read<byte>() != 0;
