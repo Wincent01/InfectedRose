@@ -43,8 +43,6 @@ namespace InfectedRose.Lvl
             try
             {
                 ParticleName = reader.ReadNiString(true);
-
-                Console.WriteLine(ParticleName);
             }
             catch
             {

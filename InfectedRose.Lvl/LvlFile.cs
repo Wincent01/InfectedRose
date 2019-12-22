@@ -140,8 +140,6 @@ namespace InfectedRose.Lvl
                 }
 
                 reader.BaseStream.Position = startPosition + chunkLength;
-                
-                Console.WriteLine($"[END] -> {reader.BaseStream.Position}");
             }
         }
 
