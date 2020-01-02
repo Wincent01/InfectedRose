@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RakDotNet.IO\RakDotNet.IO\RakDotNet.IO.csproj" />
+      <PackageReference Include="RakDotNet.IO" Version="1.0.0" />
     </ItemGroup>
 
 </Project>
