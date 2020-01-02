@@ -94,10 +94,7 @@ namespace InfectedRose.Lvl
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            foreach (var k in _map)
-            {
-                yield return new KeyValuePair<string, object>(k.Key, k.Value.Item2);
-            }
+            return _map.Select(k => new KeyValuePair<string, object>(k.Key, k.Value.Item2)).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -106,7 +103,9 @@ namespace InfectedRose.Lvl
         public override string ToString()
             => ToString("\r\n");
 
-        public void Serialize(BitWriter writer)
+        public void Serialize(BitWriter writer) => Serialize(writer, true);
+
+        public void Serialize(BitWriter writer, bool bitBool)
         {
             writer.Write((uint) _map.Count);
 
@@ -137,7 +136,17 @@ namespace InfectedRose.Lvl
                         break;
 
                     case 7:
-                        writer.WriteBit((bool) value);
+                        var boolean = (bool) value;
+                        
+                        if (bitBool)
+                        {
+                            writer.WriteBit(boolean);
+                        }
+                        else
+                        {
+                            writer.Write((byte) (boolean ? 1 : 0));
+                        }
+
                         break;
 
                     case 8:
@@ -153,30 +162,15 @@ namespace InfectedRose.Lvl
                         break;
 
                     default:
-                        string str;
 
-                        switch (value)
+                        var str = value switch
                         {
-                            case Vector2 vec2:
-                                str = $"{vec2.X}{InfoSeparator}{vec2.Y}";
-                                break;
-
-                            case Vector3 vec3:
-                                str = $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}";
-                                break;
-
-                            case Vector4 vec4:
-                                str = $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}";
-                                break;
-
-                            case LegoDataList list:
-                                str = list.ToString();
-                                break;
-
-                            default:
-                                str = value.ToString();
-                                break;
-                        }
+                            Vector2 vec2 => $"{vec2.X}{InfoSeparator}{vec2.Y}",
+                            Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}",
+                            Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}",
+                            LegoDataList list => list.ToString(),
+                            _ => value.ToString()
+                        };
 
                         writer.Write((uint) str.Length);
                         writer.WriteLwoString(str, str.Length, true);
@@ -189,36 +183,20 @@ namespace InfectedRose.Lvl
         {
             var str = new StringBuilder();
 
-            foreach (var k in _map)
+            foreach (var (k, (t, v)) in _map)
             {
-                string val;
-
-                switch (k.Value.Item2)
+                var val = v switch
                 {
-                    case Vector2 vec2:
-                        val = $"{vec2.X}{InfoSeparator}{vec2.Y}";
-                        break;
+                    Vector2 vec2 => $"{vec2.X}{InfoSeparator}{vec2.Y}",
+                    Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}",
+                    Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}",
+                    LegoDataList list => list.ToString(),
+                    _ => v.ToString()
+                };
 
-                    case Vector3 vec3:
-                        val = $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}";
-                        break;
+                str.Append($"{k}={t}:{val}");
 
-                    case Vector4 vec4:
-                        val = $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}";
-                        break;
-
-                    case LegoDataList list:
-                        val = list.ToString();
-                        break;
-
-                    default:
-                        val = k.Value.Item2.ToString();
-                        break;
-                }
-
-                str.Append($"{k}={k.Value.Item1}:{val}");
-
-                var i = _map.Keys.ToList().IndexOf(k.Key);
+                var i = _map.Keys.ToList().IndexOf(k);
 
                 if (i + 1 < Count)
                     str.Append(separator);
@@ -242,6 +220,9 @@ namespace InfectedRose.Lvl
         public static LegoDataDictionary FromString(string text, char separator = '\n')
         {
             var dict = new LegoDataDictionary();
+
+            if (string.IsNullOrWhiteSpace(text)) return dict;
+            
             var lines = text.Replace("\r", "").Split(separator);
 
             foreach (var line in lines)
@@ -290,8 +271,8 @@ namespace InfectedRose.Lvl
                         }
                         else if (val.Contains('\u001F'))
                         {
-                            var floats = val.Split('\u001F')
-                                .Select(s => float.TryParse(s, out var res) ? res : 0).ToArray();
+                            var floats = val.Split('\u001F').Select(s => float.Parse(s, CultureInfo.InvariantCulture))
+                                .ToArray();
 
                             v = floats.Length switch
                             {
@@ -306,6 +287,7 @@ namespace InfectedRose.Lvl
                         {
                             v = val;
                         }
+
                         break;
                 }
 
