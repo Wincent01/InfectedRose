@@ -8,29 +8,6 @@ namespace InfectedRose.Utilities
 {
     public static class Checksum
     {
-        private struct ChecksumLayer
-        {
-            internal uint Id { get; set; }
-
-            internal uint Layer { get; set; }
-
-            internal uint Revision { get; set; }
-
-            public void Apply(ref uint value, ref uint total)
-            {
-                foreach (var reference in new[] {Id, Layer, Revision})
-                {
-                    value += reference >> 16; // Apply reference
-
-                    total += value; // Add to total
-
-                    value += reference & ushort.MaxValue; // Make ushort
-
-                    total += value; // Add to total
-                }
-            }
-        }
-
         /// <summary>
         ///     Calculate the checksum for a LEGO Universe zone
         /// </summary>
@@ -125,6 +102,10 @@ namespace InfectedRose.Utilities
             
             var lower = (ushort) ((value & ushort.MaxValue) + (value >> 16));
             var upper = (ushort) ((total & ushort.MaxValue) + (total >> 16));
+
+            //
+            // The checksum has two parts, one for the 'total', and one for the 'value', these combine to form a 32bit value
+            // 
 
             return (uint) (upper << 16 | lower);
         }
