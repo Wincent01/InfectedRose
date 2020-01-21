@@ -104,6 +104,6 @@ namespace InfectedRose.Database.Concepts
         DonationVendorComponent = 100,
         CombatMediatorComponent = 101,
         Component107 = 107,
-        Possesable = 108,
+        Possesable = 108
     }
 }

@@ -2,6 +2,15 @@ namespace InfectedRose.Database.Concepts
 {
     public class LwoComponent
     {
+        internal LwoComponent()
+        {
+        }
+
+        public LwoComponent(ComponentId id)
+        {
+            Id = id;
+        }
+
         public ComponentId Id { get; internal set; }
 
         public AccessDatabase Database { get; internal set; }
@@ -9,13 +18,6 @@ namespace InfectedRose.Database.Concepts
         public Column Row { get; internal set; }
 
         public Column Entry { get; internal set; }
-
-        internal LwoComponent(){}
-
-        public LwoComponent(ComponentId id)
-        {
-            Id = id;
-        }
 
         public static bool operator ==(LwoComponent component, LwoComponent other)
         {

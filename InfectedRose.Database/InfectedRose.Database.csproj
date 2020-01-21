@@ -9,4 +9,8 @@
       <ProjectReference Include="..\InfectedRose.Core\InfectedRose.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Concepts\Tables" />
+    </ItemGroup>
+
 </Project>

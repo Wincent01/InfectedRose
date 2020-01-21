@@ -6,7 +6,7 @@ namespace InfectedRose.Database
     internal class FdbTableHeader : DatabaseData
     {
         private readonly uint _tableCount;
-        
+
         public FdbTableHeader(uint tableCount)
         {
             _tableCount = tableCount;

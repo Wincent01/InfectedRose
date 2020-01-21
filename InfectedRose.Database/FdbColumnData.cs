@@ -6,7 +6,7 @@ namespace InfectedRose.Database
     internal class FdbColumnData : DatabaseData
     {
         private readonly uint _columnCount;
-        
+
         public FdbColumnData(uint columnCount)
         {
             _columnCount = columnCount;
@@ -21,7 +21,7 @@ namespace InfectedRose.Database
             for (var i = 0; i < _columnCount; i++)
             {
                 Fields[i].type = (DataType) reader.Read<uint>();
-                
+
                 Fields[i].name = new FdbString();
                 Fields[i].name.Deserialize(reader);
             }

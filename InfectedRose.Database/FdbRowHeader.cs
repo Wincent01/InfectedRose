@@ -7,13 +7,13 @@ namespace InfectedRose.Database
     internal class FdbRowHeader : DatabaseData
     {
         private readonly uint _rowCount;
-        
+
+        public FdbRowInfo[] RowInfos;
+
         public FdbRowHeader(uint rowCount)
         {
             _rowCount = rowCount;
         }
-
-        public FdbRowInfo[] RowInfos;
 
         public override void Deserialize(BitReader reader)
         {
@@ -24,7 +24,7 @@ namespace InfectedRose.Database
                 using var s = new DatabaseScope(reader, true);
 
                 if (!s) continue;
-                
+
                 RowInfos[i] = new FdbRowInfo();
                 RowInfos[i].Deserialize(reader);
             }
@@ -34,13 +34,10 @@ namespace InfectedRose.Database
         {
             map += this;
 
-            map = RowInfos.Aggregate(map, (current, rowInfo) => current + rowInfo);
+            map = RowInfos.Aggregate(map, (current, info) => current + info);
 
-            for (var i = 0; i < FdbRowBucket.NextPowerOf2(RowInfos.Length) - RowInfos.Length; i++)
-            {
-                map += -1;
-            }
-            
+            for (var i = 0; i < FdbRowBucket.NextPowerOf2(RowInfos.Length) - RowInfos.Length; i++) map += -1;
+
             foreach (var rowInfo in RowInfos) rowInfo?.Compile(map);
         }
     }

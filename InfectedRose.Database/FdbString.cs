@@ -21,12 +21,9 @@ namespace InfectedRose.Database
 
         public override void Compile(HashMap map)
         {
-            map += (this);
+            map += this;
 
-            if (Value != default)
-            {
-                map = Value.Aggregate(map, (current, c) => current + (byte) c);
-            }
+            if (Value != default) map = Value.Aggregate(map, (current, c) => current + (byte) c);
 
             map.Add((byte) 0);
         }

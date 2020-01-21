@@ -8,16 +8,16 @@ namespace InfectedRose.Database.Concepts
 {
     public class LwoObject : IList<LwoComponent>
     {
-        public AccessDatabase Database { get; }
-
-        public Column Row { get; }
-
         internal LwoObject(Column row)
         {
             Database = row.Table.Database;
 
             Row = row;
         }
+
+        public AccessDatabase Database { get; }
+
+        public Column Row { get; }
 
         private List<LwoComponent> Components
         {
@@ -42,10 +42,7 @@ namespace InfectedRose.Database.Concepts
 
                     var id = entry.Value<int>("component_id");
 
-                    if (id == 0 || componentTable == default)
-                    {
-                        continue;
-                    }
+                    if (id == 0 || componentTable == default) continue;
 
                     component.Row = componentTable.FirstOrDefault(r => r.Key == id);
                 }
@@ -120,11 +117,11 @@ namespace InfectedRose.Database.Concepts
         public bool Remove(LwoComponent item)
         {
             if (!Contains(item) || item == default) return false;
-            
+
             var entryTable = Database["ComponentsRegistry"];
-            
+
             entryTable.Remove(item.Entry);
-            
+
             item.Row?.Table.Remove(item.Row);
 
             return true;

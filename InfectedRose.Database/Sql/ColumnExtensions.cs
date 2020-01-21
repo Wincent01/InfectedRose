@@ -11,14 +11,11 @@ namespace InfectedRose.Database.Sql
             foreach (var field in @this)
             {
                 builder.Append(field.ConditionSegment());
-                
+
                 builder.Append(" AND ");
             }
 
-            if (builder.Length >= 5)
-            {
-                builder.Length -= 5;
-            }
+            if (builder.Length >= 5) builder.Length -= 5;
 
             return builder.ToString();
         }
@@ -27,15 +24,9 @@ namespace InfectedRose.Database.Sql
         {
             var builder = new StringBuilder("VALUES (");
 
-            foreach (var field in @this)
-            {
-                builder.Append($"{field.ValuesSegment()}, ");
-            }
-            
-            if (builder.Length >= 2)
-            {
-                builder.Length -= 2;
-            }
+            foreach (var field in @this) builder.Append($"{field.ValuesSegment()}, ");
+
+            if (builder.Length >= 2) builder.Length -= 2;
 
             builder.Append(")");
 

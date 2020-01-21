@@ -4,18 +4,24 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using InfectedRose.Database.Sql;
 
 namespace InfectedRose.Database
 {
     public class Table : IList<Column>
     {
-        internal FdbColumnHeader Info { get; private set; }
-        
-        internal FdbRowBucket Data { get; private set; }
-        
-        internal AccessDatabase Database { get; private set; }
+        internal Table(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database)
+        {
+            Info = info;
+            Data = data;
+            Database = database;
+        }
+
+        internal FdbColumnHeader Info { get; }
+
+        internal FdbRowBucket Data { get; }
+
+        internal AccessDatabase Database { get; }
 
         public string Name
         {
@@ -27,13 +33,6 @@ namespace InfectedRose.Database
         }
 
         public TableInfo TableInfo => new TableInfo(this);
-        
-        internal Table(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database)
-        {
-            Info = info;
-            Data = data;
-            Database = database;
-        }
 
         private List<Column> Fields
         {
@@ -56,7 +55,7 @@ namespace InfectedRose.Database
                 return columns;
             }
         }
-        
+
         public IEnumerator<Column> GetEnumerator()
         {
             return Fields.GetEnumerator();
@@ -70,9 +69,9 @@ namespace InfectedRose.Database
         public void Add(Column item)
         {
             if (item == default) return;
-            
+
             var list = Data.RowHeader.RowInfos.ToList();
-            
+
             list.Add(item.Data);
 
             Data.RowHeader.RowInfos = list.ToArray();
@@ -100,13 +99,10 @@ namespace InfectedRose.Database
             for (var index = 0; index < Data.RowHeader.RowInfos.Length; index++)
             {
                 var info = Data.RowHeader.RowInfos[index];
-                
+
                 var linked = info;
 
-                if (linked == default)
-                {
-                    continue;
-                }
+                if (linked == default) continue;
 
                 if (linked == item.Data)
                 {
@@ -116,7 +112,7 @@ namespace InfectedRose.Database
 
                     return true;
                 }
-                
+
                 while (linked != default)
                 {
                     if (linked.Linked == item.Data)
@@ -138,7 +134,7 @@ namespace InfectedRose.Database
         public int Count => Fields.Count;
 
         public bool IsReadOnly => false;
-        
+
         public int IndexOf(Column item)
         {
             return Fields.IndexOf(item);
@@ -147,9 +143,9 @@ namespace InfectedRose.Database
         public void Insert(int index, Column item)
         {
             if (item == default) return;
-            
+
             var list = Data.RowHeader.RowInfos.ToList();
-            
+
             list.Insert(index, item.Data);
 
             Data.RowHeader.RowInfos = list.ToArray();
@@ -166,28 +162,44 @@ namespace InfectedRose.Database
             set => throw new NotSupportedException();
         }
 
+        /// <summary>
+        ///     Seek a row
+        /// </summary>
+        /// <remarks>
+        ///     This is the same principle used the access rows when the database is in use
+        /// </remarks>
+        /// <param name="key">The key of the row you seek</param>
+        /// <returns>The column found for this key</returns>
+        public Column Seek(int key)
+        {
+            var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
+
+            var bucket = Data.RowHeader.RowInfos[index];
+
+            while (bucket != null && bucket.DataHeader.Data.Fields[0].value != (object) key) bucket = bucket.Linked;
+
+            return bucket == null ? null : new Column(bucket, this);
+        }
+
         public Column Create()
         {
             if (TableInfo[0].Type != DataType.Integer)
-            {
                 throw new NotSupportedException("AccessDatabase can only generate primary keys for Int32 types.");
-            }
 
             var max = Count > 0 ? this.Max(c => c.Key) : 0;
 
             for (var i = 1; i < max; i++)
-            {
                 if (this.All(c => c.Key != i))
-                {
                     return Create(i);
-                }
-            }
 
             return Create(max + 1);
         }
-        
-        public Column Create(object key) => Create(key, null);
-        
+
+        public Column Create(object key)
+        {
+            return Create(key, null);
+        }
+
         public Column Create(object key, object values)
         {
             var list = Data.RowHeader.RowInfos.ToList();
@@ -208,7 +220,7 @@ namespace InfectedRose.Database
             }
 
             var primaryKey = GetKey(key) % (list.Count > 0 ? list.Count : 1);
-            
+
             if (list.Count > 0)
             {
                 var bucket = list[primaryKey];
@@ -216,7 +228,7 @@ namespace InfectedRose.Database
                 if (bucket == default)
                 {
                     list[primaryKey] = column;
-                    
+
                     goto found;
                 }
 
@@ -225,22 +237,22 @@ namespace InfectedRose.Database
                     if (bucket.Linked == default)
                     {
                         bucket.Linked = column;
-                        
+
                         goto found;
                     }
 
                     bucket = bucket.Linked;
                 }
             }
-            
+
             list.Add(column);
-            
+
             found:
 
             column.DataHeader.Data.Fields[0].value = key;
-            
+
             Data.RowHeader.RowInfos = list.ToArray();
-            
+
             var col = new Column(column, this);
 
             Database.RegisterSql(col.SqlInsert());
@@ -266,109 +278,73 @@ namespace InfectedRose.Database
             return new Column(column, this);
         }
 
-        /// <summary>
-        ///     Warning! Work in progress, might brake table.
-        /// </summary>
-        /// <returns></returns>
-        public async Task RecalculateRows()
+        public void Recalculate()
+        {
+            Recalculate(1);
+        }
+
+        public void Recalculate(int bucketSize)
         {
             var taken = new List<int>();
-            
+
             var all = new Dictionary<int, int>();
 
             foreach (var row in this)
             {
-                if (!all.ContainsKey(row.Key))
-                {
-                    all[row.Key] = 0;
-                }
-                
+                if (!all.ContainsKey(row.Key)) all[row.Key] = 0;
+
                 all[row.Key] += 1;
-                
+
                 if (taken.Contains(row.Key)) continue;
 
                 taken.Add(row.Key);
             }
 
-            var buckets = (int) FdbRowBucket.NextPowerOf2(taken.Count);
-            
-            var num = FdbRowBucket.NextPowerOf2(buckets);
+            var buckets = FdbRowBucket.NextPowerOf2(bucketSize == -1 ? taken.Count : bucketSize);
 
-            var final = new FdbRowInfo[num];
+            var final = new FdbRowInfo[buckets];
 
             var data = this.ToArray();
 
+            foreach (var column in data) column.Data.Linked = default;
+
             foreach (var column in data)
             {
-                column.Data.Linked = default;
-            }
-            
-            for (var i = 0; i < num; i++)
-            {
-                /*
-                var correct = 0;
+                var index = (uint) column.Key;
 
-                var ids = new List<int>();
-                */
+                var key = index % buckets;
 
-                for (var j = 0; j < data.Length; j++)
+                FdbRowInfo bucket;
+
+                try
                 {
-                    var index = data[j].Key;
-                    
-                    var og = index;
-
-                    if (i % num == index % buckets)
-                    {
-                        //correct++;
-
-                        var bucket = final[index % buckets];
-                        
-                        if (bucket != default)
-                        {
-                            var linked = bucket;
-
-                            while (linked.Linked != default)
-                            {
-                                linked = linked.Linked;
-                            }
-
-                            linked.Linked = data[j].Data;
-                        }
-                        else
-                        {
-                            final[index % buckets] = data[j].Data;
-                        }
-                        
-                        //ids.Add(og);
-                    }
+                    bucket = final[key];
                 }
-                
-                //Console.Write($"{list[i].Item1} [{string.Join(";", list[i].Item2)}]");
+                catch (Exception e)
+                {
+                    Console.WriteLine(
+                        $"\n\"[{column[0].Type}] {column[0].Value}\" [{index}] -> {key} / {buckets}\n{e}\n");
 
-                //Console.Write($"{compare[i]} -> {correct} [{string.Join(";", ids)}]\n");
+                    Console.ReadLine();
+
+                    throw;
+                }
+
+                if (bucket != default)
+                {
+                    var linked = bucket;
+
+                    while (linked.Linked != default) linked = linked.Linked;
+
+                    linked.Linked = column.Data;
+                }
+                else
+                {
+                    final[index % buckets] = column.Data;
+                }
             }
-            
+
             Data.RowHeader.RowInfos = final.ToArray();
-            
-            //Console.WriteLine($"\n\n\nNEW:\n\n\n");
-
-            /*
-            foreach (var info in Data.RowHeader.RowInfos)
-            {
-                var count = 0;
-                
-                var top = info;
-
-                while (top != default)
-                {
-                    top = top.Linked;
-
-                    count++;
-                }
-                
-                //Console.WriteLine($"{count}");
-            }
-            */
         }
 
         private static int GetKey(object key)
@@ -385,7 +361,7 @@ namespace InfectedRose.Database
 
             return index;
         }
-        
+
         private static uint Hash(byte[] dataToHash)
         {
             var dataLength = dataToHash.Length;
@@ -411,7 +387,7 @@ namespace InfectedRose.Database
                 case 3:
                     hash += BitConverter.ToUInt16(dataToHash, currentIndex);
                     hash ^= hash << 16;
-                    hash ^= ((uint) dataToHash[currentIndex + 2]) << 18;
+                    hash ^= (uint) dataToHash[currentIndex + 2] << 18;
                     hash += hash >> 11;
                     break;
                 case 2:
@@ -424,8 +400,6 @@ namespace InfectedRose.Database
                     hash ^= hash << 10;
                     hash += hash >> 1;
                     break;
-                default:
-                    break;
             }
 
             hash ^= hash << 3;
@@ -437,7 +411,7 @@ namespace InfectedRose.Database
 
             return hash;
         }
-        
+
         private object GetDefault(DataType type)
         {
             return type switch

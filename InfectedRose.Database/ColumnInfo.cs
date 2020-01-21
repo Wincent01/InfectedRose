@@ -2,9 +2,15 @@ namespace InfectedRose.Database
 {
     public class ColumnInfo
     {
-        internal Table Table { get; private set; }
-        
-        internal int Index { get; private set; }
+        internal ColumnInfo(Table table, int index)
+        {
+            Table = table;
+            Index = index;
+        }
+
+        internal Table Table { get; }
+
+        internal int Index { get; }
 
         public DataType Type
         {
@@ -18,7 +24,7 @@ namespace InfectedRose.Database
                 Table.Info.Data.Fields[Index] = dataField;
             }
         }
-        
+
         public string Name
         {
             get => Table.Info.Data.Fields[Index].name;
@@ -33,12 +39,6 @@ namespace InfectedRose.Database
 
                 Table.Info.Data.Fields[Index] = dataField;
             }
-        }
-        
-        internal ColumnInfo(Table table, int index)
-        {
-            Table = table;
-            Index = index;
         }
     }
 }

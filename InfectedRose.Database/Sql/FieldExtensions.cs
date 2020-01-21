@@ -27,15 +27,15 @@ namespace InfectedRose.Database.Sql
 
             return builder.ToString();
         }
-        
+
         internal static string ConditionSegment(this Field @this)
         {
             var builder = new StringBuilder();
 
             var value = ValuesSegment(@this);
-            
+
             builder.Append($"{@this.Name} {(value == "NULL" ? "IS" : "=")} {value}");
-            
+
             return builder.ToString();
         }
 

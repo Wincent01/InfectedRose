@@ -4,16 +4,24 @@ namespace InfectedRose.Database
 {
     public class Field
     {
-        internal FdbRowData Data { get; private set; }
-        
-        internal int Index { get; private set; }
+        internal Field(FdbRowData data, int index, Table table, Column column)
+        {
+            Data = data;
+            Index = index;
+            Table = table;
+            Column = column;
+        }
 
-        internal Table Table { get; private set; }
-        
-        internal Column Column { get; private set; }
+        internal FdbRowData Data { get; }
+
+        internal int Index { get; }
+
+        internal Table Table { get; }
+
+        internal Column Column { get; }
 
         public string Name => Table.TableInfo[Index].Name;
-        
+
         public DataType Type
         {
             get => Data.Fields[Index].type;
@@ -26,7 +34,7 @@ namespace InfectedRose.Database
                 Data.Fields[Index] = dataField;
             }
         }
-        
+
         public object Value
         {
             get
@@ -45,7 +53,7 @@ namespace InfectedRose.Database
             set
             {
                 var where = Column.WhereSegment();
-                
+
                 var dataField = Data.Fields[Index];
 
                 value = value switch
@@ -64,23 +72,18 @@ namespace InfectedRose.Database
                     null => DataType.Nothing,
                     _ => DataType.Integer
                 };
-                
+
                 dataField.value = value;
 
                 Data.Fields[Index] = dataField;
-                
+
                 Table.Database.RegisterSql(this.SqlUpdate(where));
             }
         }
 
-        public override string ToString() => Name;
-
-        internal Field(FdbRowData data, int index, Table table, Column column)
+        public override string ToString()
         {
-            Data = data;
-            Index = index;
-            Table = table;
-            Column = column;
+            return Name;
         }
     }
 }

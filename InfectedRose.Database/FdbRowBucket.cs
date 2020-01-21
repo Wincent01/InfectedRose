@@ -1,4 +1,3 @@
-using System;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -41,7 +40,7 @@ namespace InfectedRose.Database
         {
             map += this;
             map += NextPowerOf2(RowHeader.RowInfos.Length);
-            
+
             map += RowHeader;
 
             RowHeader?.Compile(map);

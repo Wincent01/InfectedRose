@@ -19,15 +19,9 @@ namespace InfectedRose.Database.Sql
 
             builder.Append($"INSERT INTO {@this.Name} (");
 
-            foreach (var info in @this.TableInfo)
-            {
-                builder.Append($"{info.Name}, ");
-            }
+            foreach (var info in @this.TableInfo) builder.Append($"{info.Name}, ");
 
-            if (builder.Length >= 2)
-            {
-                builder.Length -= 2;
-            }
+            if (builder.Length >= 2) builder.Length -= 2;
 
             builder.Append(")");
 

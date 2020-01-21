@@ -9,27 +9,25 @@ namespace InfectedRose.Database.Generic
     public class TypedTable<T> : Table where T : class
     {
         private readonly Dictionary<T, int> _managed;
-        
-        internal TypedTable(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database) : base(info, data, database)
+
+        internal TypedTable(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database) : base(info, data,
+            database)
         {
             _managed = new Dictionary<T, int>();
         }
-        
+
         public new T this[int index]
         {
             get
             {
-                if (_managed.ContainsValue(index))
-                {
-                    return _managed.First(m => m.Value == index).Key;
-                }
-                
+                if (_managed.ContainsValue(index)) return _managed.First(m => m.Value == index).Key;
+
                 var type = typeof(T);
 
                 var instance = (T) Activator.CreateInstance(type, true);
 
                 var baseColumn = base[index];
-                
+
                 foreach (var property in type.GetProperties())
                 {
                     var attribute = property.GetCustomAttribute<ColumnAttribute>();
@@ -42,17 +40,17 @@ namespace InfectedRose.Database.Generic
                 }
 
                 _managed[instance] = index;
-                
+
                 return instance;
             }
         }
-        
+
         public void Save()
         {
             var type = typeof(T);
 
             var properties = type.GetProperties();
-            
+
             foreach (var (column, index) in _managed)
             {
                 var baseColumn = base[index];

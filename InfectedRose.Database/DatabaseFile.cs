@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -10,7 +8,7 @@ namespace InfectedRose.Database
     public class DatabaseFile : HashMap, IDeserializable
     {
         internal FdbTableHeader TableHeader { get; set; }
-        
+
         public void Deserialize(BitReader reader)
         {
             var tableCount = reader.Read<uint>();
@@ -37,7 +35,7 @@ namespace InfectedRose.Database
                 (uint) TableHeader.Tables.Length,
                 TableHeader
             };
-            
+
             TableHeader.Compile(this);
 
             return base.Compile(onData);

@@ -6,13 +6,13 @@ namespace InfectedRose.Database
 {
     public class TableInfo : IList<ColumnInfo>
     {
-        internal Table Table { get; private set; }
-
         internal TableInfo(Table table)
         {
             Table = table;
         }
-        
+
+        internal Table Table { get; }
+
         public IEnumerator<ColumnInfo> GetEnumerator()
         {
             int index = default;
@@ -30,9 +30,9 @@ namespace InfectedRose.Database
         public void Add(ColumnInfo item)
         {
             if (item == default) return;
-            
+
             var list = Table.Info.Data.Fields.ToList();
-            
+
             list.Add((item.Type, new FdbString
             {
                 Value = item.Name
@@ -63,7 +63,7 @@ namespace InfectedRose.Database
         public bool Remove(ColumnInfo item)
         {
             if (item == default) return false;
-            
+
             var list = Table.Info.Data.Fields.ToList();
 
             list.Remove(list.First(l => l.name == item.Name));
@@ -76,7 +76,7 @@ namespace InfectedRose.Database
         public int Count => Table.Info.Data.Fields.Length;
 
         public bool IsReadOnly => false;
-        
+
         public int IndexOf(ColumnInfo item)
         {
             return item?.Index ?? -1;
@@ -85,9 +85,9 @@ namespace InfectedRose.Database
         public void Insert(int index, ColumnInfo item)
         {
             if (item == default) return;
-            
+
             var list = Table.Info.Data.Fields.ToList();
-            
+
             list.Insert(index, (item.Type, new FdbString
             {
                 Value = item.Name

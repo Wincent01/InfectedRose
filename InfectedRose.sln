@@ -16,8 +16,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Geometry", "In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Triggers", "InfectedRose.Triggers\InfectedRose.Triggers.csproj", "{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Patcher", "InfectedRose.Patcher\InfectedRose.Patcher.csproj", "{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Unity", "InfectedRose.Unity\InfectedRose.Unity.csproj", "{A9A11C09-DC82-4C8D-ADDF-04CF2F3B3DC7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Utilities", "InfectedRose.Utilities\InfectedRose.Utilities.csproj", "{66233254-3BF3-4AC8-84C8-83DF6E956753}"
@@ -72,10 +70,6 @@ Global
 		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5E9CCF9-C9CA-479E-9B40-77F3140C1885}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A9A11C09-DC82-4C8D-ADDF-04CF2F3B3DC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A9A11C09-DC82-4C8D-ADDF-04CF2F3B3DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9A11C09-DC82-4C8D-ADDF-04CF2F3B3DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -11,7 +11,7 @@ namespace InfectedRose.Database
         {
             Fields = new (DataType, object)[columnCount];
         }
-        
+
         public (DataType type, object value)[] Fields { get; set; }
 
         public override void Deserialize(BitReader reader)
