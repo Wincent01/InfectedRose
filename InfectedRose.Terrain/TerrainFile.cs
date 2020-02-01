@@ -48,5 +48,36 @@ namespace InfectedRose.Terrain
                 Chunks.Add(chunk);
             }
         }
+
+        public float[,] GenerateHeightMap()
+        {
+            var heights = new float[
+                ChunkCountX * Chunks[0].HeightMap.Width,
+                ChunkCountY * Chunks[0].HeightMap.Height
+            ];
+            
+            for (var chunkY = 0; chunkY < ChunkCountY; ++chunkY)
+            {
+                for (var chunkX = 0; chunkX < ChunkCountX; ++chunkX)
+                {
+                    var chunk = Chunks[chunkY * ChunkCountX + chunkX];
+
+                    for (var y = 0; y < chunk.HeightMap.Height; ++y)
+                    {
+                        for (var x = 0; x < chunk.HeightMap.Width; ++x)
+                        {
+                            var value = chunk.HeightMap.GetValue(x, y);
+
+                            var pixelX = chunkX * Chunks[0].HeightMap.Width + x;
+                            var pixelY = chunkY * Chunks[0].HeightMap.Height + y;
+
+                            heights[pixelX, pixelY] = value;
+                        }
+                    }
+                }
+            }
+
+            return heights;
+        }
     }
 }
