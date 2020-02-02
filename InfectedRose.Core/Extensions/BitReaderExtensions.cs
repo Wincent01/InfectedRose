@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Numerics;
 using RakDotNet.IO;
 
@@ -18,14 +18,6 @@ namespace InfectedRose.Core
 
 
             return new string(str);
-        }
-
-        public static void Write<T>(this BitWriter @this, ICollection<T> collection) where T : struct
-        {
-            foreach (var value in collection)
-            {
-                @this.Write(value);
-            }
         }
 
         public static Quaternion ReadNiQuaternion(this BitReader @this)
@@ -49,6 +41,15 @@ namespace InfectedRose.Core
             }
 
             return buffer;
+        }
+
+        public static T Read<T>(this BitReader @this) where T : IDeserializable
+        {
+            var instance = Activator.CreateInstance<T>();
+            
+            instance.Deserialize(@this);
+
+            return instance;
         }
     }
 }

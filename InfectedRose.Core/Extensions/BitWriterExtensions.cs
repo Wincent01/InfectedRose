@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Numerics;
 using RakDotNet.IO;
 
@@ -42,6 +43,19 @@ namespace InfectedRose.Core
             {
                 @this.Write(value);
             }
+        }
+
+        public static void Write<T>(this BitWriter @this, ICollection<T> collection) where T : struct
+        {
+            foreach (var value in collection)
+            {
+                @this.Write(value);
+            }
+        }
+
+        public static void Write(this BitWriter @this, ISerializable serializable)
+        {
+            serializable.Serialize(@this);
         }
     }
 }

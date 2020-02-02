@@ -155,7 +155,7 @@ namespace InfectedRose.Nif
         /// <summary>
         /// The ve R_20_3_0_9
         /// </summary>
-        Ver20309 = 335740937u, // LEGO Universe
+        Ver20309 = 0x14030009u, // LEGO Universe
 
         /// <summary>
         /// The ve r_ unsupported

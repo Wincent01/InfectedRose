@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using InfectedRose.Database.Generic;
 
 namespace InfectedRose.Database.Concepts
 {
@@ -27,7 +26,7 @@ namespace InfectedRose.Database.Concepts
 
                 foreach (var entry in Database["ComponentsRegistry"].Where(r => r.Key == Row.Key))
                 {
-                    var type = (ComponentId) entry.Value<int>("component_type");
+                    var type = (ComponentId) entry["component_type"].Value;
 
                     var component = new LwoComponent
                     {
@@ -40,7 +39,7 @@ namespace InfectedRose.Database.Concepts
 
                     var componentTable = Database[$"{type}"];
 
-                    var id = entry.Value<int>("component_id");
+                    var id = (int) entry["component_id"].Value;
 
                     if (id == 0 || componentTable == default) continue;
 
