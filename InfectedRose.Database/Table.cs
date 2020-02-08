@@ -23,6 +23,8 @@ namespace InfectedRose.Database
 
         internal AccessDatabase Database { get; }
 
+        public uint Buckets => (uint) Data.RowHeader.RowInfos.Length;
+        
         public string Name
         {
             get => Info.TableName;
@@ -278,10 +280,7 @@ namespace InfectedRose.Database
             return new Column(column, this);
         }
 
-        public void Recalculate()
-        {
-            Recalculate(1);
-        }
+        public void Recalculate() => Recalculate(1);
 
         public void Recalculate(int bucketSize)
         {
@@ -300,9 +299,9 @@ namespace InfectedRose.Database
                 taken.Add(row.Key);
             }
 
-            var buckets = FdbRowBucket.NextPowerOf2(bucketSize == -1 ? taken.Count : bucketSize);
+            var buckets = FdbRowBucket.NextPowerOf2(bucketSize == default ? taken.Count : bucketSize);
 
-            var final = new FdbRowInfo[buckets];
+            var hierarchy = new Dictionary<uint, List<FdbRowInfo>>();
 
             var data = this.ToArray();
 
@@ -314,36 +313,39 @@ namespace InfectedRose.Database
 
                 var key = index % buckets;
 
-                FdbRowInfo bucket;
-
-                try
+                if (hierarchy.TryGetValue(key, out var list))
                 {
-                    bucket = final[key];
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(
-                        $"\n\"[{column[0].Type}] {column[0].Value}\" [{index}] -> {key} / {buckets}\n{e}\n");
-
-                    Console.ReadLine();
-
-                    throw;
-                }
-
-                if (bucket != default)
-                {
-                    var linked = bucket;
-
-                    while (linked.Linked != default) linked = linked.Linked;
-
-                    linked.Linked = column.Data;
+                    list.Add(column.Data);
                 }
                 else
                 {
-                    final[index % buckets] = column.Data;
+                    hierarchy[key] = new List<FdbRowInfo>
+                    {
+                        column.Data
+                    };
                 }
             }
+            
+            var final = new FdbRowInfo[buckets];
 
+            foreach (var (key, values) in hierarchy)
+            {
+                var root = values[0];
+
+                var current = root;
+
+                values.RemoveAt(0);
+
+                foreach (var value in values)
+                {
+                    current.Linked = value;
+
+                    current = value;
+                }
+
+                final[key] = root;
+            }
+            
             Data.RowHeader.RowInfos = final.ToArray();
         }
 

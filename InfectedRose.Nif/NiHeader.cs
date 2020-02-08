@@ -5,7 +5,7 @@ using RakDotNet.IO;
 
 namespace InfectedRose.Nif
 {
-    public class NifHeader : IConstruct
+    public class NiHeader : IConstruct
     {
         public NifVersion Version { get; set; }
         
@@ -19,6 +19,8 @@ namespace InfectedRose.Nif
         
         public string[] NodeTypes { get; set; }
         
+        public string[] Strings { get; set; }
+        
         public uint MaxStringLength { get; set; }
         
         public uint[] Groups { get; set; }
@@ -31,8 +33,6 @@ namespace InfectedRose.Nif
             }
 
             writer.Write<byte>(0xA);
-
-            writer.Write<byte>(0);
 
             writer.Write((uint) Version);
 
@@ -57,12 +57,32 @@ namespace InfectedRose.Nif
             {
                 writer.Write(blockInfo.Size);
             }
+
+            writer.Write((uint) Strings.Length);
+
+            writer.Write(MaxStringLength);
+
+            foreach (var str in Strings)
+            {
+                writer.WriteNiString(str);
+            }
+
+            writer.Write((uint) Groups.Length);
+
+            foreach (var group in Groups)
+            {
+                writer.Write(group);
+            }
         }
 
         public void Deserialize(BitReader reader)
         {
             var versionStringBuilder = new StringBuilder();
 
+            //
+            // Version
+            //
+            
             var character = reader.Read<byte>();
             while (character != 0xA)
             {
@@ -99,6 +119,22 @@ namespace InfectedRose.Nif
             foreach (var info in NodeInfo)
             {
                 info.Size = reader.Read<uint>();
+            }
+            
+            Strings = new string[reader.Read<uint>()];
+
+            MaxStringLength = reader.Read<uint>();
+
+            for (var i = 0; i < Strings.Length; i++)
+            {
+                Strings[i] = reader.ReadNiString();
+            }
+
+            Groups = new uint[reader.Read<uint>()];
+
+            for (var i = 0; i < Groups.Length; i++)
+            {
+                Groups[i] = reader.Read<uint>();
             }
         }
     }

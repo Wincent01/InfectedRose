@@ -12,24 +12,30 @@ namespace InfectedRose.Database
 
         public override void Deserialize(BitReader reader)
         {
-            using (var s = new DatabaseScope(reader, true))
+            // Super hacky way of getting around stackoverflow
+            Task.Run(() =>
             {
-                if (s)
+                lock (reader)
                 {
-                    DataHeader = new FdbRowDataHeader();
+                    using var s = new DatabaseScope(reader, true);
+                    
+                    if (s)
+                    {
+                        DataHeader = new FdbRowDataHeader();
 
-                    DataHeader.Deserialize(reader);
+                        DataHeader.Deserialize(reader);
+                    }
                 }
-            }
 
-            using (var s = new DatabaseScope(reader, true))
-            {
-                if (!s) return;
+                using (var s = new DatabaseScope(reader, true))
+                {
+                    if (!s) return;
 
-                Linked = new FdbRowInfo();
+                    Linked = new FdbRowInfo();
 
-                Linked.Deserialize(reader);
-            }
+                    Linked.Deserialize(reader);
+                }
+            }).Wait();
         }
 
         public override void Compile(HashMap map)
