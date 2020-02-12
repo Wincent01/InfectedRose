@@ -10,7 +10,9 @@ namespace InfectedRose.Terrain
         public int Height { get; set; }
         
         public float UnknownFloat0 { get; set; }
+        
         public float UnknownFloat1 { get; set; }
+        
         public float UnknownFloat2 { get; set; }
         
         public int[] UnknownIntArray { get; set; }
@@ -61,6 +63,11 @@ namespace InfectedRose.Terrain
             {
                 Data[i] = reader.Read<float>();
             }
+        }
+        
+        public float GetValue(int x, int y)
+        {
+            return Data[y * Width + x];
         }
     }
 }
