@@ -87,7 +87,7 @@ namespace InfectedRose.Lvl
                 {
                     while (writer.BaseStream.Position % 16 != 0)
                     {
-                        writer.Write<byte>(0);
+                        writer.Write<byte>(0xCD);
                     }
                 }
 
@@ -95,7 +95,7 @@ namespace InfectedRose.Lvl
                 
                 while (writer.BaseStream.Position % 16 != 0)
                 {
-                    writer.Write<byte>(0);
+                    writer.Write<byte>(0xCD);
                 }
             }
         }
