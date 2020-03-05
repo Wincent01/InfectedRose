@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace InfectedRose.Triggers
@@ -6,6 +7,6 @@ namespace InfectedRose.Triggers
     {
         [XmlAttribute("id")] public string Id { get; set; }
         
-        [XmlElement("command")] public TriggerCommand[] Commands { get; set; }
+        [XmlElement("command")] public List<TriggerCommand> Commands { get; set; }
     }
 }

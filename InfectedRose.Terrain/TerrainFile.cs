@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -51,11 +53,16 @@ namespace InfectedRose.Terrain
 
         public float[,] GenerateHeightMap()
         {
-            var heights = new float[
-                ChunkCountX * Chunks[0].HeightMap.Width,
-                ChunkCountY * Chunks[0].HeightMap.Height
-            ];
+            var weight = Chunks[0].HeightMap.Width;
+            var height = Chunks[0].HeightMap.Height;
             
+            var heights = new float[
+                ChunkCountX * weight,
+                ChunkCountY * height
+            ];
+
+            var map = new Bitmap(ChunkCountX * weight, ChunkCountY * height);
+
             for (var chunkY = 0; chunkY < ChunkCountY; ++chunkY)
             {
                 for (var chunkX = 0; chunkX < ChunkCountX; ++chunkX)
@@ -68,15 +75,39 @@ namespace InfectedRose.Terrain
                         {
                             var value = chunk.HeightMap.GetValue(x, y);
 
-                            var pixelX = chunkX * Chunks[0].HeightMap.Width + x;
-                            var pixelY = chunkY * Chunks[0].HeightMap.Height + y;
+                            var pixelX = chunkX * weight + x;
+                            var pixelY = chunkY * height + y;
 
                             heights[pixelX, pixelY] = value;
+                            
+                            var bytes = BitConverter.GetBytes(value);
+
+                            map.SetPixel(pixelX, pixelY, Color.FromArgb(bytes[0], bytes[1], bytes[2], bytes[3]));
                         }
                     }
                 }
             }
 
+            map.RotateFlip(RotateFlipType.Rotate90FlipX);
+
+            for (var x = 0; x < map.Width; x++)
+            {
+                for (var y = 0; y < map.Height; y++)
+                {
+                    var color = map.GetPixel(x, y);
+                    
+                    var bytes = new[]
+                    {
+                        color.A,
+                        color.R,
+                        color.G,
+                        color.B
+                    };
+
+                    heights[x, y] = BitConverter.ToSingle(bytes);
+                }
+            }
+            
             return heights;
         }
     }
