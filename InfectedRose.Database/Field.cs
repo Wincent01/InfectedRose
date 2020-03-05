@@ -1,3 +1,4 @@
+using InfectedRose.Database.Fdb;
 using InfectedRose.Database.Sql;
 
 namespace InfectedRose.Database
@@ -63,10 +64,10 @@ namespace InfectedRose.Database
                     _ => value
                 };
 
-                Type = value switch
+                var type = value switch
                 {
-                    string _ => DataType.Text,
-                    long _ => DataType.Bigint,
+                    FdbString _ => DataType.Text,
+                    FdbBitInt _ => DataType.Bigint,
                     float _ => DataType.Float,
                     bool _ => DataType.Boolean,
                     null => DataType.Nothing,
@@ -74,6 +75,7 @@ namespace InfectedRose.Database
                 };
 
                 dataField.value = value;
+                dataField.type = type;
 
                 Data.Fields[Index] = dataField;
 

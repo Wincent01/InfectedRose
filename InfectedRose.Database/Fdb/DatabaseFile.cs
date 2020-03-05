@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
-namespace InfectedRose.Database
+namespace InfectedRose.Database.Fdb
 {
     public class DatabaseFile : HashMap, IDeserializable
     {

@@ -16,7 +16,7 @@ namespace InfectedRose.Core
         {
             var position = Stream.Position;
 
-            var bytes = BitConverter.GetBytes(Zero ? 0 : (int) Stream.Position);
+            var bytes = BitConverter.GetBytes(Zero ? 0 : (uint) Stream.Position);
 
             Stream.Position = Reference;
             

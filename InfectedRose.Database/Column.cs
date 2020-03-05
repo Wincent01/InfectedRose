@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using InfectedRose.Database.Fdb;
 
 namespace InfectedRose.Database
 {
@@ -41,13 +42,20 @@ namespace InfectedRose.Database
         {
             get
             {
-                int index = default;
+                var index = -1;
 
                 for (var i = 0; i < Table.TableInfo.Count; i++)
                 {
                     var column = Table.TableInfo[i];
 
                     if (column.Name == name) index = i;
+                }
+
+                if (index == -1)
+                {
+                    throw new KeyNotFoundException(
+                        $"The given field key of {name} does not exist in the {Table.Name} table"
+                    );
                 }
 
                 return new Field(Data.DataHeader.Data, index, Table, this);

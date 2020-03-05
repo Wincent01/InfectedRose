@@ -43,5 +43,16 @@ namespace InfectedRose.Database.Sql
 
             return builder.ToString();
         }
+
+        internal static string SqlDelete(this Column @this)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(@this.Table.DeleteSegment());
+
+            builder.Append($" {WhereSegment(@this)};");
+
+            return builder.ToString();
+        }
     }
 }

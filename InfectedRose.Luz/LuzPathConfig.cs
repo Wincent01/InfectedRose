@@ -1,4 +1,3 @@
-using System.IO;
 using InfectedRose.Core;
 using RakDotNet.IO;
 

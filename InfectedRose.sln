@@ -18,6 +18,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Triggers", "In
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Utilities", "InfectedRose.Utilities\InfectedRose.Utilities.csproj", "{66233254-3BF3-4AC8-84C8-83DF6E956753}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Builder", "InfectedRose.Builder\InfectedRose.Builder.csproj", "{5073EC93-8D3E-4D38-A643-40BF3B697B76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Pipeline", "InfectedRose.Pipeline\InfectedRose.Pipeline.csproj", "{281871E0-DB69-4CA3-BB94-00B37DE9772C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,5 +76,13 @@ Global
 		{66233254-3BF3-4AC8-84C8-83DF6E956753}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66233254-3BF3-4AC8-84C8-83DF6E956753}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66233254-3BF3-4AC8-84C8-83DF6E956753}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5073EC93-8D3E-4D38-A643-40BF3B697B76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5073EC93-8D3E-4D38-A643-40BF3B697B76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5073EC93-8D3E-4D38-A643-40BF3B697B76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5073EC93-8D3E-4D38-A643-40BF3B697B76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{281871E0-DB69-4CA3-BB94-00B37DE9772C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{281871E0-DB69-4CA3-BB94-00B37DE9772C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{281871E0-DB69-4CA3-BB94-00B37DE9772C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{281871E0-DB69-4CA3-BB94-00B37DE9772C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

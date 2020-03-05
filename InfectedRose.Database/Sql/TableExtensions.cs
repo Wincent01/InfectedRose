@@ -27,5 +27,33 @@ namespace InfectedRose.Database.Sql
 
             return builder.ToString();
         }
+
+        internal static string DeleteSegment(this Table @this)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append($"DELETE FROM {@this.Name}");
+
+            return builder.ToString();
+        }
+
+        internal static string TableSegment(this Table @this)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append($"CREATE TABLE {@this.Name} (");
+
+            foreach (var info in @this.TableInfo)
+            {
+                builder.Append($"{info.Name} {info.Type.SqlTypeSegment()},");
+            }
+
+            if (builder.ToString().EndsWith(","))
+                builder.Length--;
+
+            builder.Append(");");
+
+            return builder.ToString();
+        }
     }
 }

@@ -4,26 +4,39 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using InfectedRose.Database.Fdb;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database
 {
     public class AccessDatabase : IList<Table>
     {
+        public DatabaseFile Source { get; }
+
+        public event Action<string> OnSql;
+        
+        public List<string> AccessedTables { get; } = new List<string>();
+
         public AccessDatabase(DatabaseFile source)
         {
             Source = source;
         }
-
-        public DatabaseFile Source { get; }
 
         public Table this[string name]
         {
             get
             {
                 foreach (var (info, data) in Source.TableHeader.Tables)
-                    if (info.TableName == name)
-                        return new Table(info, data, this);
+                {
+                    if (info.TableName != name) continue;
+
+                    if (!AccessedTables.Contains(name))
+                    {
+                        AccessedTables.Add(name);
+                    }
+
+                    return new Table(info, data, this);
+                }
 
                 return default;
             }
@@ -108,6 +121,31 @@ namespace InfectedRose.Database
             Source.TableHeader.Tables = list.ToArray();
         }
 
+        public Table Create(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException($"{nameof(name)} cannot be null or whitespace", nameof(name));
+
+            var columnHeader = new FdbColumnHeader
+            {
+                TableName = new FdbString
+                {
+                    Value = name
+                }
+            };
+
+            var header = new FdbRowBucket
+            {
+                RowHeader = new FdbRowHeader(0)
+            };
+            
+            var list = Source.TableHeader.Tables.ToList();
+            list.Add((columnHeader, header));
+            Source.TableHeader.Tables = list.ToArray();
+
+            return new Table(columnHeader, header, this);
+        }
+
         public Table this[int index]
         {
             get
@@ -118,8 +156,6 @@ namespace InfectedRose.Database
             }
             set => Source.TableHeader.Tables[index] = (value.Info, value.Data);
         }
-
-        public event Action<string> OnSql;
 
         public static async Task<AccessDatabase> OpenAsync(string file)
         {
@@ -141,6 +177,13 @@ namespace InfectedRose.Database
             var bytes = Source.Compile(callback);
 
             File.WriteAllBytes(file, bytes);
+        }
+
+        public static async Task OpenEmptyAsync()
+        {
+            var source = new DatabaseFile();
+
+            source.TableHeader = new FdbTableHeader(0);
         }
 
         internal void RegisterSql(string sql)

@@ -1,3 +1,4 @@
+using System;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -47,6 +48,8 @@ namespace InfectedRose.Lvl
             AddressChunk2001 = reader.Read<uint>();
             
             AddressChunk2002 = reader.Read<uint>();
+            
+            Console.WriteLine($"{AddressChunk2000} | {AddressChunk2001} | {AddressChunk2002}");
         }
     }
 }

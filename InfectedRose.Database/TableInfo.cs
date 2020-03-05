@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using InfectedRose.Database.Fdb;
 
 namespace InfectedRose.Database
 {
@@ -36,6 +37,18 @@ namespace InfectedRose.Database
             list.Add((item.Type, new FdbString
             {
                 Value = item.Name
+            }));
+
+            Table.Info.Data.Fields = list.ToArray();
+        }
+
+        public void Create(string name, DataType type)
+        {
+            var list = Table.Info.Data.Fields.ToList();
+
+            list.Add((type, new FdbString
+            {
+                Value = name
             }));
 
             Table.Info.Data.Fields = list.ToArray();

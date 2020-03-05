@@ -42,7 +42,7 @@ namespace InfectedRose.Nif
             Header = reader.Read<NiHeader>();
         }
 
-        public Task ReadBlocksAsync(BitReader reader)
+        public Task ReadBlocksAsync(BitReader reader, bool throwOnInvalidBlock = true)
         {
             var type = typeof(NiObject);
 
@@ -77,7 +77,12 @@ namespace InfectedRose.Nif
 
                     if (blockType == default)
                     {
-                        throw new NotImplementedException($"Block \"{typeName}\" is not implemented");
+                        if (throwOnInvalidBlock)
+                        {
+                            throw new NotImplementedException($"Block \"{typeName}\" is not implemented");
+                        }
+                        
+                        return;
                     }
 
                     var instance = (NiObject) Activator.CreateInstance(blockType);

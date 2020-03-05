@@ -4,7 +4,7 @@ namespace InfectedRose.Database.Concepts
     {
         ControllablePhysicsComponent = 1,
         RenderComponent = 2,
-        SimplePhysicsComponent = 3,
+        PhysicsComponent = 3,
         CharacterComponent = 4,
         ScriptComponent = 5,
         BouncerComponent = 6,

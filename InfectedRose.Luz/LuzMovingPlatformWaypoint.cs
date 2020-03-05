@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using System.Numerics;
 using InfectedRose.Core;
 using RakDotNet.IO;

@@ -3,7 +3,7 @@ using System.Text;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
-namespace InfectedRose.Database
+namespace InfectedRose.Database.Fdb
 {
     internal class FdbString : DatabaseData
     {
@@ -16,7 +16,17 @@ namespace InfectedRose.Database
 
         public override string ToString()
         {
-            return Value;
+            return "FdbString";
+        }
+
+        public override bool Equals(object o)
+        {
+            if (o is FdbString str)
+            {
+                return str.Value == Value;
+            }
+
+            return false;
         }
 
         public override void Compile(HashMap map)

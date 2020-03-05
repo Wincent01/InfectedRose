@@ -46,8 +46,25 @@ namespace InfectedRose.Lvl
         {
             SerializeChunk(writer, LevelInfo);
             SerializeChunk(writer, LevelSkyConfig);
+
+            if (LevelSkyConfig == default)
+            {
+                LevelInfo.SkyBoxPointer.Zero = true;
+            }
+            
             SerializeChunk(writer, LevelObjects);
+
+            if (LevelObjects == default)
+            {
+                LevelInfo.ObjectsPointer.Zero = true;
+            }
+            
             SerializeChunk(writer, LevelEnvironmentConfig);
+
+            if (LevelEnvironmentConfig == default)
+            {
+                LevelInfo.EnvironmentPointer.Zero = true;
+            }
             
             LevelInfo.EnvironmentPointer.Dispose();
             LevelInfo.ObjectsPointer.Dispose();
@@ -57,46 +74,45 @@ namespace InfectedRose.Lvl
         private void SerializeChunk(BitWriter writer, ChunkBase chunkBase)
         {
             if (chunkBase == default) return;
+
+            using var token = new LengthToken(writer);
             
-            using (var token = new LengthToken(writer))
+            switch (chunkBase)
             {
-                switch (chunkBase)
-                {
-                    case LevelEnvironmentConfig _:
-                        LevelInfo.EnvironmentPointer.Dispose();
-                        break;
-                    case LevelObjects _:
-                        LevelInfo.ObjectsPointer.Dispose();
-                        break;
-                    case LevelSkyConfig _:
-                        LevelInfo.SkyBoxPointer.Dispose();
-                        break;
-                }
+                case LevelEnvironmentConfig _:
+                    LevelInfo.EnvironmentPointer.Dispose();
+                    break;
+                case LevelObjects _:
+                    LevelInfo.ObjectsPointer.Dispose();
+                    break;
+                case LevelSkyConfig _:
+                    LevelInfo.SkyBoxPointer.Dispose();
+                    break;
+            }
                 
-                writer.Write(ChunkHeader);
+            writer.Write(ChunkHeader);
 
-                writer.Write(chunkBase.ChunkType);
+            writer.Write(chunkBase.ChunkType);
 
-                writer.Write<ushort>(1);
+            writer.Write<ushort>(1);
 
-                writer.Write(chunkBase.Index);
+            writer.Write(chunkBase.Index);
                 
-                token.Allocate();
+            token.Allocate();
 
-                using (new PointerToken(writer))
-                {
-                    while (writer.BaseStream.Position % 16 != 0)
-                    {
-                        writer.Write<byte>(0xCD);
-                    }
-                }
-
-                chunkBase.Serialize(writer);
-                
+            using (new PointerToken(writer))
+            {
                 while (writer.BaseStream.Position % 16 != 0)
                 {
                     writer.Write<byte>(0xCD);
                 }
+            }
+
+            chunkBase.Serialize(writer);
+                
+            while (writer.BaseStream.Position % 16 != 0)
+            {
+                writer.Write<byte>(0xCD);
             }
         }
 

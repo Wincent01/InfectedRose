@@ -28,20 +28,20 @@ namespace InfectedRose.Database.Sql
             return builder.ToString();
         }
 
-        internal static string ConditionSegment(this Field @this)
+        internal static string ConditionSegment(this Field @this, bool set = false)
         {
             var builder = new StringBuilder();
 
             var value = ValuesSegment(@this);
 
-            builder.Append($"{@this.Name} {(value == "NULL" ? "IS" : "=")} {value}");
+            builder.Append(!set ? $"{@this.Name} {(value == "NULL" ? "IS" : "=")} {value}" : $"{@this.Name} = {value}");
 
             return builder.ToString();
         }
 
         internal static string SetSegment(this Field @this)
         {
-            return $"SET {ConditionSegment(@this)}";
+            return $"SET {ConditionSegment(@this, true)}";
         }
 
         internal static string UpdateSegment(this Field @this, string where)

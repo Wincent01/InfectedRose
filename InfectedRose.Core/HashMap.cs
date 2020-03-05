@@ -81,7 +81,7 @@ namespace InfectedRose.Core
         public static HashMap operator +(HashMap map, object obj)
         {
             map.Add(obj);
-
+            
             return map;
         }
     }

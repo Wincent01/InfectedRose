@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using InfectedRose.Database.Fdb;
 using InfectedRose.Database.Sql;
 
 namespace InfectedRose.Database
@@ -22,7 +23,9 @@ namespace InfectedRose.Database
         internal FdbRowBucket Data { get; }
 
         internal AccessDatabase Database { get; }
-
+        
+        internal List<int> ClaimedKeys { get; set; } = new List<int>();
+        
         public uint Buckets => (uint) Data.RowHeader.RowInfos.Length;
         
         public string Name
@@ -97,6 +100,8 @@ namespace InfectedRose.Database
         public bool Remove(Column item)
         {
             if (item == default) return false;
+
+            Database.RegisterSql(item.SqlDelete());
 
             for (var index = 0; index < Data.RowHeader.RowInfos.Length; index++)
             {
@@ -175,14 +180,45 @@ namespace InfectedRose.Database
         public Column Seek(int key)
         {
             var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
+            
+            Console.WriteLine($"INDEX: {key} % {Data.RowHeader.RowInfos.Length} = {index}");
 
             var bucket = Data.RowHeader.RowInfos[index];
 
-            while (bucket != null && bucket.DataHeader.Data.Fields[0].value != (object) key) bucket = bucket.Linked;
+            while (bucket != null)
+            {
+                Console.WriteLine($"{bucket.DataHeader.Data.Fields[0].value}");
+                
+                if ((int) bucket.DataHeader.Data.Fields[0].value == key)
+                    break;
+                
+                bucket = bucket.Linked;
+            }
 
             return bucket == null ? null : new Column(bucket, this);
         }
 
+        public int ClaimKey(int min)
+        {
+            if (TableInfo[0].Type != DataType.Integer)
+                throw new NotSupportedException("AccessDatabase can only generate primary keys for Int32 types.");
+
+            var max = Count > 0 ? this.Max(c => c.Key) : 0;
+
+            for (var i = min; i < max; i++)
+            {
+                if (this.Any(c => c.Key == i) || ClaimedKeys.Contains(i)) continue;
+                
+                ClaimedKeys.Add(i);
+
+                return i;
+            }
+
+            ClaimedKeys.Add(max + 1);
+
+            return max + 1;
+        }
+        
         public Column Create()
         {
             if (TableInfo[0].Type != DataType.Integer)
@@ -191,18 +227,17 @@ namespace InfectedRose.Database
             var max = Count > 0 ? this.Max(c => c.Key) : 0;
 
             for (var i = 1; i < max; i++)
-                if (this.All(c => c.Key != i))
+            {
+                if (this.All(c => c.Key != i) && !ClaimedKeys.Contains(i))
+                {
                     return Create(i);
-
+                }
+            }
+            
             return Create(max + 1);
         }
 
-        public Column Create(object key)
-        {
-            return Create(key, null);
-        }
-
-        public Column Create(object key, object values)
+        public Column Create(object key, object values = null)
         {
             var list = Data.RowHeader.RowInfos.ToList();
 
@@ -304,6 +339,12 @@ namespace InfectedRose.Database
             var hierarchy = new Dictionary<uint, List<FdbRowInfo>>();
 
             var data = this.ToArray();
+
+            var sorter = data.ToList();
+            
+            sorter.Sort((column, column1) => column.Key - column1.Key);
+
+            data = sorter.ToArray();
 
             foreach (var column in data) column.Data.Linked = default;
 

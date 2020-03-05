@@ -85,6 +85,8 @@ namespace InfectedRose.Database.Concepts
             }
 
             var component = componentTable.Create();
+            
+            Console.WriteLine($"Adding component [{Row.Key}]: {item.Id} -> {component.Key}");
 
             entry["component_id"].Value = component.Key;
 

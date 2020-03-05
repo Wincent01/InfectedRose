@@ -26,7 +26,7 @@ namespace InfectedRose.Lvl
         
         public uint LvlVersion { get; set; }
 
-        public LegoDataDictionary LegoData
+        public LegoDataDictionary LegoInfo
         {
             get => LegoDataDictionary.FromString(ExtraInfo);
             set => ExtraInfo = value.ToString("\n");

@@ -1,7 +1,7 @@
 using InfectedRose.Core;
 using RakDotNet.IO;
 
-namespace InfectedRose.Database
+namespace InfectedRose.Database.Fdb
 {
     internal class FdbBitInt : DatabaseData
     {

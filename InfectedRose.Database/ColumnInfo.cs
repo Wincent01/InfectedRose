@@ -1,3 +1,5 @@
+using InfectedRose.Database.Fdb;
+
 namespace InfectedRose.Database
 {
     public class ColumnInfo
