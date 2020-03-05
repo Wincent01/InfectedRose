@@ -22,13 +22,16 @@ namespace InfectedRose.Lvl
         
         public override void Serialize(BitWriter writer)
         {
-            writer.Write(8);
+            writer.Write((uint) (8 + UnknownFloatArray0.Length * 4));
 
-            // TODO: Add UnknownFloatArray0?
-            
-            var addressPosition = writer.BaseStream.Position;
+            var skySectionPointer = new PointerToken(writer);
 
-            writer.BaseStream.Position += 8;
+            var otherSectionPointer = new PointerToken(writer);
+
+            foreach (var f in UnknownFloatArray0)
+            {
+                writer.Write(f);
+            }
 
             writer.Write((uint) Identifiers.Length);
 
@@ -47,21 +50,13 @@ namespace InfectedRose.Lvl
                 writer.Write(UnknownFloatArray2[i]);
             }
 
-            var skySectionAddress = writer.BaseStream.Position;
-
+            skySectionPointer.Dispose();
+            
             writer.Write(WriteSkySection());
 
-            var otherSectionAddress = writer.BaseStream.Position;
+            otherSectionPointer.Dispose();
 
             writer.Write(WriteOtherSection());
-
-            writer.BaseStream.Position = addressPosition;
-
-            writer.Write((uint) skySectionAddress);
-
-            writer.Write((uint) otherSectionAddress);
-
-            writer.BaseStream.Position = otherSectionAddress + 4;
         }
 
         private byte[] WriteSkySection()
@@ -80,9 +75,11 @@ namespace InfectedRose.Lvl
         private byte[] WriteOtherSection()
         {
             using var stream = new MemoryStream();
-            using var writer = new BinaryWriter(stream);
+            using var writer = new BitWriter(stream);
 
-            writer.Write(0u);
+            writer.Write((uint) UnknownSectionData.Length);
+
+            writer.Write(UnknownSectionData);
 
             return stream.ToArray();
         }

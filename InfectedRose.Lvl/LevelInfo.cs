@@ -1,3 +1,4 @@
+using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Lvl
@@ -13,6 +14,12 @@ namespace InfectedRose.Lvl
         public uint AddressChunk2001 { get; set; }
 
         public uint AddressChunk2002 { get; set; }
+        
+        public PointerToken SkyBoxPointer { get; set; }
+        
+        public PointerToken EnvironmentPointer { get; set; }
+        
+        public PointerToken ObjectsPointer { get; set; }
 
         public override uint ChunkType => 1000;
         
@@ -22,11 +29,11 @@ namespace InfectedRose.Lvl
 
             writer.Write(RevisionNumber);
 
-            writer.Write(AddressChunk2000);
+            SkyBoxPointer = new PointerToken(writer);
 
-            writer.Write(AddressChunk2001);
+            ObjectsPointer = new PointerToken(writer);
 
-            writer.Write(AddressChunk2002);
+            EnvironmentPointer = new PointerToken(writer);
         }
 
         public override void Deserialize(BitReader reader)

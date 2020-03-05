@@ -26,7 +26,11 @@ namespace InfectedRose.Lvl
         public void Serialize(BitWriter writer)
         {
             if (OldLevelHeader == default)
-                throw new NotSupportedException("Writing new level files is not yet supported.");
+            {
+                SerializeNew(writer);
+                
+                return;
+            }
 
             OldLevelHeader.Serialize(writer);
 
@@ -36,6 +40,64 @@ namespace InfectedRose.Lvl
 
             writer.Write<byte>(0);
             writer.Write<byte>(0);
+        }
+
+        private void SerializeNew(BitWriter writer)
+        {
+            SerializeChunk(writer, LevelInfo);
+            SerializeChunk(writer, LevelSkyConfig);
+            SerializeChunk(writer, LevelObjects);
+            SerializeChunk(writer, LevelEnvironmentConfig);
+            
+            LevelInfo.EnvironmentPointer.Dispose();
+            LevelInfo.ObjectsPointer.Dispose();
+            LevelInfo.SkyBoxPointer.Dispose();
+        }
+
+        private void SerializeChunk(BitWriter writer, ChunkBase chunkBase)
+        {
+            if (chunkBase == default) return;
+            
+            using (var token = new LengthToken(writer))
+            {
+                switch (chunkBase)
+                {
+                    case LevelEnvironmentConfig _:
+                        LevelInfo.EnvironmentPointer.Dispose();
+                        break;
+                    case LevelObjects _:
+                        LevelInfo.ObjectsPointer.Dispose();
+                        break;
+                    case LevelSkyConfig _:
+                        LevelInfo.SkyBoxPointer.Dispose();
+                        break;
+                }
+                
+                writer.Write(ChunkHeader);
+
+                writer.Write(chunkBase.ChunkType);
+
+                writer.Write<ushort>(1);
+
+                writer.Write(chunkBase.Index);
+                
+                token.Allocate();
+
+                using (new PointerToken(writer))
+                {
+                    while (writer.BaseStream.Position % 16 != 0)
+                    {
+                        writer.Write<byte>(0);
+                    }
+                }
+
+                chunkBase.Serialize(writer);
+                
+                while (writer.BaseStream.Position % 16 != 0)
+                {
+                    writer.Write<byte>(0);
+                }
+            }
         }
 
         public void Deserialize(BitReader reader)
@@ -132,11 +194,6 @@ namespace InfectedRose.Lvl
                         break;
                     default:
                         throw new ArgumentOutOfRangeException($"{chunkType} is not a valid chunk type.");
-                }
-
-                while (reader.BaseStream.Position != startPosition + chunkLength)
-                {
-                    reader.Read<byte>();
                 }
 
                 reader.BaseStream.Position = startPosition + chunkLength;
