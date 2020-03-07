@@ -22,15 +22,9 @@ namespace InfectedRose.Lvl
         
         public float Scale { get; set; }
 
-        public string ExtraInfo { get; set; }
+        public LegoDataDictionary LegoInfo { get; set; }
         
         public uint LvlVersion { get; set; }
-
-        public LegoDataDictionary LegoInfo
-        {
-            get => LegoDataDictionary.FromString(ExtraInfo);
-            set => ExtraInfo = value.ToString("\n");
-        }
         
         public LevelObjectTemplate(uint lvlVersion = 0x26)
         {
@@ -55,10 +49,10 @@ namespace InfectedRose.Lvl
 
             writer.Write(Scale);
 
-            writer.WriteNiString(ExtraInfo, true);
+            writer.WriteNiString(LegoInfo.ToString("\n"), true);
 
             if (LvlVersion >= 0x7)
-                writer.Write(UnknownInt1);
+                writer.Write(0u);
         }
 
         public void Deserialize(BitReader reader)
@@ -79,8 +73,13 @@ namespace InfectedRose.Lvl
 
             Scale = reader.Read<float>();
 
-            ExtraInfo = reader.ReadNiString(true);
-            
+            var legoInfo = reader.ReadNiString(true);
+
+            if (legoInfo.Length > 0)
+            {
+                LegoInfo = LegoDataDictionary.FromString(legoInfo);
+            }
+
             if (LvlVersion >= 0x7)
                 UnknownInt1 = reader.Read<uint>();
         }
