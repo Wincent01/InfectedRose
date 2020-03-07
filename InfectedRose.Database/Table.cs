@@ -394,6 +394,7 @@ namespace InfectedRose.Database
         {
             var index = key switch
             {
+                uint keyUint => (int) keyUint,
                 int keyInt => keyInt,
                 string val => (int) Hash(val.Select(k => (byte) k).ToArray()),
                 FdbString keyStr => (int) Hash(keyStr.Value.Select(k => (byte) k).ToArray()),

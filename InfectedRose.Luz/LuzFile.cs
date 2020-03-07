@@ -27,11 +27,11 @@ namespace InfectedRose.Luz
         
         public string TerrainDescription { get; set; }
 
-        public LuzSceneTransition[] Transitions { get; set; }
-        
-        public uint PathFormatVersion { get; set; }
-        
-        public LuzPathData[] PathData { get; set; }
+        public LuzSceneTransition[] Transitions { get; set; } = new LuzSceneTransition[0];
+
+        public uint PathFormatVersion { get; set; } = 18;
+
+        public LuzPathData[] PathData { get; set; } = new LuzPathData[0];
 
         public void Serialize(BitWriter writer)
         {
@@ -97,7 +97,9 @@ namespace InfectedRose.Luz
 
         private void WritePaths(BitWriter writer)
         {
-            writer.BaseStream.Position += 4;
+            using var token = new LengthToken(writer);
+            
+            token.Allocate();
 
             writer.Write(PathFormatVersion);
 
@@ -119,9 +121,9 @@ namespace InfectedRose.Luz
 
                 writer.Write((uint) pathData.Waypoints.Length);
 
-                foreach (var waypoint in pathData.Waypoints)
+                foreach (var wayPoint in pathData.Waypoints)
                 {
-                    waypoint.Serialize(writer);
+                    wayPoint.Serialize(writer);
                 }
             }
         }
@@ -188,8 +190,6 @@ namespace InfectedRose.Luz
                     var version = reader.Read<uint>();
                     var name = reader.ReadNiString(true, true);
                     var type = (PathType) reader.Read<uint>();
-                    
-                    //Console.WriteLine($"[{i}:{name}] -> [{type}]");
 
                     PathData[i] = type switch
                     {

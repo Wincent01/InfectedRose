@@ -22,6 +22,8 @@ namespace InfectedRose.Lvl
         public LevelEnvironmentConfig LevelEnvironmentConfig { get; set; }
 
         private static readonly byte[] ChunkHeader = "CHNK".Select(c => (byte) c).ToArray();
+
+        private ushort _index;
         
         public void Serialize(BitWriter writer)
         {
@@ -44,6 +46,8 @@ namespace InfectedRose.Lvl
 
         private void SerializeNew(BitWriter writer)
         {
+            _index = 0;
+            
             SerializeChunk(writer, LevelInfo);
             SerializeChunk(writer, LevelSkyConfig);
 
@@ -75,6 +79,10 @@ namespace InfectedRose.Lvl
         {
             if (chunkBase == default) return;
 
+            _index++;
+
+            chunkBase.Index = _index;
+            
             using var token = new LengthToken(writer);
             
             switch (chunkBase)

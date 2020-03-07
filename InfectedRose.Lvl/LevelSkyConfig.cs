@@ -6,17 +6,17 @@ namespace InfectedRose.Lvl
 {
     public class LevelSkyConfig : ChunkBase
     {
-        public IdStruct[] Identifiers { get; set; }
+        public IdStruct[] Identifiers { get; set; } = new IdStruct[0];
 
         public string[] Skybox { get; set; } = new string[6];
-        
-        public float[] UnknownFloatArray0 { get; set; }
+
+        public float[] UnknownFloatArray0 { get; set; } = new float[0];
 
         public float[] UnknownFloatArray1 { get; set; } = new float[3];
 
         public float[] UnknownFloatArray2 { get; set; } = new float[3];
-        
-        public byte[] UnknownSectionData { get; set; }
+
+        public byte[] UnknownSectionData { get; set; } = new byte[0];
 
         public override uint ChunkType => 2000;
         
@@ -66,7 +66,7 @@ namespace InfectedRose.Lvl
 
             for (var i = 0; i < 6; i++)
             {
-                writer.WriteNiString(Skybox[i]);
+                writer.WriteNiString(Skybox[i] ?? "<invalid>");
             }
 
             return stream.ToArray();
