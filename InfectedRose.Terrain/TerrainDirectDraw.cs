@@ -21,5 +21,15 @@ namespace InfectedRose.Terrain
         {
             Data = reader.ReadBuffer((uint) reader.Read<int>());
         }
+
+        public static TerrainDirectDraw Empty
+        {
+            get
+            {
+                var map = new TerrainDirectDraw {Data = new byte[0]};
+                
+                return map;
+            }
+        }
     }
 }

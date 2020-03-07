@@ -1,3 +1,4 @@
+using System.Linq;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -9,13 +10,13 @@ namespace InfectedRose.Terrain
         
         public int Height { get; set; }
         
-        public float UnknownFloat0 { get; set; }
+        public float PositionX { get; set; }
         
-        public float UnknownFloat1 { get; set; }
-        
-        public float UnknownFloat2 { get; set; }
-        
-        public int[] UnknownIntArray { get; set; }
+        public float PositionY { get; set; }
+
+        public float ScaleFactor { get; set; } = 3.2f;
+
+        public int[] UnknownIntArray { get; set; } = {1, 2, 3, 4};
         
         public float[] Data { get; set; }
 
@@ -24,15 +25,15 @@ namespace InfectedRose.Terrain
             writer.Write(Width);
             writer.Write(Height);
 
-            writer.Write(UnknownFloat0);
-            writer.Write(UnknownFloat1);
+            writer.Write(PositionX);
+            writer.Write(PositionY);
 
             for (var i = 0; i < 4; i++)
             {
                 writer.Write(UnknownIntArray[i]);
             }
 
-            writer.Write(UnknownFloat2);
+            writer.Write(ScaleFactor);
 
             for (var i = 0; i < Width * Height; i++)
             {
@@ -45,8 +46,8 @@ namespace InfectedRose.Terrain
             Width = reader.Read<int>();
             Height = reader.Read<int>();
 
-            UnknownFloat0 = reader.Read<float>();
-            UnknownFloat1 = reader.Read<float>();
+            PositionX = reader.Read<float>();
+            PositionY = reader.Read<float>();
             
             UnknownIntArray = new int[4];
 
@@ -55,7 +56,7 @@ namespace InfectedRose.Terrain
                 UnknownIntArray[i] = reader.Read<int>();
             }
 
-            UnknownFloat2 = reader.Read<float>();
+            ScaleFactor = reader.Read<float>();
 
             Data = new float[Width * Height];
 
@@ -68,6 +69,46 @@ namespace InfectedRose.Terrain
         public float GetValue(int x, int y)
         {
             return Data[y * Width + x];
+        }
+
+        public void SetValue(int x, int y, float value)
+        {
+            Data[y * Width + x] = value;
+        }
+
+        public float Min => Data.Min();
+
+        public float Max => Data.Max();
+
+        public static HeightMap Empty
+        {
+            get
+            {
+                var map = new HeightMap {Width = 65, Height = 65};
+
+                map.Data = new float[map.Width * map.Height];
+
+                for (var i = 0; i < map.Data.Length; i++)
+                {
+                    map.Data[i] = 200;
+                }
+
+                return map;
+            }
+        }
+
+        public static HeightMap FromSize(int size, float height = 200)
+        {
+            var map = new HeightMap {Width = size, Height = size};
+
+            map.Data = new float[map.Width * map.Height];
+
+            for (var i = 0; i < map.Data.Length; i++)
+            {
+                map.Data[i] = height;
+            }
+
+            return map;
         }
     }
 }

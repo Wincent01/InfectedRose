@@ -4,7 +4,7 @@ using RakDotNet.IO;
 
 namespace InfectedRose.Terrain
 {
-    public class WeirdStruct : IConstruct
+    public class Foliage : IConstruct
     {
         public int Type { get; set; }
         

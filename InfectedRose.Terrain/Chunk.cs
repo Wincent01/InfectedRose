@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -5,7 +6,7 @@ namespace InfectedRose.Terrain
 {
     public class Chunk : IConstruct
     {
-        public int ChunkIndex { get; set; }
+        public int Index { get; set; }
         
         public HeightMap HeightMap { get; set; }
         
@@ -15,23 +16,23 @@ namespace InfectedRose.Terrain
         
         public ColorMap Colormap1 { get; set; }
 
-        public byte UnknownByte { get; set; }
+        public byte TextureSetting { get; set; } = 0x1;
         
         public TerrainDirectDraw Blendmap { get; set; }
         
-        public WeirdStruct[] WeirdStructs { get; set; }
+        public List<Foliage> Foliage { get; set; }
         
-        public byte[] UnknownByteArray0 { get; set; }
+        public byte[] ColorRelatedArray { get; set; }
         
         public ShortMap ShortMap { get; set; }
         
         public short[][] UnknownShortArray { get; set; }
-        
-        public byte[] UnknownByteArray1 { get; set; }
+
+        public byte[] UnknownByteArray1 { get; set; } = new byte[32];
 
         public void Serialize(BitWriter writer)
         {
-            writer.Write(ChunkIndex);
+            writer.Write(Index);
 
             HeightMap.Serialize(writer);
 
@@ -41,18 +42,18 @@ namespace InfectedRose.Terrain
 
             Colormap1.Serialize(writer);
 
-            writer.Write(UnknownByte);
+            writer.Write(TextureSetting);
             
             Blendmap.Serialize(writer);
 
-            writer.Write(WeirdStructs.Length);
+            writer.Write(Foliage.Count);
 
-            foreach (var weirdStruct in WeirdStructs)
+            foreach (var foliage in Foliage)
             {
-                weirdStruct.Serialize(writer);
+                foliage.Serialize(writer);
             }
 
-            foreach (var unknownByte in UnknownByteArray0)
+            foreach (var unknownByte in ColorRelatedArray)
             {
                 writer.Write(unknownByte);
             }
@@ -79,7 +80,7 @@ namespace InfectedRose.Terrain
 
         public void Deserialize(BitReader reader)
         {
-            ChunkIndex = reader.Read<int>();
+            Index = reader.Read<int>();
 
             HeightMap = new HeightMap();
             HeightMap.Deserialize(reader);
@@ -93,22 +94,24 @@ namespace InfectedRose.Terrain
             Colormap1 = new ColorMap();
             Colormap1.Deserialize(reader);
 
-            UnknownByte = reader.Read<byte>();
+            TextureSetting = reader.Read<byte>();
             
             Blendmap = new TerrainDirectDraw();
             Blendmap.Deserialize(reader);
 
-            WeirdStructs = new WeirdStruct[reader.Read<int>()];
+            var foliageCount = reader.Read<int>();
+            
+            Foliage = new List<Foliage>();
 
-            for (var i = 0; i < WeirdStructs.Length; i++)
+            for (var i = 0; i < foliageCount; i++)
             {
-                var weirdStruct = new WeirdStruct();
-                weirdStruct.Deserialize(reader);
+                var foliage = new Foliage();
+                foliage.Deserialize(reader);
 
-                WeirdStructs[i] = weirdStruct;
+                Foliage.Add(foliage);
             }
 
-            UnknownByteArray0 = reader.ReadBuffer((uint) (Colormap0.Width * Colormap0.Height));
+            ColorRelatedArray = reader.ReadBuffer((uint) (Colormap0.Size * Colormap0.Size));
             
             ShortMap = new ShortMap();
             ShortMap.Deserialize(reader);
@@ -128,6 +131,33 @@ namespace InfectedRose.Terrain
                 {
                     UnknownShortArray[i][j] = reader.Read<short>();
                 }
+            }
+        }
+
+        public static Chunk Empty
+        {
+            get
+            {
+                var chunk = new Chunk
+                {
+                    Colormap0 = ColorMap.Empty,
+                    Colormap1 = ColorMap.Empty,
+                    HeightMap = HeightMap.Empty,
+                    ShortMap = ShortMap.Empty,
+                    Blendmap = TerrainDirectDraw.Empty,
+                    Lightmap = TerrainDirectDraw.Empty,
+                    Foliage = new List<Foliage>()
+                };
+
+                chunk.ColorRelatedArray = new byte[chunk.Colormap0.Size * chunk.Colormap0.Size];
+                chunk.UnknownShortArray = new short[16][];
+
+                for (var i = 0; i < 16; i++)
+                {
+                    chunk.UnknownShortArray[i] = new short[0];
+                }
+
+                return chunk;
             }
         }
     }

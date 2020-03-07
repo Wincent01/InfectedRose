@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Pipeline
 {
     public struct Triangle
     {

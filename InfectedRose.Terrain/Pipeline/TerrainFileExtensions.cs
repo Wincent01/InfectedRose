@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Pipeline
 {
     public static class TerrainFileExtensions
     {

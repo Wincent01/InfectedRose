@@ -26,5 +26,15 @@ namespace InfectedRose.Terrain
                 Data[i] = reader.Read<short>();
             }
         }
+
+        public static ShortMap Empty
+        {
+            get
+            {
+                var map = new ShortMap {Data = new short[0]};
+                
+                return map;
+            }
+        }
     }
 }
