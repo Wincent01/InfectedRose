@@ -37,10 +37,6 @@ namespace InfectedRose.Interface
 
             await zone.SaveAsync(Path.Combine(Interface.Configuration.Output, "maps"));
 
-            Console.WriteLine("Saved, running through checks.");
-
-            await RunChecksAsync(zone);
-
             Console.WriteLine("Adding zone to database.");
             
             var zones = Interface.Database["ZoneTable"];
@@ -56,40 +52,6 @@ namespace InfectedRose.Interface
                 locStatus = 0,
                 DisplayDescription = zone.Description
             };
-        }
-        
-        private static async Task RunChecksAsync(Zone zone)
-        {
-            var name = Path.GetFileName(zone.Name);
-            
-            var file = new LuzFile();
-            
-            Console.WriteLine($"Checking: {name}...");
-            
-            await using (var stream = File.OpenRead(name))
-            {
-                using var reader = new BitReader(stream);
-
-                file.Deserialize(reader);
-            }
-            
-            Console.WriteLine("Passed");
-
-            foreach (var scene in file.Scenes)
-            {
-                var lvl = new LvlFile();
-                
-                Console.WriteLine($"Checking: {scene.FileName}...");
-                
-                await using (var stream = File.OpenRead(scene.FileName))
-                {
-                    using var reader = new BitReader(stream);
-
-                    lvl.Deserialize(reader);
-                }
-                
-                Console.WriteLine("Passed");
-            }
         }
     }
 }
