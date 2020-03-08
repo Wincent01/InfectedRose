@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,28 +23,7 @@ namespace InfectedRose.World
 
         [XmlElement] public string Description { get; set; } = "amazing zone";
         
-        [XmlElement("Scene")] public List<Scene> Scenes { get; set; } = new List<Scene>
-        {
-            new Scene
-            {
-                Id = 0,
-                Layer = 0,
-                Name = "global scene",
-                Objects = new List<WorldObject>
-                {
-                    new WorldObject
-                    {
-                        AssetType = 1,
-                        Lot = 31,
-                        Scale = 1,
-                        Info = "",
-                        Rotation = Quaternion.Identity
-                    }
-                },
-                Revision = 1,
-                SkyBox = "SkyBox"
-            }
-        };
+        [XmlElement("Scene")] public List<Scene> Scenes { get; set; } = new List<Scene>();
         
         [XmlElement] public Vector3 SpawnPosition { get; set; }
 
@@ -66,7 +46,16 @@ namespace InfectedRose.World
                 RevisionNumber = Revision
             };
 
-            await using var stream = File.Create(Path.Combine(path, $"{Path.GetFileName(Name)}"));
+            var zoneFile = Path.Combine(path, Name);
+
+            var root = Path.GetDirectoryName(zoneFile);
+            
+            if (!Directory.Exists(root))
+            {
+                Directory.CreateDirectory(root);
+            }
+            
+            await using var stream = File.Create(zoneFile);
 
             using var writer = new BitWriter(stream);
 
@@ -74,7 +63,7 @@ namespace InfectedRose.World
 
             foreach (var scene in Scenes)
             {
-                await scene.SaveAsync(path);
+                await scene.SaveAsync(Path.Combine(path, Path.GetDirectoryName(Name)));
             }
         }
     }

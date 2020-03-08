@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\InfectedRose.Builder\InfectedRose.Builder.csproj" />
       <ProjectReference Include="..\InfectedRose.Database\InfectedRose.Database.csproj" />
       <ProjectReference Include="..\InfectedRose.World\InfectedRose.World.csproj" />
     </ItemGroup>

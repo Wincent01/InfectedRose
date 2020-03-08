@@ -253,7 +253,42 @@ namespace InfectedRose.Database
             {
                 var type = Info.Data.Fields[i].type;
 
-                column.DataHeader.Data.Fields[i] = (type, GetDefault(type));
+                DataType newType;
+
+                switch (type)
+                {
+                    case DataType.Nothing:
+                        newType = DataType.Nothing;
+                        break;
+                    case DataType.Integer:
+                        newType = DataType.Integer;
+                        break;
+                    case DataType.Unknown1:
+                        newType = DataType.Integer;
+                        break;
+                    case DataType.Float:
+                        newType = DataType.Float;
+                        break;
+                    case DataType.Text:
+                        newType = DataType.Nothing;
+                        break;
+                    case DataType.Boolean:
+                        newType = DataType.Boolean;
+                        break;
+                    case DataType.Bigint:
+                        newType = DataType.Nothing;
+                        break;
+                    case DataType.Unknown2:
+                        newType = DataType.Integer;
+                        break;
+                    case DataType.Varchar:
+                        newType = DataType.Nothing;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                
+                column.DataHeader.Data.Fields[i] = (newType, GetDefault(type));
             }
 
             var primaryKey = GetKey(key) % (list.Count > 0 ? list.Count : 1);
@@ -340,11 +375,14 @@ namespace InfectedRose.Database
 
             var data = this.ToArray();
 
-            var sorter = data.ToList();
-            
-            sorter.Sort((column, column1) => column.Key - column1.Key);
+            if (bucketSize == 1)
+            {
+                var sorter = data.ToList();
 
-            data = sorter.ToArray();
+                sorter.Sort((column, column1) => column.Key - column1.Key);
+
+                data = sorter.ToArray();
+            }
 
             foreach (var column in data) column.Data.Linked = default;
 
@@ -466,9 +504,9 @@ namespace InfectedRose.Database
                 DataType.Float => 0,
                 DataType.Boolean => false,
                 DataType.Unknown2 => 0,
-                DataType.Varchar => new FdbString(),
-                DataType.Text => new FdbString(),
-                DataType.Bigint => new FdbBitInt(),
+                DataType.Varchar => null,
+                DataType.Text => null,
+                DataType.Bigint => null,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }

@@ -1,29 +1,21 @@
+using System.Xml.Serialization;
+
 namespace InfectedRose.Builder
 {
+    [XmlRoot]
     public class CharacterStyle
     {
-        public int Chest { get; set; }
-        
-        public int ChestDecal { get; set; }
-        
-        public int EyeBrowStyle { get; set; }
-        
-        public int EyesStyle { get; set; }
-        
-        public int HairColor { get; set; }
-        
-        public int HairStyle { get; set; }
-        
-        public int Head { get; set; }
-        
-        public int HeadColor { get; set; }
-        
-        public int LeftHand { get; set; }
-        
-        public int Legs { get; set; }
-        
-        public int MouthStyle { get; set; }
-        
-        public int RightHand { get; set; }
+        [XmlElement] public int Chest { get; set; } = 0;
+        [XmlElement] public int ChestDecal { get; set; } = 0;
+        [XmlElement] public int EyeBrowStyle { get; set; } = 0;
+        [XmlElement] public int EyesStyle { get; set; } = 0;
+        [XmlElement] public int HairColor { get; set; } = 0;
+        [XmlElement] public int HairStyle { get; set; } = 0;
+        [XmlElement] public int Head { get; set; } = 0;
+        [XmlElement] public int HeadColor { get; set; } = 0;
+        [XmlElement] public int LeftHand { get; set; } = 0;
+        [XmlElement] public int Legs { get; set; } = 0;
+        [XmlElement] public int MouthStyle { get; set; } = 0;
+        [XmlElement] public int RightHand { get; set; } = 0;
     }
 }

@@ -1,27 +1,29 @@
 using System.Linq;
+using System.Xml.Serialization;
 using InfectedRose.Database;
 using InfectedRose.Database.Concepts.Tables;
 using InfectedRose.Database.Generic;
 
 namespace InfectedRose.Builder
 {
+    [XmlRoot]
     public class MissionTask
     {
-        public int TaskType { get; set; }
+        [XmlElement] public int TaskType { get; set; }
         
-        public int Target { get; set; }
+        [XmlElement] public int Target { get; set; }
         
-        public string TargetGroup { get; set; }
+        [XmlElement] public string TargetGroup { get; set; }
         
-        public int TargetValue { get; set; }
+        [XmlElement] public int TargetValue { get; set; }
         
-        public string Parameters { get; set; }
+        [XmlElement] public string Parameters { get; set; }
         
-        public int IconId { get; set; }
+        [XmlElement] public int IconId { get; set; }
         
-        public string LargeIcon { get; set; }
+        [XmlElement] public string LargeIcon { get; set; }
         
-        public int LargeIconId { get; set; }
+        [XmlElement] public int LargeIconId { get; set; }
 
         internal void Build(AccessDatabase database, int missionId)
         {

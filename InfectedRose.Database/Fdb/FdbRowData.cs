@@ -78,6 +78,9 @@ namespace InfectedRose.Database.Fdb
                         var b = (bool) Fields[i].value;
                         map += b ? 1 : 0;
                         break;
+                    case DataType.Nothing:
+                        map += 0;
+                        break;
                     default:
                         map += Fields[i].value;
                         break;

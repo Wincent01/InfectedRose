@@ -29,6 +29,8 @@ namespace InfectedRose.Lvl
         {
             if (OldLevelHeader == default)
             {
+                LevelInfo.LvlVersion = LvlVersion;
+                
                 SerializeNew(writer);
                 
                 return;

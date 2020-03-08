@@ -26,7 +26,7 @@ namespace InfectedRose.World
 
         public LuzScene LuzScene => new LuzScene
         {
-            FileName = $"{Name.Replace(" ", "_")}.lvl",
+            FileName = $"{Name.Replace(" ", "_").ToLower()}.lvl",
             SceneName = Name,
             SceneId = Id,
             LayerId = Layer

@@ -1,41 +1,30 @@
-using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 using InfectedRose.Database;
 using InfectedRose.Database.Concepts;
 
 namespace InfectedRose.Builder
 {
+    [XmlRoot]
     public class Npc
     {
-        internal AccessDatabase Database { get; }
-        
-        internal int Source { get; }
-        
-        public int Lot { get; }
-        
-        public string Name { get; set; }
-        
-        public int InteractDistance { get; set; }
-        
-        public CharacterStyle Style { get; set; } = new CharacterStyle();
-        
-        public List<int> Items { get; set; } = new List<int>();
-        
-        public List<MissionEntry> Missions { get; set; } = new List<MissionEntry>();
+        [XmlIgnore] public AccessDatabase Database { get; set; }
 
-        public Npc(AccessDatabase database, int source = 12261)
+        [XmlElement] public int Lot { get; set; } = 20000;
+
+        [XmlElement] public string Name { get; set; } = "npc";
+
+        [XmlElement] public int InteractDistance { get; set; } = 5;
+        
+        [XmlElement] public CharacterStyle Style { get; set; } = new CharacterStyle();
+        
+        [XmlElement("Item")] public int[] Items { get; set; } = new int[1];
+        
+        [XmlElement("Mission")] public MissionEntry[] Missions { get; set; } = new MissionEntry[1];
+
+        public void Build()
         {
-            Database = database;
-            Source = source;
-
-            var table = database["Objects"];
-
-            Lot = table.ClaimKey(20000);
-        }
-
-        public int Build()
-        {
-            var concept = Database.CopyObject(Source, Lot);
+            var concept = Database.CopyObject(12261, Lot);
 
             concept.Row["name"].Value = Name;
             concept.Row["interactionDistance"].Value = InteractDistance;
@@ -67,8 +56,6 @@ namespace InfectedRose.Builder
             {
                 BuildRender(render.Row);
             }
-
-            return concept.Row.Key;
         }
 
         private void BuildCharacterStyle(Column row)

@@ -1,83 +1,59 @@
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using InfectedRose.Database;
 using InfectedRose.Database.Concepts.Tables;
 using InfectedRose.Database.Fdb;
 
 namespace InfectedRose.Builder
 {
+    [XmlRoot]
     public class Mission
     {
-        internal AccessDatabase Database { get; }
+        [XmlIgnore] public AccessDatabase Database { get; set; }
         
-        public int Id { get; }
+        [XmlElement] public int Id { get; set; }
         
-        public string Type { get; set; }
+        [XmlElement] public string Type { get; set; }
         
-        public string SubType { get; set; }
+        [XmlElement] public string SubType { get; set; }
         
-        public int UiSortOrder { get; set; }
+        [XmlElement] public int UiSortOrder { get; set; }
         
-        public int RewardCurrency { get; set; }
+        [XmlElement] public int RewardCurrency { get; set; }
         
-        public int RewardScore { get; set; }
+        [XmlElement] public int RewardScore { get; set; }
         
-        public bool IsMission { get; set; }
+        [XmlElement] public bool IsMission { get; set; }
 
-        public bool ChoiceRewards { get; set; }
+        [XmlElement]  public bool ChoiceRewards { get; set; }
         
-        public ItemReward[] ItemRewards { get; set; } = new ItemReward[4];
+        [XmlElement("ItemReward")] public ItemReward[] ItemRewards { get; set; } = new ItemReward[4];
 
-        public ItemReward[] RepeatItemRewards { get; set; } = new ItemReward[4];
+        [XmlElement("RepeatItemReward")] public ItemReward[] RepeatItemRewards { get; set; } = new ItemReward[4];
 
-        public int[] EmoteRewards { get; set; } = new int[4];
+        [XmlElement("EmoteReward")] public int[] EmoteRewards { get; set; } = new int[4];
         
-        public int RewardMaxImagination { get; set; }
+        [XmlElement] public int RewardMaxImagination { get; set; }
         
-        public int RewardMaxHealth { get; set; }
+        [XmlElement] public int RewardMaxHealth { get; set; }
         
-        public int RewardMaxInventory { get; set; }
+        [XmlElement] public int RewardMaxInventory { get; set; }
         
-        public bool Repeatable { get; set; }
+        [XmlElement] public bool Repeatable { get; set; }
         
-        public int RepeatRewardCurrency { get; set; }
+        [XmlElement] public int RepeatRewardCurrency { get; set; }
         
-        public int MissionIconId { get; set; }
+        [XmlElement] public int MissionIconId { get; set; }
 
-        public string Prerequisites { get; set; }
+        [XmlElement] public string Prerequisites { get; set; }
         
-        public int OfferObject { get; set; }
+        [XmlElement] public int OfferObject { get; set; }
         
-        public int TargetObject { get; set; }
+        [XmlElement] public int TargetObject { get; set; }
         
-        public bool InMotd { get; set; }
-        
-        public List<MissionTask> Tasks { get; set; }
+        [XmlElement] public bool InMotd { get; set; }
 
-        public Mission(AccessDatabase database)
-        {
-            Database = database;
-
-            var table = database["Missions"];
-
-            Id = table.ClaimKey(333);
-
-            for (var i = 0; i < 4; i++)
-            {
-                ItemRewards[i] = new ItemReward
-                {
-                    Lot = -1,
-                    Count = 0
-                };
-                
-                RepeatItemRewards[i] = new ItemReward
-                {
-                    Lot = -1,
-                    Count = 0
-                };
-
-                EmoteRewards[i] = -1;
-            }
-        }
+        [XmlElement("Task")] public MissionTask[] Tasks { get; set; } = new MissionTask[1];
 
         public int Build()
         {
