@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -65,6 +64,8 @@ namespace InfectedRose.World
             {
                 await scene.SaveAsync(Path.Combine(path, Path.GetDirectoryName(Name)));
             }
+
+            await Terrain.SaveAsync(root);
         }
     }
 }

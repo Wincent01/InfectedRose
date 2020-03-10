@@ -16,7 +16,6 @@ namespace InfectedRose.Core
                 str[i] = (char) (wide ? @this.Read<ushort>() : @this.Read<byte>());
             }
 
-
             return new string(str);
         }
 

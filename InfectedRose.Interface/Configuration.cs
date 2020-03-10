@@ -19,5 +19,7 @@ namespace InfectedRose.Interface
         [XmlElement("Npc")] public List<string> Npcs { get; set; } = new List<string>();
         
         [XmlElement("Mission")] public List<string> Mission { get; set; } = new List<string>();
+        
+        [XmlElement("Update")] public List<string> Updates { get; set; } = new List<string>();
     }
 }

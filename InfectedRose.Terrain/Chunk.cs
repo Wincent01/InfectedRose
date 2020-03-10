@@ -150,6 +150,12 @@ namespace InfectedRose.Terrain
                 };
 
                 chunk.ColorRelatedArray = new byte[chunk.Colormap0.Size * chunk.Colormap0.Size];
+
+                for (var i = 0; i < chunk.ColorRelatedArray.Length; i++)
+                {
+                    chunk.ColorRelatedArray[i] = (byte) (i == 0 ? 1 : i);
+                }
+                
                 chunk.UnknownShortArray = new short[16][];
 
                 for (var i = 0; i < 16; i++)

@@ -9,6 +9,8 @@ namespace InfectedRose.Luz
     {
         public string SceneTransitionName { get; set; }
         
+        public float UnknownFloat { get; set; }
+        
         public LuzSceneTransitionPoint[] TransitionPoints { get; set; }
         
         public uint Version { get; set; }
@@ -20,26 +22,50 @@ namespace InfectedRose.Luz
 
         public void Serialize(BitWriter writer)
         {
-            if (Version < 0x25)
+            if (Version < 40)
             {
                 writer.WriteNiString(SceneTransitionName, false, true);
+
+                writer.Write(UnknownFloat);
+            }
+            
+            var pointCount = Version < 39 ? 5 : 2;
+
+            var luzSceneTransitionPoints = TransitionPoints;
+            
+            if (luzSceneTransitionPoints.Length != pointCount)
+            {
+                Array.Resize(ref luzSceneTransitionPoints, pointCount);
             }
 
-            foreach (var transitionPoint in TransitionPoints)
+            for (var index = 0; index < pointCount; index++)
             {
+                var transitionPoint = luzSceneTransitionPoints[index];
+
+                if (transitionPoint == default)
+                {
+                    transitionPoint = new LuzSceneTransitionPoint();
+
+                    luzSceneTransitionPoints[index] = transitionPoint;
+                }
+                
                 transitionPoint.Serialize(writer);
             }
+
+            TransitionPoints = luzSceneTransitionPoints;
         }
 
         public void Deserialize(BitReader reader)
         {
-            if (Version < 0x25)
+            if (Version < 40)
             {
                 SceneTransitionName = reader.ReadNiString(false, true);
+
+                UnknownFloat = reader.Read<float>();
             }
 
-            var pointCount = Version <= 21 || Version >= 0x27 ? 2 : 5;
-            
+            var pointCount = Version < 39 ? 5 : 2;
+
             TransitionPoints = new LuzSceneTransitionPoint[pointCount];
 
             for (var i = 0; i < pointCount; i++)

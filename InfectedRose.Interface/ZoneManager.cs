@@ -3,10 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using InfectedRose.Database.Concepts.Tables;
-using InfectedRose.Luz;
-using InfectedRose.Lvl;
 using InfectedRose.World;
-using RakDotNet.IO;
 
 namespace InfectedRose.Interface
 {
@@ -37,7 +34,7 @@ namespace InfectedRose.Interface
 
             await zone.SaveAsync(Path.Combine(Interface.Configuration.Output, "maps"));
 
-            Console.WriteLine("Adding zone to database.");
+            Console.WriteLine($"Adding [{zone.Id}] {Path.GetFileName(file)} to database.");
             
             var zones = Interface.Database["ZoneTable"];
 

@@ -21,6 +21,8 @@ namespace InfectedRose.Lvl
 
         public LevelEnvironmentConfig LevelEnvironmentConfig { get; set; }
 
+        public bool IsOld => OldLevelHeader != default;
+
         private static readonly byte[] ChunkHeader = "CHNK".Select(c => (byte) c).ToArray();
 
         private ushort _index;
@@ -30,6 +32,9 @@ namespace InfectedRose.Lvl
             if (OldLevelHeader == default)
             {
                 LevelInfo.LvlVersion = LvlVersion;
+
+                if (LevelObjects != default)
+                    LevelObjects.LvlVersion = LvlVersion;
                 
                 SerializeNew(writer);
                 
@@ -229,6 +234,34 @@ namespace InfectedRose.Lvl
         public void ConvertToOld(ushort version = 39)
         {
             OldLevelHeader = new OldLevelHeader {LvlVersion = version, SkyBox = LevelSkyConfig.Skybox};
+        }
+
+        public void ConvertToNew(ushort version = 39)
+        {
+            var header = OldLevelHeader;
+
+            OldLevelHeader = default;
+            
+            LevelInfo = new LevelInfo
+            {
+                LvlVersion = header.LvlVersion,
+                RevisionNumber = header.Revision
+            };
+
+            if (header.SkyBox?.Length > 0)
+            {
+                LevelSkyConfig = new LevelSkyConfig
+                {
+                    Skybox = header.SkyBox
+                };
+            }
+
+            if (LevelObjects.Templates.Length == 0)
+            {
+                LevelObjects = default;
+            }
+            
+            LevelEnvironmentConfig = default;
         }
     }
 }

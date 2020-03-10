@@ -256,7 +256,19 @@ namespace InfectedRose.Lvl
                         break;
 
                     case 7:
-                        v = int.Parse(val) == 1;
+                        if (int.TryParse(val, out var i))
+                        {
+                            v = i == 1;
+                        }
+                        else if (bool.TryParse(val, out var b))
+                        {
+                            v = b;
+                        }
+                        else
+                        {
+                            throw new FormatException($"Failed to parse {val} as boolean.");
+                        }
+
                         break;
 
                     case 8:

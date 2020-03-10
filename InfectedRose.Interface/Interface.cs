@@ -21,13 +21,21 @@ namespace InfectedRose.Interface
             Sql = new List<string>();
             
             await OpenConfig();
+
+            /*
+            await TerrainManager.AnalyseAsync(Configuration.Output);
             
+            return;
+            */
+
             Database = await AccessDatabase.OpenAsync(Configuration.CdClient);
 
             Database.OnSql += Sql.Add;
             
             await BuildZones();
 
+            await UpdateZones();
+            
             await BuildNpcs();
 
             await BuildMissions();
@@ -40,6 +48,14 @@ namespace InfectedRose.Interface
             foreach (var zone in Configuration.Zones)
             {
                 await ZoneManager.GenerateZoneAsync(zone);
+            }
+        }
+
+        private static async Task UpdateZones()
+        {
+            foreach (var update in Configuration.Updates)
+            {
+                await UpdateUtility.UpgradeZone(update);
             }
         }
 

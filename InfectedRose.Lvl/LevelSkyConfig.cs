@@ -66,7 +66,7 @@ namespace InfectedRose.Lvl
 
             for (var i = 0; i < 6; i++)
             {
-                writer.WriteNiString(Skybox[i] ?? "<invalid>");
+                writer.WriteNiString(Skybox[i] ?? "(invalid)");
             }
 
             return stream.ToArray();

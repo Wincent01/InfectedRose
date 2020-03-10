@@ -26,6 +26,8 @@ namespace InfectedRose.World
             {
                 var random = new Random();
 
+                Console.WriteLine($"Creating world object: {Lot}");
+                
                 return new LevelObjectTemplate
                 {
                     Lot = Lot,
@@ -34,7 +36,7 @@ namespace InfectedRose.World
                     Rotation = Rotation,
                     LegoInfo = LegoDataDictionary.FromString(Info),
                     Scale = Scale,
-                    ObjectId = (ulong) random.Next(default, int.MaxValue)
+                    ObjectId = (ulong) random.Next(default, int.MaxValue) & ((ulong) random.Next(default, int.MaxValue) << 32)
                 };
             }
         }

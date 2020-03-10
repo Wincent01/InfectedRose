@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using InfectedRose.Core;
 using RakDotNet.IO;
@@ -23,7 +24,7 @@ namespace InfectedRose.Lvl
         public float Scale { get; set; }
 
         public LegoDataDictionary LegoInfo { get; set; }
-        
+
         public uint LvlVersion { get; set; }
         
         public LevelObjectTemplate(uint lvlVersion = 0x26)
@@ -52,7 +53,7 @@ namespace InfectedRose.Lvl
             writer.WriteNiString(LegoInfo.ToString("\n"), true);
 
             if (LvlVersion >= 0x7)
-                writer.Write(0u);
+                writer.Write(UnknownInt1);
         }
 
         public void Deserialize(BitReader reader)
@@ -77,7 +78,17 @@ namespace InfectedRose.Lvl
 
             if (legoInfo.Length > 0)
             {
-                LegoInfo = LegoDataDictionary.FromString(legoInfo);
+                try
+                {
+                    LegoInfo = LegoDataDictionary.FromString(legoInfo);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(legoInfo);
+                    
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
 
             if (LvlVersion >= 0x7)
