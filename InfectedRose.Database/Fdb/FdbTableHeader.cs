@@ -1,9 +1,11 @@
+using System;
+using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbTableHeader : DatabaseData
+    internal class FdbTableHeader : IConstruct
     {
         private readonly uint _tableCount;
 
@@ -14,7 +16,7 @@ namespace InfectedRose.Database.Fdb
 
         public (FdbColumnHeader info, FdbRowBucket data)[] Tables { get; set; }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             Tables = new (FdbColumnHeader info, FdbRowBucket data)[_tableCount];
 
@@ -25,7 +27,7 @@ namespace InfectedRose.Database.Fdb
                     Tables[i].info = new FdbColumnHeader();
                     Tables[i].info.Deserialize(reader);
                 }
-
+                
                 using (new DatabaseScope(reader))
                 {
                     Tables[i].data = new FdbRowBucket();
@@ -34,20 +36,33 @@ namespace InfectedRose.Database.Fdb
             }
         }
 
-        public override void Compile(HashMap map)
+
+        public void Serialize(BitWriter writer)
         {
-            map += this;
+            var pointer = new List<(PointerToken info, PointerToken data)>();
 
             for (var i = 0; i < Tables.Length; i++)
             {
-                map += Tables[i].info;
-                map += Tables[i].data;
+                var info = new PointerToken(writer);
+
+                var data = new PointerToken(writer);
+                
+                pointer.Add((info, data));
             }
 
-            for (var i = 0; i < Tables.Length; i++)
+            for (var index = 0; index < Tables.Length; index++)
             {
-                Tables[i].data.Compile(map);
-                Tables[i].info.Compile(map);
+                var (info, data) = Tables[index];
+
+                var (infoPointer, dataPointer) = pointer[index];
+                
+                infoPointer.Dispose();
+                
+                info.Serialize(writer);
+                
+                dataPointer.Dispose();
+                
+                data.Serialize(writer);
             }
         }
     }

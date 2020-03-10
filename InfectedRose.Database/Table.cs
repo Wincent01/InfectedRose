@@ -350,7 +350,7 @@ namespace InfectedRose.Database
             return new Column(column, this);
         }
 
-        public void Recalculate() => Recalculate(1);
+        public void Recalculate() => Recalculate(0);
 
         public void Recalculate(int bucketSize)
         {

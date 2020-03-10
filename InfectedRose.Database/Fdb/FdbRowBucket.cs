@@ -3,11 +3,11 @@ using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbRowBucket : DatabaseData
+    internal class FdbRowBucket : IConstruct
     {
         public FdbRowHeader RowHeader { get; set; }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             var rowCount = reader.Read<uint>();
 
@@ -35,14 +35,22 @@ namespace InfectedRose.Database.Fdb
             return (uint) (1 << count);
         }
 
-        public override void Compile(HashMap map)
+        public void Serialize(BitWriter writer)
         {
-            map += this;
-            map += NextPowerOf2(RowHeader.RowInfos.Length);
+            writer.Write(NextPowerOf2(RowHeader.RowInfos.Length));
 
-            map += RowHeader;
+            if (RowHeader == default)
+            {
+                writer.Write(-1);
+            }
+            else
+            {
+                using (new PointerToken(writer))
+                {
+                }
 
-            RowHeader?.Compile(map);
+                RowHeader.Serialize(writer);
+            }
         }
     }
 }

@@ -170,13 +170,13 @@ namespace InfectedRose.Database
             return new AccessDatabase(source);
         }
 
-        public async Task SaveAsync(string file, Action<int> callback = null)
+        public async Task SaveAsync(string file)
         {
-            callback ??= i => { };
+            await using var stream = File.Create(file);
 
-            var bytes = Source.Compile(callback);
+            using var reader = new BitWriter(stream);
 
-            File.WriteAllBytes(file, bytes);
+            Source.Serialize(reader);
         }
 
         public static async Task OpenEmptyAsync()

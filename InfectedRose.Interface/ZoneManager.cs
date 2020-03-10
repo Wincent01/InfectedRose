@@ -31,10 +31,16 @@ namespace InfectedRose.Interface
                 
                 return;
             }
-
+            
             await zone.SaveAsync(Path.Combine(Interface.Configuration.Output, "maps"));
 
-            Console.WriteLine($"Adding [{zone.Id}] {Path.GetFileName(file)} to database.");
+            var lengthX = 0;
+            var lengthY = 0;
+            
+            /*
+            if (File.Exists())
+                
+                Console.WriteLine($"Adding [{zone.Id}] {Path.GetFileName(file)} to database.");*/
             
             var zones = Interface.Database["ZoneTable"];
 

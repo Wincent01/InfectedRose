@@ -13,7 +13,10 @@ namespace InfectedRose.Database.Fdb
         {
             _current = reader.BaseStream.Position + 4;
             _pointer = signed ? reader.Read<int>() : (int) reader.Read<uint>();
-            if (_pointer != -1) reader.BaseStream.Position = _pointer;
+            if (_pointer != -1)
+            {
+                reader.BaseStream.Position = _pointer;
+            }
             _reader = reader;
         }
 

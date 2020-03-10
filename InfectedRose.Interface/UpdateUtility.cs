@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using InfectedRose.Database.Concepts.Tables;
 using InfectedRose.Luz;
 using InfectedRose.Lvl;
+using InfectedRose.Terrain.Editor;
 using RakDotNet.IO;
 
 namespace InfectedRose.Interface
@@ -29,22 +31,6 @@ namespace InfectedRose.Interface
                 luz = new LuzFile();
 
                 luz.Deserialize(reader);
-            }
-
-            if (luz.Version < 0x26)
-            {
-                Console.WriteLine($"Converting {Path.GetFileName(path)} to new.");
-                
-                luz.Version = 0x26;
-
-                luz.WorldId = (uint) id;
-
-                await using (var stream = File.Create(path))
-                {
-                    using var writer = new BitWriter(stream);
-
-                    luz.Serialize(writer);
-                }
             }
 
             foreach (var scene in luz.Scenes)
@@ -75,7 +61,46 @@ namespace InfectedRose.Interface
                         lvl.Serialize(writer);
                     }
                 }
+
+                var spawnPoint = lvl.LevelObjects?.Templates?.FirstOrDefault(l => l.Lot == 4945);
+
+                if (spawnPoint == null) continue;
+                
+                luz.SpawnPoint = spawnPoint.Position;
+                luz.SpawnRotation = spawnPoint.Rotation;
             }
+
+            if (luz.Version < 0x26)
+            {
+                Console.WriteLine($"Converting {Path.GetFileName(path)} to new.");
+                
+                luz.Version = 0x26;
+
+                luz.WorldId = (uint) id;
+
+                await using (var stream = File.Create(path))
+                {
+                    using var writer = new BitWriter(stream);
+
+                    luz.Serialize(writer);
+                }
+            }
+            
+            Console.WriteLine("Updating terrain.");
+
+            var terrainPath = Path.Combine(root, luz.TerrainFileName);
+            
+            var terrain = await TerrainEditor.OpenAsync(terrainPath);
+
+            foreach (var chunk in terrain.Source.Chunks)
+            {
+                for (var i = 0; i < chunk.ColorRelatedArray.Length; i++)
+                {
+                    chunk.ColorRelatedArray[i] = 1;
+                }
+            }
+
+            await terrain.SaveAsync(terrainPath);
             
             Console.WriteLine($"Adding [{id}] {Path.GetFileName(path)} to database.");
             

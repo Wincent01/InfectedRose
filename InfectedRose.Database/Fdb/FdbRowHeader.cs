@@ -1,10 +1,10 @@
-using System.Linq;
+using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbRowHeader : DatabaseData
+    internal class FdbRowHeader : IConstruct
     {
         private readonly uint _rowCount;
 
@@ -15,7 +15,7 @@ namespace InfectedRose.Database.Fdb
             _rowCount = rowCount;
         }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             RowInfos = new FdbRowInfo[_rowCount];
 
@@ -57,29 +57,65 @@ namespace InfectedRose.Database.Fdb
             }
         }
 
-        public override void Compile(HashMap map)
+        public void Serialize(BitWriter writer)
         {
-            map += this;
-            
-            map = RowInfos.Aggregate(map, (current, info) => current + info);
+            var toSerialize = new List<(FdbRowInfo, PointerToken)>();
 
-            for (var i = 0; i < FdbRowBucket.NextPowerOf2(RowInfos.Length) - RowInfos.Length; i++) map += -1;
-
-            foreach (var rowInfo in RowInfos)
+            foreach (var info in RowInfos)
             {
-                var current = rowInfo;
-
-                while (current != default)
+                if (info == default)
                 {
-                    map += current;
-                    map += current.DataHeader;
+                    writer.Write(-1);
+                }
+                else
+                {
+                    toSerialize.Add((info, new PointerToken(writer)));
+                }
+            }
+
+            for (var i = 0; i < FdbRowBucket.NextPowerOf2(RowInfos.Length) - RowInfos.Length; i++)
+            {
+                writer.Write(-1);
+            }
+            
+            foreach (var serialize in toSerialize)
+            {
+                var (info, pointer) = serialize;
+
+                var current = info;
+
+                while (current != default && pointer != default)
+                {
+                    pointer.Dispose();
+
+                    PointerToken dataPointer = default;
+
+                    if (current.DataHeader == default)
+                    {
+                        writer.Write(-1);
+                    }
+                    else
+                    {
+                        dataPointer = new PointerToken(writer);
+                    }
 
                     if (current.Linked == default)
-                        map += -1;
-                    else
-                        map += current.Linked;
+                    {
+                        writer.Write(-1);
 
-                    current.DataHeader?.Compile(map);
+                        pointer = default;
+                    }
+                    else
+                    {
+                        pointer = new PointerToken(writer);
+                    }
+
+                    if (dataPointer != default)
+                    {
+                        dataPointer.Dispose();
+
+                        current.DataHeader.Serialize(writer);
+                    }
 
                     current = current.Linked;
                 }

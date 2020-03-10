@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbColumnData : DatabaseData
+    internal class FdbColumnData : IConstruct
     {
         private readonly uint _columnCount;
 
@@ -14,7 +15,7 @@ namespace InfectedRose.Database.Fdb
 
         public (DataType type, FdbString name)[] Fields { get; set; }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             Fields = new (DataType type, FdbString name)[_columnCount];
 
@@ -27,16 +28,23 @@ namespace InfectedRose.Database.Fdb
             }
         }
 
-        public override void Compile(HashMap map)
+        public void Serialize(BitWriter writer)
         {
-            map += this;
+            var pointers = new List<PointerToken>();
+
             for (var i = 0; i < Fields.Length; i++)
             {
-                map += (uint) Fields[i].type;
-                map += Fields[i].name;
+                writer.Write((uint) Fields[i].type);
+
+                pointers.Add(new PointerToken(writer));
             }
 
-            foreach (var s in Fields) s.name.Compile(map);
+            for (var i = 0; i < Fields.Length; i++)
+            {
+                pointers[i].Dispose();
+
+                Fields[i].name.Serialize(writer);
+            }
         }
     }
 }

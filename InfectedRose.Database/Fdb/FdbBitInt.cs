@@ -3,22 +3,20 @@ using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbBitInt : DatabaseData
+    internal class FdbBitInt : ISerializable
     {
         public long Value { get; set; }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             using var s = new DatabaseScope(reader, true);
 
             if (s) Value = reader.Read<long>();
         }
 
-        public override void Compile(HashMap map)
+        public void Serialize(BitWriter writer)
         {
-            map += this;
-
-            map.Add(Value);
+            writer.Write(Value);
         }
     }
 }

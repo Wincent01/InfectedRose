@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbRowData : DatabaseData
+    internal class FdbRowData : IConstruct
     {
         public FdbRowData(uint columnCount)
         {
@@ -14,7 +15,7 @@ namespace InfectedRose.Database.Fdb
 
         public (DataType type, object value)[] Fields { get; set; }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             for (var i = 0; i < Fields.Length; i++)
             {
@@ -64,32 +65,76 @@ namespace InfectedRose.Database.Fdb
             }
         }
 
-        public override void Compile(HashMap map)
+        public void Serialize(BitWriter writer)
         {
-            map += this;
-
-            for (var i = 0; i < Fields.Length; i++)
+            var pointer = new List<(ISerializable, PointerToken)>();
+            
+            foreach (var (type, value) in Fields)
             {
-                map += (uint) Fields[i].type;
-
-                switch (Fields[i].type)
+                writer.Write((uint) type);
+                
+                switch (type)
                 {
                     case DataType.Boolean:
-                        var b = (bool) Fields[i].value;
-                        map += b ? 1 : 0;
+                        var b = (bool) value;
+                        writer.Write(b ? 1 : 0);
                         break;
                     case DataType.Nothing:
-                        map += 0;
+                        writer.Write(0);
+                        break;
+                    case DataType.Integer:
+                        writer.Write(Convert.ToInt32(value));
+                        break;
+                    case DataType.Unknown1:
+                        writer.Write(Convert.ToInt32(value));
+                        break;
+                    case DataType.Float:
+                        writer.Write(Convert.ToSingle(value));
+                        break;
+                    case DataType.Text:
+                        if (value == null)
+                        {
+                            writer.Write(-1);
+                        }
+                        else
+                        {
+                            pointer.Add(((ISerializable) value, new PointerToken(writer)));
+                        }
+                        break;
+                    case DataType.Bigint:
+                        if (value == null)
+                        {
+                            writer.Write(-1);
+                        }
+                        else
+                        {
+                            pointer.Add(((ISerializable) value, new PointerToken(writer)));
+                        }
+                        break;
+                    case DataType.Unknown2:
+                        writer.Write(Convert.ToInt32(value));
+                        break;
+                    case DataType.Varchar:
+                        if (value == null)
+                        {
+                            writer.Write(-1);
+                        }
+                        else
+                        {
+                            pointer.Add(((ISerializable) value, new PointerToken(writer)));
+                        }
                         break;
                     default:
-                        map += Fields[i].value;
-                        break;
+                        throw new ArgumentOutOfRangeException(type.ToString());
                 }
             }
 
-            foreach (var o in Fields.Where(f => f.type != DataType.Nothing))
-                if (o.value is DatabaseData data)
-                    data.Compile(map);
+            foreach (var (deserializable, token) in pointer)
+            {
+                token.Dispose();
+
+                deserializable.Serialize(writer);
+            }
         }
     }
 }

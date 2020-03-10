@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -35,6 +36,8 @@ namespace InfectedRose.Interface
             await BuildZones();
 
             await UpdateZones();
+
+            await InsertZones();
             
             await BuildNpcs();
 
@@ -56,6 +59,17 @@ namespace InfectedRose.Interface
             foreach (var update in Configuration.Updates)
             {
                 await UpdateUtility.UpgradeZone(update);
+            }
+        }
+
+        private static async Task InsertZones()
+        {
+            foreach (var root in Configuration.Insert)
+            {
+                foreach (var file in Directory.GetFiles(root, "*.luz", SearchOption.AllDirectories))
+                {
+                    await InsertionUtility.InsertAsync(file);
+                }
             }
         }
 
@@ -142,17 +156,20 @@ namespace InfectedRose.Interface
 
             foreach (var table in Database)
             {
-                table.Recalculate(Configuration.Release ? 0 : 1);
-            }
-            
-            if (Configuration.Release)
-            {
-                Console.WriteLine("You are hashing the database for release, note that this may take several minutes.");
+                table.Recalculate();
             }
 
             Console.WriteLine("Hashing database, please wait...");
 
+            var watch = new Stopwatch();
+            
+            watch.Start();
+
             await Database.SaveAsync(Path.Combine(Configuration.Output, "cdclient.fdb"));
+            
+            Console.WriteLine($"{watch.ElapsedMilliseconds}ms");
+            
+            watch.Stop();
         }
 
         private static async Task OpenConfig()

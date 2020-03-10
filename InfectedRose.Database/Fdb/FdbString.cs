@@ -1,11 +1,10 @@
-using System.Linq;
 using System.Text;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbString : DatabaseData
+    internal class FdbString : IConstruct
     {
         public string Value { get; set; }
 
@@ -19,6 +18,16 @@ namespace InfectedRose.Database.Fdb
             return "FdbString";
         }
 
+        public void Serialize(BitWriter writer)
+        {
+            foreach (var character in Value)
+            {
+                writer.Write((byte) character);
+            }
+
+            writer.Write<byte>(0);
+        }
+
         public override bool Equals(object o)
         {
             if (o is FdbString str)
@@ -29,16 +38,7 @@ namespace InfectedRose.Database.Fdb
             return false;
         }
 
-        public override void Compile(HashMap map)
-        {
-            map += this;
-
-            if (Value != default) map = Value.Aggregate(map, (current, c) => current + (byte) c);
-
-            map.Add((byte) 0);
-        }
-
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             var builder = new StringBuilder();
 

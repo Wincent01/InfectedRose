@@ -3,11 +3,11 @@ using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    internal class FdbRowDataHeader : DatabaseData
+    internal class FdbRowDataHeader : IConstruct
     {
         public FdbRowData Data { get; set; }
 
-        public override void Deserialize(BitReader reader)
+        public void Deserialize(BitReader reader)
         {
             var columnCount = reader.Read<uint>();
 
@@ -19,14 +19,16 @@ namespace InfectedRose.Database.Fdb
 
             Data.Deserialize(reader);
         }
-
-        public override void Compile(HashMap map)
+        
+        public void Serialize(BitWriter writer)
         {
-            map += this;
-            map += (uint) Data.Fields.Length;
-            map += Data;
+            writer.Write((uint) Data.Fields.Length);
 
-            Data?.Compile(map);
+            using (new PointerToken(writer))
+            {
+            }
+
+            Data.Serialize(writer);
         }
     }
 }

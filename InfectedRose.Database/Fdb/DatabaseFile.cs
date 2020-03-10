@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
 namespace InfectedRose.Database.Fdb
 {
-    public class DatabaseFile : HashMap, IDeserializable
+    public class DatabaseFile : IConstruct
     {
         internal FdbTableHeader TableHeader { get; set; }
 
@@ -21,24 +19,15 @@ namespace InfectedRose.Database.Fdb
             }
         }
 
-        /// <summary>
-        ///     Compile the database to a hash-map
-        /// </summary>
-        /// <remarks>
-        ///     This is a really long process and should be run in a Task.
-        /// </remarks>
-        /// <returns>Compiled database</returns>
-        public override byte[] Compile(Action<int> onData = default)
+        public void Serialize(BitWriter writer)
         {
-            Structure = new List<object>
+            writer.Write((uint) TableHeader.Tables.Length);
+
+            using (new PointerToken(writer))
             {
-                (uint) TableHeader.Tables.Length,
-                TableHeader
-            };
+            }
 
-            TableHeader.Compile(this);
-
-            return base.Compile(onData);
+            TableHeader.Serialize(writer);
         }
     }
 }
