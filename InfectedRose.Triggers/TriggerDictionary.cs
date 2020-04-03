@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,8 +52,6 @@ namespace InfectedRose.Triggers
                     foreach (var trigger in triggerCollection.Triggers)
                     {
                         trigger.FileId = fileId;
-                    
-                        Console.WriteLine($"TRIGGER: {trigger.Id}:{trigger.FileId}");
                     }
                 });
             }
