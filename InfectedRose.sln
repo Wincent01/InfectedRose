@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.World", "Infec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Interface", "InfectedRose.Interface\InfectedRose.Interface.csproj", "{1CD2D01F-218B-47A2-AE66-A673F48F84AC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Builder.Behaviors", "InfectedRose.Builder.Behaviors\InfectedRose.Builder.Behaviors.csproj", "{8120B3E6-7A02-406A-95D2-C417CC8AAE68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,5 +98,9 @@ Global
 		{1CD2D01F-218B-47A2-AE66-A673F48F84AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CD2D01F-218B-47A2-AE66-A673F48F84AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CD2D01F-218B-47A2-AE66-A673F48F84AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -34,14 +34,6 @@ namespace InfectedRose.Interface
             
             await zone.SaveAsync(Path.Combine(Interface.Configuration.Output, "maps"));
 
-            var lengthX = 0;
-            var lengthY = 0;
-            
-            /*
-            if (File.Exists())
-                
-                Console.WriteLine($"Adding [{zone.Id}] {Path.GetFileName(file)} to database.");*/
-            
             var zones = Interface.Database["ZoneTable"];
 
             var row = zones.Create(zone.Id);
@@ -53,7 +45,9 @@ namespace InfectedRose.Interface
                 ghostdistance = zone.GhostDistance,
                 scriptID = -1,
                 locStatus = 0,
-                DisplayDescription = zone.Description
+                DisplayDescription = zone.Description,
+                heightInChunks = zone.Terrain.Size,
+                widthInChunks = zone.Terrain.Size
             };
         }
     }

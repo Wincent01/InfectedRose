@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using InfectedRose.Builder.Behaviors;
 using InfectedRose.Builder;
+using InfectedRose.Builder.Behaviors.External;
 using InfectedRose.Database;
+using InfectedRose.Database.Concepts;
+using InfectedRose.Database.Concepts.Generic;
+using InfectedRose.Database.Concepts.Tables;
 
 namespace InfectedRose.Interface
 {
     public static class Interface
     {
         public static Configuration Configuration { get; private set; }
-        
+
         public static AccessDatabase Database { get; private set; }
-        
+
         private static List<string> Sql { get; set; }
-        
+
         private static async Task Main()
         {
             Sql = new List<string>();
-            
+
             await OpenConfig();
 
             /*
@@ -32,18 +38,47 @@ namespace InfectedRose.Interface
             Database = await AccessDatabase.OpenAsync(Configuration.CdClient);
 
             Database.OnSql += Sql.Add;
-            
+
+            BuildSkill();
+
+            await FinalizeAsync();
+
             await BuildZones();
 
             await UpdateZones();
 
             await InsertZones();
-            
+
             await BuildNpcs();
 
             await BuildMissions();
 
             await FinalizeAsync();
+        }
+
+        private static void BuildSkill()
+        {
+            Console.Write("Xml: "); // Xml from Editor
+
+            var input = Console.ReadLine();
+            
+            if (string.IsNullOrWhiteSpace(input)) return;
+
+            var skill = XmlImporter.Import(input, Database);
+
+            var obj = Database.CopyObject(9864);
+
+            var component = new LwoComponent(ComponentId.SkillComponent);
+
+            obj.Add(component);
+
+            var entry = Database["ObjectSkills"].Create(obj.Row.Key);
+
+            var skillEntry = new ObjectSkillsTable(entry);
+
+            skillEntry.castOnType = 0;
+
+            skillEntry.skillID = (int) skill;
         }
 
         private static async Task BuildZones()
@@ -76,7 +111,7 @@ namespace InfectedRose.Interface
         private static async Task BuildNpcs()
         {
             var serializer = new XmlSerializer(typeof(Npc));
-            
+
             foreach (var npc in Configuration.Npcs)
             {
                 if (!File.Exists(npc))
@@ -87,12 +122,12 @@ namespace InfectedRose.Interface
                     {
                         serializer.Serialize(stream, sample);
                     }
-                
+
                     Console.WriteLine($"Created \"{npc}\".");
-                
+
                     return;
                 }
-                
+
                 Console.WriteLine($"Building {npc}.");
 
                 await using (var stream = File.OpenRead(npc))
@@ -109,7 +144,7 @@ namespace InfectedRose.Interface
         private static async Task BuildMissions()
         {
             var serializer = new XmlSerializer(typeof(Mission));
-            
+
             foreach (var mission in Configuration.Mission)
             {
                 if (!File.Exists(mission))
@@ -120,9 +155,9 @@ namespace InfectedRose.Interface
                     {
                         serializer.Serialize(stream, sample);
                     }
-                
+
                     Console.WriteLine($"Created \"{mission}\".");
-                
+
                     return;
                 }
 
@@ -146,12 +181,12 @@ namespace InfectedRose.Interface
                 Console.WriteLine("No changes to the database have been requested.");
 
                 Environment.Exit(0);
-                
+
                 return;
             }
-            
+
             await File.WriteAllLinesAsync(Configuration.SqlOutput, Sql);
-            
+
             Console.WriteLine("SQL commands saved.");
 
             foreach (var table in Database)
@@ -162,13 +197,13 @@ namespace InfectedRose.Interface
             Console.WriteLine("Hashing database, please wait...");
 
             var watch = new Stopwatch();
-            
+
             watch.Start();
 
             await Database.SaveAsync(Path.Combine(Configuration.Output, "cdclient.fdb"));
-            
+
             Console.WriteLine($"{watch.ElapsedMilliseconds}ms");
-            
+
             watch.Stop();
         }
 
@@ -184,11 +219,11 @@ namespace InfectedRose.Interface
                 {
                     serializer.Serialize(stream, sample);
                 }
-                
+
                 Console.WriteLine("Created config file.");
-                
+
                 Environment.Exit(0);
-                
+
                 return;
             }
 

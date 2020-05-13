@@ -176,26 +176,49 @@ namespace InfectedRose.Database
         ///     This is the same principle used the access rows when the database is in use
         /// </remarks>
         /// <param name="key">The key of the row you seek</param>
-        /// <returns>The column found for this key</returns>
-        public Column Seek(int key)
+        /// <param name="column">The column found for this key</param>
+        /// <returns>If the key was found in this table</returns>
+        public bool Seek(int key, out Column column)
         {
             var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
             
-            Console.WriteLine($"INDEX: {key} % {Data.RowHeader.RowInfos.Length} = {index}");
-
             var bucket = Data.RowHeader.RowInfos[index];
 
             while (bucket != null)
             {
-                Console.WriteLine($"{bucket.DataHeader.Data.Fields[0].value}");
-                
                 if ((int) bucket.DataHeader.Data.Fields[0].value == key)
                     break;
                 
                 bucket = bucket.Linked;
             }
 
-            return bucket == null ? null : new Column(bucket, this);
+            if (bucket != null)
+            {
+                column = new Column(bucket, this);
+
+                return true;
+            }
+
+            column = null;
+
+            return false;
+        }
+
+        public IEnumerable<Column> SeekMultiple(int key)
+        {
+            var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
+            
+            var bucket = Data.RowHeader.RowInfos[index];
+
+            while (bucket != null)
+            {
+                if ((int) bucket.DataHeader.Data.Fields[0].value == key)
+                {
+                    yield return new Column(bucket, this);
+                }
+                
+                bucket = bucket.Linked;
+            }
         }
 
         public int ClaimKey(int min)
@@ -428,7 +451,7 @@ namespace InfectedRose.Database
             Data.RowHeader.RowInfos = final.ToArray();
         }
 
-        private static int GetKey(object key)
+        public static int GetKey(object key)
         {
             var index = key switch
             {
