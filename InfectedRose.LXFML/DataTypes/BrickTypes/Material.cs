@@ -14,7 +14,7 @@ namespace InfectedRose.LXFML.BrickTypes
 
         public Material(int ID)
         {
-            return 
+            return;
         }
     }
 }
