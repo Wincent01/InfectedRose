@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>InfectedRose.LXFML</RootNamespace>
+    <AssemblyName>InfectedRose.LXFML</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="DataTypes\" />
+    <Folder Include="LXFMLTypes\" />
+  </ItemGroup>
+
+</Project>

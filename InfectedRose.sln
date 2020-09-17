@@ -1,32 +1,37 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Terrain", "InfectedRose.Terrain\InfectedRose.Terrain.csproj", "{C5948668-31F0-457F-A1D7-A32DB85A6A5D}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Terrain", "InfectedRose.Terrain\InfectedRose.Terrain.csproj", "{C5948668-31F0-457F-A1D7-A32DB85A6A5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Core", "InfectedRose.Core\InfectedRose.Core.csproj", "{2D0A3B97-ACED-487E-AF18-F6E81627D0F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Core", "InfectedRose.Core\InfectedRose.Core.csproj", "{2D0A3B97-ACED-487E-AF18-F6E81627D0F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Luz", "InfectedRose.Luz\InfectedRose.Luz.csproj", "{0C38A6FC-7EF9-4B97-B767-6A2F40962D29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Luz", "InfectedRose.Luz\InfectedRose.Luz.csproj", "{0C38A6FC-7EF9-4B97-B767-6A2F40962D29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Lvl", "InfectedRose.Lvl\InfectedRose.Lvl.csproj", "{8BC6E972-A4B6-4D79-9948-A3265FAAF2FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Lvl", "InfectedRose.Lvl\InfectedRose.Lvl.csproj", "{8BC6E972-A4B6-4D79-9948-A3265FAAF2FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Database", "InfectedRose.Database\InfectedRose.Database.csproj", "{94A2F951-BA5B-4C51-9EC5-C909D97D30A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Database", "InfectedRose.Database\InfectedRose.Database.csproj", "{94A2F951-BA5B-4C51-9EC5-C909D97D30A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Nif", "InfectedRose.Nif\InfectedRose.Nif.csproj", "{BDCD4970-7BFF-4C69-B866-F022583D9E18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Nif", "InfectedRose.Nif\InfectedRose.Nif.csproj", "{BDCD4970-7BFF-4C69-B866-F022583D9E18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Geometry", "InfectedRose.Geometry\InfectedRose.Geometry.csproj", "{FB5AAB34-0F07-474D-8D4E-98809D405E7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Geometry", "InfectedRose.Geometry\InfectedRose.Geometry.csproj", "{FB5AAB34-0F07-474D-8D4E-98809D405E7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Triggers", "InfectedRose.Triggers\InfectedRose.Triggers.csproj", "{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Triggers", "InfectedRose.Triggers\InfectedRose.Triggers.csproj", "{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Utilities", "InfectedRose.Utilities\InfectedRose.Utilities.csproj", "{66233254-3BF3-4AC8-84C8-83DF6E956753}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Utilities", "InfectedRose.Utilities\InfectedRose.Utilities.csproj", "{66233254-3BF3-4AC8-84C8-83DF6E956753}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Builder", "InfectedRose.Builder\InfectedRose.Builder.csproj", "{5073EC93-8D3E-4D38-A643-40BF3B697B76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Builder", "InfectedRose.Builder\InfectedRose.Builder.csproj", "{5073EC93-8D3E-4D38-A643-40BF3B697B76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Pipeline", "InfectedRose.Pipeline\InfectedRose.Pipeline.csproj", "{281871E0-DB69-4CA3-BB94-00B37DE9772C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Pipeline", "InfectedRose.Pipeline\InfectedRose.Pipeline.csproj", "{281871E0-DB69-4CA3-BB94-00B37DE9772C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.World", "InfectedRose.World\InfectedRose.World.csproj", "{B6809E62-6FC6-4445-ABB6-302021E7B91A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.World", "InfectedRose.World\InfectedRose.World.csproj", "{B6809E62-6FC6-4445-ABB6-302021E7B91A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Interface", "InfectedRose.Interface\InfectedRose.Interface.csproj", "{1CD2D01F-218B-47A2-AE66-A673F48F84AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Interface", "InfectedRose.Interface\InfectedRose.Interface.csproj", "{1CD2D01F-218B-47A2-AE66-A673F48F84AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.Builder.Behaviors", "InfectedRose.Builder.Behaviors\InfectedRose.Builder.Behaviors.csproj", "{8120B3E6-7A02-406A-95D2-C417CC8AAE68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InfectedRose.Builder.Behaviors", "InfectedRose.Builder.Behaviors\InfectedRose.Builder.Behaviors.csproj", "{8120B3E6-7A02-406A-95D2-C417CC8AAE68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfectedRose.LXFML", "InfectedRose.LXFML\InfectedRose.LXFML.csproj", "{5EB02B9C-FBBA-4048-92A3-94089CA9CBA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,10 +43,6 @@ Global
 		{C5948668-31F0-457F-A1D7-A32DB85A6A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5948668-31F0-457F-A1D7-A32DB85A6A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5948668-31F0-457F-A1D7-A32DB85A6A5D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{135A3A1D-3C81-45AB-9195-DEB44D2581F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{135A3A1D-3C81-45AB-9195-DEB44D2581F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{135A3A1D-3C81-45AB-9195-DEB44D2581F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{135A3A1D-3C81-45AB-9195-DEB44D2581F4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D0A3B97-ACED-487E-AF18-F6E81627D0F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D0A3B97-ACED-487E-AF18-F6E81627D0F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D0A3B97-ACED-487E-AF18-F6E81627D0F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -58,10 +59,6 @@ Global
 		{94A2F951-BA5B-4C51-9EC5-C909D97D30A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94A2F951-BA5B-4C51-9EC5-C909D97D30A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94A2F951-BA5B-4C51-9EC5-C909D97D30A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C5BEDCE5-382D-4963-B68F-F098A9EB3CA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C5BEDCE5-382D-4963-B68F-F098A9EB3CA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C5BEDCE5-382D-4963-B68F-F098A9EB3CA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C5BEDCE5-382D-4963-B68F-F098A9EB3CA8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BDCD4970-7BFF-4C69-B866-F022583D9E18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BDCD4970-7BFF-4C69-B866-F022583D9E18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDCD4970-7BFF-4C69-B866-F022583D9E18}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -74,10 +71,6 @@ Global
 		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEDC8B5F-BDA4-47DD-8103-36184D0499C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E756C26-720A-47C1-B1C9-7D936DB766DB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66233254-3BF3-4AC8-84C8-83DF6E956753}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66233254-3BF3-4AC8-84C8-83DF6E956753}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66233254-3BF3-4AC8-84C8-83DF6E956753}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -102,5 +95,15 @@ Global
 		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8120B3E6-7A02-406A-95D2-C417CC8AAE68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EB02B9C-FBBA-4048-92A3-94089CA9CBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EB02B9C-FBBA-4048-92A3-94089CA9CBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EB02B9C-FBBA-4048-92A3-94089CA9CBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EB02B9C-FBBA-4048-92A3-94089CA9CBA2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DB3FA5F9-C720-40BE-8905-2E67834ACEF7}
 	EndGlobalSection
 EndGlobal

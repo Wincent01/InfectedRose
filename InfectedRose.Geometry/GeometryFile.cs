@@ -95,6 +95,12 @@ namespace InfectedRose.Geometry
                 {
                     Mesh.Uv[i] = reader.Read<Vector2>();
                 }
+            } else
+            {
+                for (var i = 0; i < vertexCount; i++)
+                {
+                    Mesh.Uv[i] = new Vector2(0.0f, 0.0f);
+                }
             }
 
             Mesh.Triangles = new int[indexCount];
