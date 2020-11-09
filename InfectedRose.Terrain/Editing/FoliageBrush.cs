@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Editing
 {
     public class FoliageBrush : Brush
     {

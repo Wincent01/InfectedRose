@@ -28,7 +28,7 @@ namespace InfectedRose.Triggers
             {
                 var index = i;
 
-                tasks[index] = Task.Run(async () =>
+                tasks[index] = Task.Run(() =>
                 {
                     var entry = entries[index];
 
@@ -43,7 +43,7 @@ namespace InfectedRose.Triggers
                     
                     if (fileId == default) return;
 
-                    await using var stream = File.OpenRead(entry);
+                    using var stream = File.OpenRead(entry);
 
                     var triggerCollection = (TriggerCollection) serializer.Deserialize(stream);
 

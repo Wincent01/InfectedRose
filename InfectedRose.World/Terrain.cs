@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using InfectedRose.Terrain.Editor;
+using InfectedRose.Terrain.Editing;
 
 namespace InfectedRose.World
 {
@@ -71,7 +71,7 @@ namespace InfectedRose.World
             {
                 Console.WriteLine($"Applying light map.");
             
-                var data = await File.ReadAllBytesAsync(LightMap);
+                var data = File.ReadAllBytes(LightMap);
 
                 foreach (var chunk in editor.Source.Chunks)
                 {
@@ -83,7 +83,7 @@ namespace InfectedRose.World
             {
                 Console.WriteLine($"Applying blend map.");
 
-                var data = await File.ReadAllBytesAsync(BlendMap);
+                var data = File.ReadAllBytes(BlendMap);
 
                 foreach (var chunk in editor.Source.Chunks)
                 {

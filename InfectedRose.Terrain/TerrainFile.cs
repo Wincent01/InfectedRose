@@ -61,8 +61,6 @@ namespace InfectedRose.Terrain
                 Height * height
             ];
 
-            var map = new Bitmap(Weight * weight, Height * height);
-
             for (var chunkY = 0; chunkY < Height; ++chunkY)
             {
                 for (var chunkX = 0; chunkX < Weight; ++chunkX)
@@ -79,40 +77,11 @@ namespace InfectedRose.Terrain
                             var pixelY = chunkY * height + y;
 
                             heights[pixelX, pixelY] = value;
-                            
-                            var bytes = BitConverter.GetBytes(value);
-
-                            map.SetPixel(pixelX, pixelY, Color.FromArgb(bytes[0], bytes[1], bytes[2], bytes[3]));
                         }
                     }
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(save))
-            {
-                map.Save(save);
-            }
-
-            map.RotateFlip(RotateFlipType.Rotate90FlipX);
-
-            for (var x = 0; x < map.Width; x++)
-            {
-                for (var y = 0; y < map.Height; y++)
-                {
-                    var color = map.GetPixel(x, y);
-                    
-                    var bytes = new[]
-                    {
-                        color.A,
-                        color.R,
-                        color.G,
-                        color.B
-                    };
-
-                    heights[x, y] = BitConverter.ToSingle(bytes);
-                }
-            }
-            
             return heights;
         }
         
@@ -125,8 +94,6 @@ namespace InfectedRose.Terrain
                 Weight * weight,
                 Height * height
             ];
-
-            var map = new Bitmap(Weight * weight, Height * height);
 
             for (var chunkY = 0; chunkY < Height; ++chunkY)
             {
@@ -146,25 +113,11 @@ namespace InfectedRose.Terrain
                             var pixelY = chunkY * height + y;
 
                             colors[pixelX, pixelY] = value;
-
-                            map.SetPixel(pixelX, pixelY, value);
                         }
                     }
                 }
             }
 
-            map.RotateFlip(RotateFlipType.Rotate90FlipX);
-
-            for (var x = 0; x < map.Width; x++)
-            {
-                for (var y = 0; y < map.Height; y++)
-                {
-                    var color = map.GetPixel(x, y);
-
-                    colors[x, y] = color;
-                }
-            }
-            
             return colors;
         }
 
@@ -172,23 +125,7 @@ namespace InfectedRose.Terrain
         {
             var weight = Chunks[0].HeightMap.Width;
             var height = Chunks[0].HeightMap.Height;
-            
-            var map = new Bitmap(Weight * weight, Height * height);
 
-            for (var x = 0; x < map.Width; x++)
-            {
-                for (var y = 0; y < map.Height; y++)
-                {
-                    var value = heightMap[x, y];
-                    
-                    var bytes = BitConverter.GetBytes(value);
-
-                    map.SetPixel(x, y, Color.FromArgb(bytes[0], bytes[1], bytes[2], bytes[3]));
-                }
-            }
-            
-            map.RotateFlip(RotateFlipType.Rotate90FlipX);
-            
             for (var chunkY = 0; chunkY < Height; ++chunkY)
             {
                 for (var chunkX = 0; chunkX < Weight; ++chunkX)
@@ -201,18 +138,8 @@ namespace InfectedRose.Terrain
                         {
                             var pixelX = chunkX * weight + x;
                             var pixelY = chunkY * height + y;
-                            
-                            var color = map.GetPixel(pixelX, pixelY);
-                            
-                            var bytes = new[]
-                            {
-                                color.A,
-                                color.R,
-                                color.G,
-                                color.B
-                            };
 
-                            var value = BitConverter.ToSingle(bytes);
+                            var value = heightMap[pixelX, pixelY];
 
                             chunk.HeightMap.SetValue(x, y, value);
                         }
@@ -225,20 +152,6 @@ namespace InfectedRose.Terrain
         {
             var weight = second ? Chunks[0].Colormap1.Size : Chunks[0].Colormap0.Size;
             var height = second ? Chunks[0].Colormap1.Size : Chunks[0].Colormap0.Size;
-
-            var map = new Bitmap(Weight * weight, Height * height);
-
-            for (var x = 0; x < map.Width; x++)
-            {
-                for (var y = 0; y < map.Height; y++)
-                {
-                    var value = colors[x, y];
-
-                    map.SetPixel(x, y, value);
-                }
-            }
-
-            map.RotateFlip(RotateFlipType.Rotate90FlipX);
 
             for (var chunkY = 0; chunkY < Height; ++chunkY)
             {
@@ -255,7 +168,7 @@ namespace InfectedRose.Terrain
                             var pixelX = chunkX * weight + x;
                             var pixelY = chunkY * height + y;
 
-                            var color = map.GetPixel(pixelX, pixelY);
+                            var color = colors[pixelX, pixelY];
 
                             colorMap.SetColor(x, y, color);
                         }

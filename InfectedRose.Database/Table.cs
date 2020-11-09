@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using InfectedRose.Database.Fdb;
@@ -430,8 +429,11 @@ namespace InfectedRose.Database
             
             var final = new FdbRowInfo[buckets];
 
-            foreach (var (key, values) in hierarchy)
+            foreach (var pair in hierarchy)
             {
+                var key = pair.Key;
+                var values = pair.Value;
+                
                 var root = values[0];
 
                 var current = root;

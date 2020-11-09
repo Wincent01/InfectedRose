@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using InfectedRose.Database.Concepts.Tables;
 using InfectedRose.Database.Generic;
 using InfectedRose.Luz;
-using InfectedRose.Terrain.Editor;
+using InfectedRose.Terrain.Editing;
 using RakDotNet.IO;
 
 namespace InfectedRose.Interface
@@ -16,7 +16,7 @@ namespace InfectedRose.Interface
         {
             LuzFile luz;
 
-            await using (var stream = File.OpenRead(path))
+            using (var stream = File.OpenRead(path))
             {
                 using var reader = new BitReader(stream);
                 
@@ -37,7 +37,7 @@ namespace InfectedRose.Interface
                 
                 luz.WorldId = (uint) worlds.ClaimKey(100);
 
-                await using var stream = File.Create(path);
+                using var stream = File.Create(path);
                 
                 using var writer = new BitWriter(stream);
 

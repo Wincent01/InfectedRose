@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using RakDotNet.IO;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Editing
 {
     public class TerrainEditor
     {
@@ -75,7 +75,7 @@ namespace InfectedRose.Terrain.Editor
 
         public static async Task<TerrainEditor> OpenAsync(string path)
         {
-            await using var stream = File.OpenRead(path);
+            using var stream = File.OpenRead(path);
 
             using var reader = new BitReader(stream);
 
@@ -92,7 +92,7 @@ namespace InfectedRose.Terrain.Editor
 
             Source.ApplyHeightMap(heightMap);
 
-            await using var stream = File.Create(path);
+            using var stream = File.Create(path);
 
             using var writer = new BitWriter(stream);
 

@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Numerics;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Editing
 {
     public class HeightBrush : Brush
     {
@@ -17,8 +17,11 @@ namespace InfectedRose.Terrain.Editor
                 pair => Vector2.Distance(pair.Key, position) <= Size
             ).ToArray();
 
-            foreach (var (key, value) in points)
+            foreach (var pair in points)
             {
+                var key = pair.Key;
+                var value = pair.Value;
+                
                 var distance = Vector2.Distance(key, position);
 
                 var fractal = Lerp(1, 0, distance / Size);

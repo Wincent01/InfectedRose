@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Editing
 {
     public class ColorLayer
     {

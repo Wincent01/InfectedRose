@@ -118,7 +118,7 @@ namespace InfectedRose.Interface
                 {
                     var sample = new Npc();
 
-                    await using (var stream = File.Create(npc))
+                    using (var stream = File.Create(npc))
                     {
                         serializer.Serialize(stream, sample);
                     }
@@ -130,7 +130,7 @@ namespace InfectedRose.Interface
 
                 Console.WriteLine($"Building {npc}.");
 
-                await using (var stream = File.OpenRead(npc))
+                using (var stream = File.OpenRead(npc))
                 {
                     var instance = (Npc) serializer.Deserialize(stream);
 
@@ -151,7 +151,7 @@ namespace InfectedRose.Interface
                 {
                     var sample = new Mission();
 
-                    await using (var stream = File.Create(mission))
+                    using (var stream = File.Create(mission))
                     {
                         serializer.Serialize(stream, sample);
                     }
@@ -163,7 +163,7 @@ namespace InfectedRose.Interface
 
                 Console.WriteLine($"Building {mission}.");
 
-                await using (var stream = File.OpenRead(mission))
+                using (var stream = File.OpenRead(mission))
                 {
                     var instance = (Mission) serializer.Deserialize(stream);
 
@@ -185,7 +185,7 @@ namespace InfectedRose.Interface
                 return;
             }
 
-            await File.WriteAllLinesAsync(Configuration.SqlOutput, Sql);
+            File.WriteAllLines(Configuration.SqlOutput, Sql);
 
             Console.WriteLine("SQL commands saved.");
 
@@ -215,7 +215,7 @@ namespace InfectedRose.Interface
             {
                 var sample = new Configuration();
 
-                await using (var stream = File.Create("config.xml"))
+                using (var stream = File.Create("config.xml"))
                 {
                     serializer.Serialize(stream, sample);
                 }
@@ -227,7 +227,7 @@ namespace InfectedRose.Interface
                 return;
             }
 
-            await using (var stream = File.OpenRead("config.xml"))
+            using (var stream = File.OpenRead("config.xml"))
             {
                 Configuration = (Configuration) serializer.Deserialize(stream);
             }

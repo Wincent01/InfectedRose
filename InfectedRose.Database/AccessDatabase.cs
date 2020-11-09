@@ -159,7 +159,7 @@ namespace InfectedRose.Database
 
         public static async Task<AccessDatabase> OpenAsync(string file)
         {
-            await using var stream = File.OpenRead(file);
+            using var stream = File.OpenRead(file);
 
             using var reader = new BitReader(stream);
 
@@ -172,7 +172,7 @@ namespace InfectedRose.Database
 
         public async Task SaveAsync(string file)
         {
-            await using var stream = File.Create(file);
+            using var stream = File.Create(file);
 
             using var reader = new BitWriter(stream);
 

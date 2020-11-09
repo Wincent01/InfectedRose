@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using InfectedRose.Database.Concepts.Tables;
 using InfectedRose.Luz;
 using InfectedRose.Lvl;
-using InfectedRose.Terrain.Editor;
+using InfectedRose.Terrain.Editing;
 using RakDotNet.IO;
 
 namespace InfectedRose.Interface
@@ -24,7 +24,7 @@ namespace InfectedRose.Interface
 
             var root = Path.GetDirectoryName(path);
             
-            await using (var stream = File.OpenRead(path))
+            using (var stream = File.OpenRead(path))
             {
                 using var reader = new BitReader(stream);
                 
@@ -39,7 +39,7 @@ namespace InfectedRose.Interface
                 
                 var scenePath = Path.Combine(root, scene.FileName);
                 
-                await using (var stream = File.OpenRead(scenePath))
+                using (var stream = File.OpenRead(scenePath))
                 {
                     using var reader = new BitReader(stream);
                 
@@ -54,7 +54,7 @@ namespace InfectedRose.Interface
                     
                     lvl.ConvertToNew();
                 
-                    await using (var stream = File.Create(scenePath))
+                    using (var stream = File.Create(scenePath))
                     {
                         using var writer = new BitWriter(stream);
 
@@ -78,7 +78,7 @@ namespace InfectedRose.Interface
 
                 luz.WorldId = (uint) id;
 
-                await using (var stream = File.Create(path))
+                using (var stream = File.Create(path))
                 {
                     using var writer = new BitWriter(stream);
 

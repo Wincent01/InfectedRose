@@ -109,8 +109,12 @@ namespace InfectedRose.Lvl
         {
             writer.Write((uint) _map.Count);
 
-            foreach (var (key, (type, value)) in _map)
+            foreach (var data in _map)
             {
+                var key = data.Key;
+                var type = data.Value.Item1;
+                var value = data.Value.Item2;
+                
                 writer.Write((byte) (key.Length * 2));
                 writer.WriteLwoString(key, key.Length, true);
                 writer.Write(type);
@@ -183,8 +187,12 @@ namespace InfectedRose.Lvl
         {
             var str = new StringBuilder();
 
-            foreach (var (k, (t, v)) in _map)
+            foreach (var data in _map)
             {
+                var k = data.Key;
+                var t = data.Value.Item1;
+                var v = data.Value.Item2;
+                
                 var val = v switch
                 {
                     Vector2 vec2 => $"{vec2.X}{InfoSeparator}{vec2.Y}",

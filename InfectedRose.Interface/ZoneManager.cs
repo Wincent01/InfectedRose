@@ -17,13 +17,13 @@ namespace InfectedRose.Interface
             
             if (File.Exists(file))
             {
-                await using var stream = File.OpenRead(file);
+                using var stream = File.OpenRead(file);
 
                 zone = (Zone) serializer.Deserialize(stream);
             }
             else
             {
-                await using var stream = File.Create(file);
+                using var stream = File.Create(file);
 
                 serializer.Serialize(stream, zone);
                 

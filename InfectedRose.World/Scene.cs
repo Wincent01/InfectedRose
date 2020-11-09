@@ -64,7 +64,7 @@ namespace InfectedRose.World
                 RevisionNumber = Revision
             };
 
-            await using var stream = File.Create(Path.Combine(path, scene.FileName));
+            using var stream = File.Create(Path.Combine(path, scene.FileName));
 
             using var writer = new BitWriter(stream);
 

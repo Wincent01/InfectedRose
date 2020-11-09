@@ -126,7 +126,7 @@ namespace InfectedRose.Utilities
             
             var luz = new LuzFile();
 
-            await using (var stream = File.OpenRead(zone))
+            using (var stream = File.OpenRead(zone))
             {
                 using var reader = new BitReader(stream);
 
@@ -160,7 +160,7 @@ namespace InfectedRose.Utilities
             {
                 var sceneIndex = index;
                 
-                tasks[index] = Task.Run(async () =>
+                tasks[index] = Task.Run(() =>
                 {
                     var scene = luz.Scenes[sceneIndex];
                     
@@ -170,7 +170,7 @@ namespace InfectedRose.Utilities
                     
                     var lvl = new LvlFile();
 
-                    await using (var stream = File.OpenRead(Path.Combine(root, scene.FileName)))
+                    using (var stream = File.OpenRead(Path.Combine(root, scene.FileName)))
                     {
                         using var reader = new BitReader(stream);
 

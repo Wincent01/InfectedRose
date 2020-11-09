@@ -23,7 +23,7 @@ namespace InfectedRose.Pipeline
         {
             TerrainFile terrain;
             
-            await using (var stream = File.OpenRead(Path.Combine(source, @this.TerrainFileName)))
+            using (var stream = File.OpenRead(Path.Combine(source, @this.TerrainFileName)))
             {
                 using var reader = new BitReader(stream);
                 
@@ -38,7 +38,7 @@ namespace InfectedRose.Pipeline
             {
                 var scene = @this.Scenes[i];
 
-                await using var stream = File.OpenRead(Path.Combine(source, scene.FileName));
+                using var stream = File.OpenRead(Path.Combine(source, scene.FileName));
 
                 using var reader = new BitReader(stream);
                 

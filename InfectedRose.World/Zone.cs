@@ -54,7 +54,7 @@ namespace InfectedRose.World
                 Directory.CreateDirectory(root);
             }
             
-            await using var stream = File.Create(zoneFile);
+            using var stream = File.Create(zoneFile);
 
             using var writer = new BitWriter(stream);
 

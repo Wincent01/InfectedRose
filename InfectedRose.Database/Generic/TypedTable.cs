@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using InfectedRose.Database.Fdb;
@@ -52,8 +51,11 @@ namespace InfectedRose.Database.Generic
 
             var properties = type.GetProperties();
 
-            foreach (var (column, index) in _managed)
+            foreach (var pair in _managed)
             {
+                var index = pair.Value;
+                var column = pair.Key;
+                
                 var baseColumn = base[index];
 
                 foreach (var property in properties)

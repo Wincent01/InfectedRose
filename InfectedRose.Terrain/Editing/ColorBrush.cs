@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Editing
 {
     public class ColorBrush : Brush
     {
@@ -22,8 +22,10 @@ namespace InfectedRose.Terrain.Editor
                 pair => Vector2.Distance(pair.Key, position) <= Size
             ).ToArray();
 
-            foreach (var (key, _) in points)
+            foreach (var data in points)
             {
+                var key = data.Key;
+                
                 layer.SetColor(key, Color);
             }
         }

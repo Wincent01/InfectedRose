@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using InfectedRose.Terrain.Editor;
+using InfectedRose.Terrain.Editing;
 
 namespace InfectedRose.Interface
 {

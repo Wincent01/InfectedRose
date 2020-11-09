@@ -37,7 +37,7 @@ namespace InfectedRose.Terrain
                     color.A,
                 };
 
-                var value = BitConverter.ToUInt32(bytes);
+                var value = BitConverter.ToUInt32(bytes, 0);
 
                 writer.Write(value);
             }

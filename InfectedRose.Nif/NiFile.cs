@@ -65,9 +65,9 @@ namespace InfectedRose.Nif
 
                 var index = i;
                 
-                readingTasks[i] = Task.Run(async () =>
+                readingTasks[i] = Task.Run(() =>
                 {
-                    await using var stream = new MemoryStream(data);
+                    using var stream = new MemoryStream(data);
 
                     using var blockReader = new BitReader(stream);
                     

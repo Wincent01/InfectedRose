@@ -1,4 +1,4 @@
-namespace InfectedRose.Terrain.Editor
+namespace InfectedRose.Terrain.Editing
 {
     public class TerrainSettings
     {
