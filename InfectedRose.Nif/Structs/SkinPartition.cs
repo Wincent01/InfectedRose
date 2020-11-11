@@ -185,8 +185,6 @@ namespace InfectedRose.Nif
 				}
 				
 			}
-			UnknownShort = reader.Read<ushort>();
-			
 		}
 	
 		public void Serialize(BitWriter writer)
@@ -269,8 +267,6 @@ namespace InfectedRose.Nif
 				}
 				
 			}
-			writer.Write(UnknownShort);
-			
 		}
 	}
 	
