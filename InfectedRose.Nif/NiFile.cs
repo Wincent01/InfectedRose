@@ -42,69 +42,6 @@ namespace InfectedRose.Nif
             Header = reader.Read<NiHeader>();
         }
 
-        public Task ReadBlocksAsync(BitReader reader, bool throwOnInvalidBlock = true)
-        {
-            var type = typeof(NiObject);
-
-            var blockTypes = type.Assembly.GetTypes().Where(
-                t => t.IsSubclassOf(type)
-            ).ToArray();
-
-            var blocks = Header.NodeInfo.Length;
-
-            var readingTasks = new Task[blocks];
-
-            Blocks = new NiObject[blocks];
-
-            for (var i = 0; i < blocks; i++)
-            {
-                var blockInfo = Header.NodeInfo[i];
-                var typeName = Header.NodeTypes[blockInfo.TypeIndex];
-
-                var data = reader.ReadBuffer(blockInfo.Size);
-
-                var index = i;
-                
-                readingTasks[i] = Task.Run(() =>
-                {
-                    using var stream = new MemoryStream(data);
-
-                    using var blockReader = new BitReader(stream);
-                    
-                    var blockType = blockTypes.FirstOrDefault(
-                        t => t.Name == typeName
-                    );
-
-                    if (blockType == default)
-                    {
-                        if (throwOnInvalidBlock)
-                        {
-                            throw new NotImplementedException($"Block \"{typeName}\" is not implemented");
-                        }
-                        
-                        return;
-                    }
-
-                    var instance = (NiObject) Activator.CreateInstance(blockType);
-
-                    instance.File = this;
-
-                    instance.Deserialize(blockReader);
-
-                    Blocks[index] = instance;
-
-                    if (stream.Position != stream.Length)
-                    {
-                        throw new Exception(
-                            $"Failed to read {typeName}, read {stream.Position}/{stream.Length} bytes"
-                        );
-                    }
-                });
-            }
-
-            return Task.WhenAll(readingTasks);
-        }
-
         public void ReadBlocks(BitReader reader)
         {
             var type = typeof(NiObject);
@@ -140,8 +77,6 @@ namespace InfectedRose.Nif
                 }
 
                 var instance = (NiObject) Activator.CreateInstance(blockType);
-
-                instance.File = this;
 
                 instance.Deserialize(blockReader);
 

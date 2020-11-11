@@ -7,9 +7,9 @@ namespace InfectedRose.Nif
 {
     public class NiHeader : IConstruct
     {
-        public NifVersion Version { get; set; }
+        public uint Version { get; set; }
         
-        public Endian Endian { get; set; }
+        public byte Endian { get; set; }
         
         public string VersionString { get; set; }
         
@@ -93,9 +93,9 @@ namespace InfectedRose.Nif
 
             VersionString = versionStringBuilder.ToString();
 
-            Version = (NifVersion) reader.Read<uint>();
+            Version = reader.Read<uint>();
 
-            Endian = (Endian) reader.Read<byte>();
+            Endian = reader.Read<byte>();
 
             UserVersion = reader.Read<uint>();
 
