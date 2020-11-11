@@ -8,17 +8,21 @@ namespace InfectedRose.Nif
 	///         A string type.
 	///         
 	/// </summary>
-	public struct NiString : IConstruct
+	public class NiString : IConstruct
 	{
 		/// <summary>
 		/// The string index.
 		/// </summary>
-		public uint Index { get; set; } 
+		public uint Index { get; set; }
+
+		public string Get(NiFile file)
+		{
+			return Index == uint.MaxValue ? "" : file.Header.Strings[Index];
+		}
 		
 		public void Deserialize(BitReader reader)
 		{
 			Index = reader.Read<uint>();
-			
 		}
 	
 		public void Serialize(BitWriter writer)

@@ -18,17 +18,17 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// List of textual notes and at which time they take effect. Used for designating the start and stop of animations and the triggering of sounds.
 		/// </summary>
-		public Key<NiString>[] TextKeys { get; set; } 
+		public Key<uint>[] TextKeys { get; set; } 
 		
 		public override void Deserialize(BitReader reader)
 		{
 			base.Deserialize(reader);
 			NumTextKeys = reader.Read<uint>();
 			
-			TextKeys = new Key<NiString>[NumTextKeys];
+			TextKeys = new Key<uint>[NumTextKeys];
 			for (var i = 0; i < NumTextKeys; i++)
 			{
-				var value = new Key<NiString>(1);
+				var value = new Key<uint>(1);
 				value.Deserialize(reader);
 				TextKeys[i] = value;
 			}
