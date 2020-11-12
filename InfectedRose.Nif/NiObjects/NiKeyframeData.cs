@@ -28,7 +28,7 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// Individual arrays of keys for rotating X, Y, and Z individually.
 		/// </summary>
-		public KeyGroup<float>[] XYZRotations { get; set; } 
+		public KeyGroup<NiConstruct<float>>[] XYZRotations { get; set; } 
 		
 		/// <summary>
 		/// Translation keys.
@@ -38,7 +38,7 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// Scale keys.
 		/// </summary>
-		public KeyGroup<float> Scales { get; set; } 
+		public KeyGroup<NiConstruct<float>> Scales { get; set; } 
 		
 		public override void Deserialize(BitReader reader)
 		{
@@ -55,7 +55,7 @@ namespace InfectedRose.Nif
 				QuaternionKeys = new QuatKey<Quaternion>[NumRotationKeys];
 				for (var i = 0; i < NumRotationKeys; i++)
 				{
-					var value = new QuatKey<Quaternion>();
+					var value = new QuatKey<Quaternion>((uint) RotationType);
 					value.Deserialize(reader);
 					QuaternionKeys[i] = value;
 				}
@@ -63,10 +63,10 @@ namespace InfectedRose.Nif
 			}
 			if (RotationType==(KeyType) 4)
 			{
-				XYZRotations = new KeyGroup<float>[3];
+				XYZRotations = new KeyGroup<NiConstruct<float>>[3];
 				for (var i = 0; i < 3; i++)
 				{
-					var value = new KeyGroup<float>();
+					var value = new KeyGroup<NiConstruct<float>>();
 					value.Deserialize(reader);
 					XYZRotations[i] = value;
 				}
@@ -75,7 +75,7 @@ namespace InfectedRose.Nif
 			Translations = new KeyGroup<Vector3>();
 			Translations.Deserialize(reader);
 			
-			Scales = new KeyGroup<float>();
+			Scales = new KeyGroup<NiConstruct<float>>();
 			Scales.Deserialize(reader);
 			
 		}

@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         In a .kf file, this links to a controllable object, via its name (or for version 10.2.0.0 and up, a link and offset to a NiStringPalette that contains the name), and a sequence of interpolators that apply to this controllable object, via links.
 	///         
 	/// </summary>
-	public struct ControllerLink : IConstruct
+	public class ControllerLink : IConstruct
 	{
 		/// <summary>
 		/// Link to an interpolator.

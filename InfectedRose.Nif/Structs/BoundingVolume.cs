@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct BoundingVolume : IConstruct
+	public class BoundingVolume : IConstruct
 	{
 		/// <summary>
 		/// Type of collision data.

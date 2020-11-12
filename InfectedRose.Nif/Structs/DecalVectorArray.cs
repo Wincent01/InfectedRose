@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Array of Vectors for Decal placement in BSDecalPlacementVectorExtraData.
 	///         
 	/// </summary>
-	public struct DecalVectorArray : IConstruct
+	public class DecalVectorArray : IConstruct
 	{
 		/// <summary>
 		/// Number of sets

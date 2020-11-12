@@ -42,7 +42,7 @@ namespace InfectedRose.Nif
 			Morphs = new Morph[NumMorphs];
 			for (var i = 0; i < NumMorphs; i++)
 			{
-				var value = new Morph();
+				var value = new Morph(NumVertices);
 				value.Deserialize(reader);
 				Morphs[i] = value;
 			}

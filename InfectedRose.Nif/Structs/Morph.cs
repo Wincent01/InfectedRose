@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Geometry morphing data component.
 	///         
 	/// </summary>
-	public struct Morph : IConstruct
+	public class Morph : IConstruct
 	{
 		/// <summary>
 		/// Name of the frame.

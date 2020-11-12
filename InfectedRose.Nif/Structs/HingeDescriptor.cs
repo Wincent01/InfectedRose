@@ -9,7 +9,7 @@ namespace InfectedRose.Nif
 	///     	
 	///         
 	/// </summary>
-	public struct HingeDescriptor : IConstruct
+	public class HingeDescriptor : IConstruct
 	{
 		/// <summary>
 		/// Axis of rotation.

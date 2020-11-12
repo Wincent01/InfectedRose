@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Skinning data component.
 	///         
 	/// </summary>
-	public struct SkinData : IConstruct
+	public class SkinData : IConstruct
 	{
 		/// <summary>
 		/// Offset of the skin from this bone in bind position.

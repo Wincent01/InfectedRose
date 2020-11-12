@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Group of vertex indices of vertices that match.
 	///         
 	/// </summary>
-	public struct MatchGroup : IConstruct
+	public class MatchGroup : IConstruct
 	{
 		/// <summary>
 		/// Number of vertices in this group.

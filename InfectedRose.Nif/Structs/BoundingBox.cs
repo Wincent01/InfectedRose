@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Bounding box.
 	///         
 	/// </summary>
-	public struct BoundingBox : IConstruct
+	public class BoundingBox : IConstruct
 	{
 		/// <summary>
 		/// Usually 1.

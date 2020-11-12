@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A generic key with support for interpolation. Type 1 is normal linear interpolation, type 2 has forward and backward tangents, and type 3 has tension, bias and continuity arguments. Note that color4 and byte always seem to be of type 1.
 	///         
 	/// </summary>
-	public struct Key<TEMPLATE> : IConstruct where TEMPLATE : struct
+	public struct Key<TEMPLATE> : IConstruct where TEMPLATE : IConstruct, new()
 	{
 		/// <summary>
 		/// Time of the key.

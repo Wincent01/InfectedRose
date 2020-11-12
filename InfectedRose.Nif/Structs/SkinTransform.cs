@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct SkinTransform : IConstruct
+	public class SkinTransform : IConstruct
 	{
 		/// <summary>
 		/// The rotation part of the transformation matrix.

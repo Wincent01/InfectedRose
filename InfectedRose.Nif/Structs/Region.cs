@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A range of indices, which make up a region (such as a submesh).
 	///         
 	/// </summary>
-	public struct Region : IConstruct
+	public class Region : IConstruct
 	{
 		/// <summary>
 		/// 

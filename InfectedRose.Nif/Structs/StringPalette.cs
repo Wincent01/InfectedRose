@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A list of \\0 terminated strings.
 	///         
 	/// </summary>
-	public struct StringPalette : IConstruct
+	public class StringPalette : IConstruct
 	{
 		/// <summary>
 		/// A bunch of 0x00 seperated strings.

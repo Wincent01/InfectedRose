@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A weighted vertex.
 	///         
 	/// </summary>
-	public struct SkinWeight : IConstruct
+	public class SkinWeight : IConstruct
 	{
 		/// <summary>
 		/// The vertex index, in the mesh.

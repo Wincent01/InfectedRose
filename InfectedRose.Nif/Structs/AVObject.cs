@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Used in NiDefaultAVObjectPalette.
 	///         
 	/// </summary>
-	public struct AVObject : IConstruct
+	public class AVObject : IConstruct
 	{
 		/// <summary>
 		/// Object name.

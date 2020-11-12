@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct MTransform : IConstruct
+	public class MTransform : IConstruct
 	{
 		/// <summary>
 		/// Translation.

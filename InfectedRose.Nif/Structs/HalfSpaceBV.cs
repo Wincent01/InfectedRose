@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct HalfSpaceBV : IConstruct
+	public class HalfSpaceBV : IConstruct
 	{
 		/// <summary>
 		/// Normal

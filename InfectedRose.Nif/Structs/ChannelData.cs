@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Channel data
 	///         
 	/// </summary>
-	public struct ChannelData : IConstruct
+	public class ChannelData : IConstruct
 	{
 		/// <summary>
 		/// Channel Type

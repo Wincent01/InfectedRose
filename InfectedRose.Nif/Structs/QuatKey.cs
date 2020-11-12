@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A special version of the key type used for quaternions.  Never has tangents.
 	///         
 	/// </summary>
-	public struct QuatKey<TEMPLATE> : IConstruct where TEMPLATE : struct
+	public class QuatKey<TEMPLATE> : IConstruct where TEMPLATE : IConstruct, new()
 	{
 		/// <summary>
 		/// Time the key applies.

@@ -13,7 +13,7 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// Unknown.
 		/// </summary>
-		public KeyGroup<float> FloatKeys { get; set; } 
+		public KeyGroup<NiConstruct<float>> FloatKeys { get; set; } 
 		
 		/// <summary>
 		/// Number of keys.
@@ -23,20 +23,20 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// Unknown.
 		/// </summary>
-		public Key<byte>[] VisibilityKeys { get; set; } 
+		public Key<NiConstruct<byte>>[] VisibilityKeys { get; set; } 
 		
 		public override void Deserialize(BitReader reader)
 		{
 			base.Deserialize(reader);
-			FloatKeys = new KeyGroup<float>();
+			FloatKeys = new KeyGroup<NiConstruct<float>>();
 			FloatKeys.Deserialize(reader);
 			
 			NumVisibilityKeys = reader.Read<uint>();
 			
-			VisibilityKeys = new Key<byte>[NumVisibilityKeys];
+			VisibilityKeys = new Key<NiConstruct<byte>>[NumVisibilityKeys];
 			for (var i = 0; i < NumVisibilityKeys; i++)
 			{
-				var value = new Key<byte>();
+				var value = new Key<NiConstruct<byte>>();
 				value.Deserialize(reader);
 				VisibilityKeys[i] = value;
 			}

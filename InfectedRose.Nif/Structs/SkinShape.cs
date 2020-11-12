@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Reference to shape and skin instance.
 	///         
 	/// </summary>
-	public struct SkinShape : IConstruct
+	public class SkinShape : IConstruct
 	{
 		/// <summary>
 		/// The shape.

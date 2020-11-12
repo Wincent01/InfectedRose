@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct MultiTextureElement : IConstruct
+	public class MultiTextureElement : IConstruct
 	{
 		/// <summary>
 		/// Looks like a memory address, so probably a bool.

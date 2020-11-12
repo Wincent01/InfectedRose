@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         An inertia matrix.
 	///         
 	/// </summary>
-	public struct InertiaMatrix : IConstruct
+	public class InertiaMatrix : IConstruct
 	{
 		/// <summary>
 		/// 

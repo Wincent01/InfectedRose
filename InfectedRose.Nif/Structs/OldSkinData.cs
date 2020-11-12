@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Used to store skin weights in NiTriShapeSkinController.
 	///         
 	/// </summary>
-	public struct OldSkinData : IConstruct
+	public class OldSkinData : IConstruct
 	{
 		/// <summary>
 		/// The amount that this bone affects the vertex.

@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Array of vector keys (anything that can be interpolated, except rotations).
 	///         
 	/// </summary>
-	public struct KeyGroup<TEMPLATE> : IConstruct where TEMPLATE : struct
+	public class KeyGroup<TEMPLATE> : IConstruct where TEMPLATE : IConstruct, new()
 	{
 		/// <summary>
 		/// Number of keys in the array.

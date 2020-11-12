@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A 2x2 matrix of float values.  Stored in OpenGL column-major format.
 	///         
 	/// </summary>
-	public struct Matrix22 : IConstruct
+	public class Matrix22 : IConstruct
 	{
 		/// <summary>
 		/// Member 1,1 (top left)

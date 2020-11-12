@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         An array of bytes.
 	///         
 	/// </summary>
-	public struct ByteArray : IConstruct
+	public class ByteArray : IConstruct
 	{
 		/// <summary>
 		/// The number of bytes in this array

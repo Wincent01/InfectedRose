@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A texture reference used by NiArkTextureExtraData.
 	///         
 	/// </summary>
-	public struct ArkTexture : IConstruct
+	public class ArkTexture : IConstruct
 	{
 		/// <summary>
 		/// 

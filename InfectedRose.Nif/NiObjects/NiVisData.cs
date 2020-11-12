@@ -18,17 +18,17 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// The visibility keys.
 		/// </summary>
-		public Key<byte>[] Keys { get; set; } 
+		public Key<NiConstruct<byte>>[] Keys { get; set; } 
 		
 		public override void Deserialize(BitReader reader)
 		{
 			base.Deserialize(reader);
 			NumKeys = reader.Read<uint>();
 			
-			Keys = new Key<byte>[NumKeys];
+			Keys = new Key<NiConstruct<byte>>[NumKeys];
 			for (var i = 0; i < NumKeys; i++)
 			{
-				var value = new Key<byte>();
+				var value = new Key<NiConstruct<byte>>();
 				value.Deserialize(reader);
 				Keys[i] = value;
 			}

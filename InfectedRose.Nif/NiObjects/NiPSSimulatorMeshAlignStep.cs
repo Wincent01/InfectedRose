@@ -33,7 +33,7 @@ namespace InfectedRose.Nif
 			RotationKeys = new QuatKey<Quaternion>[NumRotationKeys];
 			for (var i = 0; i < NumRotationKeys; i++)
 			{
-				var value = new QuatKey<Quaternion>();
+				var value = new QuatKey<Quaternion>(1);
 				value.Deserialize(reader);
 				RotationKeys[i] = value;
 			}

@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Texture coordinates (u,v). As in OpenGL; image origin is in the lower left corner.
 	///         
 	/// </summary>
-	public struct TexCoord : IConstruct
+	public class TexCoord : IConstruct
 	{
 		/// <summary>
 		/// First coordinate.

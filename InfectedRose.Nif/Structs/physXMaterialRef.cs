@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct physXMaterialRef : IConstruct
+	public class physXMaterialRef : IConstruct
 	{
 		/// <summary>
 		/// Unknown

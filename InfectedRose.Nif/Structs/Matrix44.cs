@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A 4x4 transformation matrix.
 	///         
 	/// </summary>
-	public struct Matrix44 : IConstruct
+	public class Matrix44 : IConstruct
 	{
 		/// <summary>
 		/// The (1,1) element.

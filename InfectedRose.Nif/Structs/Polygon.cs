@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Two dimensional screen elements.
 	///         
 	/// </summary>
-	public struct Polygon : IConstruct
+	public class Polygon : IConstruct
 	{
 		/// <summary>
 		/// Number of vertices in this polygon

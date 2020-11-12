@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct AdditionalDataInfo : IConstruct
+	public class AdditionalDataInfo : IConstruct
 	{
 		/// <summary>
 		/// Type of data in this channel

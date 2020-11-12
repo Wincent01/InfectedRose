@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A vector in 3D space (x,y,z).
 	///         
 	/// </summary>
-	public struct Vector3 : IConstruct
+	public class Vector3 : IConstruct
 	{
 		/// <summary>
 		/// First coordinate.

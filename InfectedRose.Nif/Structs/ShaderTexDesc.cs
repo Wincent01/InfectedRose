@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         An extended texture description for shader textures.
 	///         
 	/// </summary>
-	public struct ShaderTexDesc : IConstruct
+	public class ShaderTexDesc : IConstruct
 	{
 		/// <summary>
 		/// Is it used?

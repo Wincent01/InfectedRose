@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Skinning data for a submesh, optimized for hardware skinning. Part of NiSkinPartition.
 	///         
 	/// </summary>
-	public struct SkinPartition : IConstruct
+	public class SkinPartition : IConstruct
 	{
 		/// <summary>
 		/// Number of vertices in this submesh.

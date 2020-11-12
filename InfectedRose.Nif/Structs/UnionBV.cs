@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct UnionBV : IConstruct
+	public class UnionBV : IConstruct
 	{
 		/// <summary>
 		/// Number of Bounding Volumes.

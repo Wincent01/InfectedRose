@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         The NIF file footer.
 	///         
 	/// </summary>
-	public struct Footer : IConstruct
+	public class Footer : IConstruct
 	{
 		/// <summary>
 		/// The number of root references.

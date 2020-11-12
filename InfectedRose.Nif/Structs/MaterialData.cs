@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Data stored per-material by NiRenderObject
 	///         
 	/// </summary>
-	public struct MaterialData : IConstruct
+	public class MaterialData : IConstruct
 	{
 		/// <summary>
 		/// The name of the material.

@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A group of NiNodes references.
 	///         
 	/// </summary>
-	public struct NodeGroup : IConstruct
+	public class NodeGroup : IConstruct
 	{
 		/// <summary>
 		/// Number of node references that follow.

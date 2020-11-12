@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A color without alpha (red, green, blue).
 	///         
 	/// </summary>
-	public struct ByteColor3 : IConstruct
+	public class ByteColor3 : IConstruct
 	{
 		/// <summary>
 		/// Red color component.

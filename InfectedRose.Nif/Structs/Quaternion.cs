@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A quaternion.
 	///         
 	/// </summary>
-	public struct Quaternion : IConstruct
+	public class Quaternion : IConstruct
 	{
 		/// <summary>
 		/// The w-coordinate.

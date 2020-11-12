@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A quaternion as it appears in the havok objects.
 	///         
 	/// </summary>
-	public struct QuaternionXYZW : IConstruct
+	public class QuaternionXYZW : IConstruct
 	{
 		/// <summary>
 		/// The x-coordinate.

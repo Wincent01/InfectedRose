@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Oblivion's ColFilter property for Havok.
 	///         
 	/// </summary>
-	public struct OblivionColFilter : IConstruct
+	public class OblivionColFilter : IConstruct
 	{
 		/// <summary>
 		/// Sets mesh color in Oblivion Construction Set.

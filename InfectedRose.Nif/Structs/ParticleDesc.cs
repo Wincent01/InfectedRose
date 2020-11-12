@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Particle Description.
 	///         
 	/// </summary>
-	public struct ParticleDesc : IConstruct
+	public class ParticleDesc : IConstruct
 	{
 		/// <summary>
 		/// Unknown.

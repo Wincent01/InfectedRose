@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A 3x3 rotation matrix; M^T M=identity, det(M)=1.    Stored in OpenGL column-major format.
 	///         
 	/// </summary>
-	public struct Matrix33 : IConstruct
+	public class Matrix33 : IConstruct
 	{
 		/// <summary>
 		/// Member 1,1 (top left)

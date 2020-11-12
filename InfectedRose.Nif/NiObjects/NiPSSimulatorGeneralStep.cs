@@ -18,7 +18,7 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// The particle size keys.
 		/// </summary>
-		public Key<float>[] SizeKeys { get; set; } 
+		public Key<NiConstruct<float>>[] SizeKeys { get; set; } 
 		
 		/// <summary>
 		/// 
@@ -40,10 +40,10 @@ namespace InfectedRose.Nif
 			base.Deserialize(reader);
 			NumSizeKeys = reader.Read<byte>();
 			
-			SizeKeys = new Key<float>[NumSizeKeys];
+			SizeKeys = new Key<NiConstruct<float>>[NumSizeKeys];
 			for (var i = 0; i < NumSizeKeys; i++)
 			{
-				var value = new Key<float>();
+				var value = new Key<NiConstruct<float>>();
 				value.Deserialize(reader);
 				SizeKeys[i] = value;
 			}

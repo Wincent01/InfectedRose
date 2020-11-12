@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Box Bounding Volume
 	///         
 	/// </summary>
-	public struct BoxBV : IConstruct
+	public class BoxBV : IConstruct
 	{
 		/// <summary>
 		/// Center

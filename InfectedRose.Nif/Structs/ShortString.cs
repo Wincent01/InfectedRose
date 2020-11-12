@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Another string format, for short strings.  Specific to Bethesda-specific header tags.
 	///         
 	/// </summary>
-	public struct ShortString : IConstruct
+	public class ShortString : IConstruct
 	{
 		/// <summary>
 		/// The string length.

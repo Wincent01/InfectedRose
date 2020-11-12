@@ -15,15 +15,15 @@ namespace InfectedRose.Nif
 		///             Four UV data groups. Appear to be U translation, V translation, U scaling/tiling, V scaling/tiling.
 		///         
 		/// </summary>
-		public KeyGroup<float>[] UVGroups { get; set; } 
+		public KeyGroup<NiConstruct<float>>[] UVGroups { get; set; } 
 		
 		public override void Deserialize(BitReader reader)
 		{
 			base.Deserialize(reader);
-			UVGroups = new KeyGroup<float>[4];
+			UVGroups = new KeyGroup<NiConstruct<float>>[4];
 			for (var i = 0; i < 4; i++)
 			{
-				var value = new KeyGroup<float>();
+				var value = new KeyGroup<NiConstruct<float>>();
 				value.Deserialize(reader);
 				UVGroups[i] = value;
 			}

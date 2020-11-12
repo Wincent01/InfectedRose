@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Description of a MipMap within a NiPixelData object.
 	///         
 	/// </summary>
-	public struct MipMap : IConstruct
+	public class MipMap : IConstruct
 	{
 		/// <summary>
 		/// Width of the mipmap image.

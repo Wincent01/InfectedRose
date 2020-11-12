@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct SemanticData : IConstruct
+	public class SemanticData : IConstruct
 	{
 		/// <summary>
 		/// 

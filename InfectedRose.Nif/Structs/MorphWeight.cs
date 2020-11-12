@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct MorphWeight : IConstruct
+	public class MorphWeight : IConstruct
 	{
 		/// <summary>
 		/// Interpolator

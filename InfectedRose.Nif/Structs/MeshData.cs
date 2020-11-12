@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct MeshData : IConstruct
+	public class MeshData : IConstruct
 	{
 		/// <summary>
 		/// 

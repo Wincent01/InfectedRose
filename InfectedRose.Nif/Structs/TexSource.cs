@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A texture source.
 	///         
 	/// </summary>
-	public struct TexSource : IConstruct
+	public class TexSource : IConstruct
 	{
 		/// <summary>
 		/// Is the texture external?

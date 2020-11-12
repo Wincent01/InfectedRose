@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Capsule Bounding Volume
 	///         
 	/// </summary>
-	public struct CapsuleBV : IConstruct
+	public class CapsuleBV : IConstruct
 	{
 		/// <summary>
 		/// Center

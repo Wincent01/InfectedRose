@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Stores Bone Level of Detail info in a BSBoneLODExtraData
 	///         
 	/// </summary>
-	public struct BoneLOD : IConstruct
+	public class BoneLOD : IConstruct
 	{
 		/// <summary>
 		/// Distance to cull?

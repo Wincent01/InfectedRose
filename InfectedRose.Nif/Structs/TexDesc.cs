@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Texture description.
 	///         
 	/// </summary>
-	public struct TexDesc : IConstruct
+	public class TexDesc : IConstruct
 	{
 		/// <summary>
 		/// NiSourceTexture object index.

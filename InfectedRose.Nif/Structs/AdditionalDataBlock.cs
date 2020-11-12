@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct AdditionalDataBlock : IConstruct
+	public class AdditionalDataBlock : IConstruct
 	{
 		/// <summary>
 		/// Has data

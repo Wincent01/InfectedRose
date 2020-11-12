@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         List of three vertex indices.
 	///         
 	/// </summary>
-	public struct Triangle : IConstruct
+	public class Triangle : IConstruct
 	{
 		/// <summary>
 		/// First vertex index.

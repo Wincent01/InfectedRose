@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct MotorDescriptor : IConstruct
+	public class MotorDescriptor : IConstruct
 	{
 		/// <summary>
 		/// Unknown

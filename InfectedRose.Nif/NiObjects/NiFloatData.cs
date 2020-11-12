@@ -13,12 +13,12 @@ namespace InfectedRose.Nif
 		/// <summary>
 		/// The keys.
 		/// </summary>
-		public KeyGroup<float> Data { get; set; } 
+		public KeyGroup<NiConstruct<float>> Data { get; set; } 
 		
 		public override void Deserialize(BitReader reader)
 		{
 			base.Deserialize(reader);
-			Data = new KeyGroup<float>();
+			Data = new KeyGroup<NiConstruct<float>>();
 			Data.Deserialize(reader);
 			
 		}

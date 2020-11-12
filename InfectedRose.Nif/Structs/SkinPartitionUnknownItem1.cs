@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct SkinPartitionUnknownItem1 : IConstruct
+	public class SkinPartitionUnknownItem1 : IConstruct
 	{
 		/// <summary>
 		/// 

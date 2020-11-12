@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A string of given length.
 	///         
 	/// </summary>
-	public struct SizedString : IConstruct
+	public class SizedString : IConstruct
 	{
 		/// <summary>
 		/// The string length.

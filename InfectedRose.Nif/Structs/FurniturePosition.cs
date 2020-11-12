@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Describes a furniture position?
 	///         
 	/// </summary>
-	public struct FurniturePosition : IConstruct
+	public class FurniturePosition : IConstruct
 	{
 		/// <summary>
 		/// Offset of furniture marker.

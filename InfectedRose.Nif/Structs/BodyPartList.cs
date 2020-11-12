@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Body part list for DismemberSkinInstance
 	///         
 	/// </summary>
-	public struct BodyPartList : IConstruct
+	public class BodyPartList : IConstruct
 	{
 		public ushort PartFlag { get; set; }
 		

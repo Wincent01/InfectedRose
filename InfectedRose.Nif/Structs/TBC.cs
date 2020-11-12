@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Tension, bias, continuity.
 	///         
 	/// </summary>
-	public struct TBC : IConstruct
+	public class TBC : IConstruct
 	{
 		/// <summary>
 		/// Tension.

@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         particle array entry
 	///         
 	/// </summary>
-	public struct Particle : IConstruct
+	public class Particle : IConstruct
 	{
 		/// <summary>
 		/// Particle velocity

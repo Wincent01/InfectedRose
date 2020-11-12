@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///     	Information about how the file was exported
 	///         
 	/// </summary>
-	public struct ExportInfo : IConstruct
+	public class ExportInfo : IConstruct
 	{
 		/// <summary>
 		/// Could be the name of the creator of the NIF file?

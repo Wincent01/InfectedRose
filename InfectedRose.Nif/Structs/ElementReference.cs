@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct ElementReference : IConstruct
+	public class ElementReference : IConstruct
 	{
 		/// <summary>
 		/// The element semantic.

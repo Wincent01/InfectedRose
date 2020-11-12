@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Havok Information for packed TriStrip shapes.
 	///         
 	/// </summary>
-	public struct OblivionSubShape : IConstruct
+	public class OblivionSubShape : IConstruct
 	{
 		/// <summary>
 		/// Sets mesh color in Oblivion Construction Set.

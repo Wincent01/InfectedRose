@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         Unknown.
 	///         
 	/// </summary>
-	public struct SkinShapeGroup : IConstruct
+	public class SkinShapeGroup : IConstruct
 	{
 		/// <summary>
 		/// Counts unknown.

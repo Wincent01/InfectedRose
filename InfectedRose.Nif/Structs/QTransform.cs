@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct QTransform : IConstruct
+	public class QTransform : IConstruct
 	{
 		/// <summary>
 		/// Translation.

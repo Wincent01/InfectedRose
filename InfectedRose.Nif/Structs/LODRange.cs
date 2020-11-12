@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         The distance range where a specific level of detail applies.
 	///         
 	/// </summary>
-	public struct LODRange : IConstruct
+	public class LODRange : IConstruct
 	{
 		/// <summary>
 		/// Begining of range.

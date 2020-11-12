@@ -6,7 +6,7 @@ namespace InfectedRose.Nif
 	/// <summary>
 	/// 
 	/// </summary>
-	public struct ExtraMeshDataEpicMickey : IConstruct
+	public class ExtraMeshDataEpicMickey : IConstruct
 	{
 		/// <summary>
 		/// 

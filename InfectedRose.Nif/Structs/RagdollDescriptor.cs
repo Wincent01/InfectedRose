@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         This constraint defines a cone in which an object can rotate. The shape of the cone can be controlled in two (orthogonal) directions.
 	///         
 	/// </summary>
-	public struct RagdollDescriptor : IConstruct
+	public class RagdollDescriptor : IConstruct
 	{
 		/// <summary>
 		/// Central directed axis of the cone in which the object can rotate. Orthogonal on Plane A.

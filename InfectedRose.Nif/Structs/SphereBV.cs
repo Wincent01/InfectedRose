@@ -8,7 +8,7 @@ namespace InfectedRose.Nif
 	///         A sphere.
 	///         
 	/// </summary>
-	public struct SphereBV : IConstruct
+	public class SphereBV : IConstruct
 	{
 		/// <summary>
 		/// The sphere's center.
