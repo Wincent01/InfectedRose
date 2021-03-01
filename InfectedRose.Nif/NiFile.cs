@@ -78,7 +78,14 @@ namespace InfectedRose.Nif
 
                 var instance = (NiObject) Activator.CreateInstance(blockType);
 
-                instance.Deserialize(blockReader);
+                try
+                {
+                    instance.Deserialize(blockReader);
+                }
+                catch (Exception e)
+                {
+                    throw (Exception) Activator.CreateInstance(e.GetType(), $"Failed to load {blockType.Name}", e);
+                }
 
                 Blocks[index] = instance;
 

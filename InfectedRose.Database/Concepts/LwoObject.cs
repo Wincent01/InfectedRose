@@ -18,6 +18,8 @@ namespace InfectedRose.Database.Concepts
 
         public Column Row { get; }
 
+        public int Lot => Row.Key;
+
         private List<LwoComponent> Components
         {
             get
@@ -60,7 +62,26 @@ namespace InfectedRose.Database.Concepts
             return GetEnumerator();
         }
 
+        public LwoComponent Add(ComponentId componentId, string table)
+        {
+            var component = new LwoComponent
+            {
+                Id = componentId
+            };
+
+            Add(component, table);
+
+            return component;
+        }
+
         public void Add(LwoComponent item)
+        {
+            if (item == default) return;
+            
+            Add(item, item.Id.ToString());
+        }
+        
+        public void Add(LwoComponent item, string table)
         {
             if (item == default) return;
 
@@ -75,7 +96,7 @@ namespace InfectedRose.Database.Concepts
             item.Entry = entry;
             item.Database = Database;
 
-            var componentTable = Database[$"{item.Id}"];
+            var componentTable = Database[table];
 
             if (componentTable == default)
             {
