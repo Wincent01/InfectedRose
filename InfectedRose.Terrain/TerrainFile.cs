@@ -120,7 +120,43 @@ namespace InfectedRose.Terrain
 
             return colors;
         }
+        
+        public Color[] GenerateColorArray(bool second = false)
+        {
+            var weight = second ? Chunks[0].Colormap1.Size : Chunks[0].Colormap0.Size;
+            var height = second ? Chunks[0].Colormap1.Size : Chunks[0].Colormap0.Size;
+            
+            var colors = new Color[
+                            Weight * weight *
+                            Height * height
+            ];
 
+            for (var chunkY = 0; chunkY < Height; ++chunkY)
+            {
+                for (var chunkX = 0; chunkX < Weight; ++chunkX)
+                {
+                    var chunk = Chunks[chunkY * Weight + chunkX];
+
+                    var colorMap = second ? chunk.Colormap1 : chunk.Colormap0;
+
+                    for (var y = 0; y < weight; ++y)
+                    {
+                        for (var x = 0; x < height; ++x)
+                        {
+                            var value = colorMap.GetValue(x, y);
+
+                            var pixelX = chunkX * weight + x;
+                            var pixelY = chunkY * height + y;
+
+                            colors[pixelX + pixelY * height] = value;
+                        }
+                    }
+                }
+            }
+
+            return colors;
+        }
+        
         public void ApplyHeightMap(float[,] heightMap)
         {
             var weight = Chunks[0].HeightMap.Width;
