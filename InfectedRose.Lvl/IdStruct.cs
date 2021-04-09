@@ -11,6 +11,13 @@ namespace InfectedRose.Lvl
         
         public float UnknownFloat1 { get; set; }
         
+        public IdStruct(uint id = 0, float a = 0, float b = 0)
+        {
+            Id = id;
+            UnknownFloat0 = a;
+            UnknownFloat1 = b;
+        }
+
         public void Serialize(BitWriter writer)
         {
             writer.Write(Id);
