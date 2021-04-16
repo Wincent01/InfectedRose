@@ -40,8 +40,6 @@ namespace InfectedRose.Triggers
                     {
                         if (int.TryParse(filePath, out fileId)) break;
                     }
-                    
-                    if (fileId == default) return;
 
                     await using var stream = File.OpenRead(entry);
 
