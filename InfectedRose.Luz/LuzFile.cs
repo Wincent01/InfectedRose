@@ -29,7 +29,7 @@ namespace InfectedRose.Luz
 
         public LuzSceneTransition[] Transitions { get; set; } = new LuzSceneTransition[0];
 
-        public uint PathFormatVersion { get; set; } = 18;
+        public uint PathFormatVersion { get; set; } = 1;
 
         public LuzPathData[] PathData { get; set; } = new LuzPathData[0];
 
@@ -84,15 +84,7 @@ namespace InfectedRose.Luz
             
             if (Version < 0x23) return;
 
-            var position = writer.BaseStream.Position;
-
             WritePaths(writer);
-            
-            var finishPosition = writer.BaseStream.Position;
-            
-            writer.BaseStream.Position = position;
-            
-            writer.Write(finishPosition - position - 4);
         }
 
         private void WritePaths(BitWriter writer)

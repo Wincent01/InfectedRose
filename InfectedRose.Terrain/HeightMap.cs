@@ -16,7 +16,7 @@ namespace InfectedRose.Terrain
 
         public float ScaleFactor { get; set; } = 3.2f;
 
-        public int[] UnknownIntArray { get; set; } = {1, 2, 3, 4};
+        public int[] TexturePallet { get; set; } = {1, 2, 3, 4};
         
         public float[] Data { get; set; }
 
@@ -30,7 +30,7 @@ namespace InfectedRose.Terrain
 
             for (var i = 0; i < 4; i++)
             {
-                writer.Write(UnknownIntArray[i]);
+                writer.Write(TexturePallet[i]);
             }
 
             writer.Write(ScaleFactor);
@@ -49,11 +49,11 @@ namespace InfectedRose.Terrain
             PositionX = reader.Read<float>();
             PositionY = reader.Read<float>();
             
-            UnknownIntArray = new int[4];
+            TexturePallet = new int[4];
 
             for (var i = 0; i < 4; i++)
             {
-                UnknownIntArray[i] = reader.Read<int>();
+                TexturePallet[i] = reader.Read<int>();
             }
 
             ScaleFactor = reader.Read<float>();

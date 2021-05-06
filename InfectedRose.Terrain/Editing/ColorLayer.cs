@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Numerics;
+using UnityEngine;
+using Color = System.Drawing.Color;
+using Vector2 = System.Numerics.Vector2;
 
 namespace InfectedRose.Terrain.Editing
 {
@@ -23,7 +25,10 @@ namespace InfectedRose.Terrain.Editing
 
         public void SetColor(Vector2 position, Color value)
         {
-            position /= 2;
+            if (!Second)
+            {
+                position /= 2;
+            }
 
             Colors[position] = value;
 
@@ -50,17 +55,33 @@ namespace InfectedRose.Terrain.Editing
         {
             var colorMap = Editor.Source.GenerateColorMap(Second);
 
-            for (var x = 0; x < colorMap.GetLength(0) * 2; x += 2)
+            if (Second)
             {
-                for (var y = 0; y < colorMap.GetLength(1) * 2; y += 2)
+                for (var x = 0; x < colorMap.GetLength(0); x++)
                 {
-                    var realX = x / 2;
-                    var realY = y / 2;
+                    for (var y = 0; y < colorMap.GetLength(1); y++)
+                    {
+                        var realX = x;
+                        var realY = y;
 
-                    Colors[new Vector2(x, y)] = colorMap[realX, realY];
-                    Colors[new Vector2(x + 1, y)] = colorMap[realX, realY];
-                    Colors[new Vector2(x, y + 1)] = colorMap[realX, realY];
-                    Colors[new Vector2(x + 1, y + 1)] = colorMap[realX, realY];
+                        Colors[new Vector2(x, y)] = colorMap[realX, realY];
+                    }
+                }
+            }
+            else
+            {
+                for (var x = 0; x < colorMap.GetLength(0) * 2; x += 2)
+                {
+                    for (var y = 0; y < colorMap.GetLength(1) * 2; y += 2)
+                    {
+                        var realX = x / 2;
+                        var realY = y / 2;
+
+                        Colors[new Vector2(x, y)] = colorMap[realX, realY];
+                        Colors[new Vector2(x + 1, y)] = colorMap[realX, realY];
+                        Colors[new Vector2(x, y + 1)] = colorMap[realX, realY];
+                        Colors[new Vector2(x + 1, y + 1)] = colorMap[realX, realY];
+                    }
                 }
             }
         }
