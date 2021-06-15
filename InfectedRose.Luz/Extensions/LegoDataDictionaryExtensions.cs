@@ -1,8 +1,5 @@
 using InfectedRose.Core;
 using RakDotNet.IO;
-using BitWriterExtensions = InfectedRose.Core.BitWriterExtensions;
-using BitReaderExtensions = InfectedRose.Core.BitReaderExtensions;
-using LegoDataDictionary = InfectedRose.Core.LegoDataDictionary;
 
 namespace InfectedRose.Luz.Extensions
 {
@@ -14,8 +11,8 @@ namespace InfectedRose.Luz.Extensions
 
             for (var i = 0; i < configCount; i++)
             {
-                var key = BitReaderExtensions.ReadNiString(reader, true, true);
-                var typeAndValue = BitReaderExtensions.ReadNiString(reader, true, true);
+                var key = reader.ReadNiString(true, true);
+                var typeAndValue = reader.ReadNiString(true, true);
                 var firstColon = typeAndValue.IndexOf(':');
                 var type = int.Parse(typeAndValue[..firstColon]);
                 var val = typeAndValue[(firstColon + 1)..];
