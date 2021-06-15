@@ -5,11 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using InfectedRose.Core;
-using InfectedRose.Luz;
 using RakDotNet.IO;
 
-namespace InfectedRose.Lvl
+namespace InfectedRose.Core
 {
     public class LegoDataDictionary : IDictionary<string, object>, ISerializable
     {
@@ -138,7 +136,7 @@ namespace InfectedRose.Lvl
 
                     case 7:
                         var boolean = (bool) value;
-                        
+
                         if (bitBool)
                         {
                             writer.WriteBit(boolean);
@@ -214,7 +212,7 @@ namespace InfectedRose.Lvl
             {
                 ldd[k.Key] = k.Value;
             }
-            
+
             return ldd;
         }
 
@@ -298,7 +296,7 @@ namespace InfectedRose.Lvl
             var dict = new LegoDataDictionary();
 
             if (string.IsNullOrWhiteSpace(text)) return dict;
-            
+
             var lines = text.Replace("\r", "").Split(separator);
 
             foreach (var line in lines)
@@ -315,19 +313,5 @@ namespace InfectedRose.Lvl
             return dict;
         }
 
-        public static LegoDataDictionary FromLuzPathConfigs(LuzPathConfig[] configs)
-        {
-            var dict = new LegoDataDictionary();
-            foreach (var config in configs)
-            {
-                var key = config.ConfigName;
-                var firstColon = config.ConfigTypeAndValue.IndexOf(':');
-                var type = int.Parse(config.ConfigTypeAndValue[..firstColon]);
-                var val = config.ConfigTypeAndValue[(firstColon + 1)..];
-                dict.Add(key, type, val);
-            }
-
-            return dict;
-        }
     }
 }

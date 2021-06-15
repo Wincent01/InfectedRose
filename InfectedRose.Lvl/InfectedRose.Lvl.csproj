@@ -7,7 +7,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\InfectedRose.Core\InfectedRose.Core.csproj" />
-      <ProjectReference Include="..\InfectedRose.Luz\InfectedRose.Luz.csproj" />
     </ItemGroup>
 
 </Project>

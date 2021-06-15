@@ -1,10 +1,12 @@
+using InfectedRose.Core;
+using InfectedRose.Luz.Extensions;
 using RakDotNet.IO;
 
 namespace InfectedRose.Luz
 {
     public class LuzMovementWaypoint : LuzPathWaypoint
     {
-        public LuzPathConfig[] Configs { get; set; }
+        public LegoDataDictionary Configs { get; set; }
         
         public LuzMovementWaypoint(uint version) : base(version)
         {
@@ -14,26 +16,15 @@ namespace InfectedRose.Luz
         {
             base.Serialize(writer);
 
-            writer.Write((uint) Configs.Length);
-
-            foreach (var config in Configs)
-            {
-                config.Serialize(writer);
-            }
+            Configs.SerializePathConfigs(writer);
         }
 
         public override void Deserialize(BitReader reader)
         {
             base.Deserialize(reader);
 
-            var configCount = reader.Read<uint>();
-            Configs = new LuzPathConfig[configCount];
-
-            for (var i = 0; i < configCount; i++)
-            {
-                Configs[i] = new LuzPathConfig();
-                Configs[i].Deserialize(reader);
-            }
+            Configs = new LegoDataDictionary();
+            Configs.DeserializePathConfigs(reader);
         }
     }
 }

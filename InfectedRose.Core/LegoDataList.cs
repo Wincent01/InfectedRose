@@ -6,7 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace InfectedRose.Lvl
+namespace InfectedRose.Core
 {
     public class LegoDataList : IList<object>
     {
