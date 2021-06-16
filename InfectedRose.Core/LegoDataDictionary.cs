@@ -5,10 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using InfectedRose.Core;
 using RakDotNet.IO;
 
-namespace InfectedRose.Lvl
+namespace InfectedRose.Core
 {
     public class LegoDataDictionary : IDictionary<string, object>, ISerializable
     {
@@ -97,6 +96,11 @@ namespace InfectedRose.Lvl
             return _map.Select(k => new KeyValuePair<string, object>(k.Key, k.Value.Item2)).GetEnumerator();
         }
 
+        public IEnumerable <Tuple<string, byte, object>> AsTuples()
+        {
+            return _map.Select(k => new Tuple<string, byte, object>(k.Key, k.Value.Item1, k.Value.Item2));
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
@@ -141,7 +145,7 @@ namespace InfectedRose.Lvl
 
                     case 7:
                         var boolean = (bool) value;
-                        
+
                         if (bitBool)
                         {
                             writer.WriteBit(boolean);
@@ -221,8 +225,83 @@ namespace InfectedRose.Lvl
             {
                 ldd[k.Key] = k.Value;
             }
-            
+
             return ldd;
+        }
+
+        public void Add(string key, int type, string val)
+        {
+            object v;
+
+            switch (type)
+            {
+                case 1:
+                case 2:
+                    v = int.Parse(val);
+                    break;
+
+                case 3:
+                    v = float.Parse(val, CultureInfo.InvariantCulture);
+                    break;
+
+                case 4:
+                    v = double.Parse(val);
+                    break;
+
+                case 5:
+                case 6:
+                    v = uint.Parse(val);
+                    break;
+
+                case 7:
+                    if (int.TryParse(val, out var i))
+                    {
+                        v = i == 1;
+                    }
+                    else if (bool.TryParse(val, out var b))
+                    {
+                        v = b;
+                    }
+                    else
+                    {
+                        throw new FormatException($"Failed to parse {val} as boolean.");
+                    }
+
+                    break;
+
+                case 8:
+                case 9:
+                    v = long.Parse(val);
+                    break;
+
+                default:
+                    if (val.Contains('+'))
+                    {
+                        v = LegoDataList.FromString(val);
+                    }
+                    else if (val.Contains(InfoSeparator))
+                    {
+                        var floats = val.Split(InfoSeparator).Select(s => float.Parse(s, CultureInfo.InvariantCulture))
+                            .ToArray();
+
+                        v = floats.Length switch
+                        {
+                            1 => floats[0],
+                            2 => new Vector2(floats[0], floats[1]),
+                            3 => new Vector3(floats[0], floats[1], floats[2]),
+                            4 => new Vector4(floats[0], floats[1], floats[2], floats[3]),
+                            _ => (object) val
+                        };
+                    }
+                    else
+                    {
+                        v = val;
+                    }
+
+                    break;
+            }
+
+            this[key, (byte) type] = v;
         }
 
         public static LegoDataDictionary FromString(string text, char separator = '\n')
@@ -230,7 +309,7 @@ namespace InfectedRose.Lvl
             var dict = new LegoDataDictionary();
 
             if (string.IsNullOrWhiteSpace(text)) return dict;
-            
+
             var lines = text.Replace("\r", "").Split(separator);
 
             foreach (var line in lines)
@@ -241,80 +320,11 @@ namespace InfectedRose.Lvl
                 var type = int.Parse(line.Substring(firstEqual + 1, firstColon - firstEqual - 1));
                 var val = line.Substring(firstColon + 1);
 
-                object v;
-
-                switch (type)
-                {
-                    case 1:
-                    case 2:
-                        v = int.Parse(val);
-                        break;
-
-                    case 3:
-                        v = float.Parse(val, CultureInfo.InvariantCulture);
-                        break;
-
-                    case 4:
-                        v = double.Parse(val);
-                        break;
-
-                    case 5:
-                    case 6:
-                        v = uint.Parse(val);
-                        break;
-
-                    case 7:
-                        if (int.TryParse(val, out var i))
-                        {
-                            v = i == 1;
-                        }
-                        else if (bool.TryParse(val, out var b))
-                        {
-                            v = b;
-                        }
-                        else
-                        {
-                            throw new FormatException($"Failed to parse {val} as boolean.");
-                        }
-
-                        break;
-
-                    case 8:
-                    case 9:
-                        v = long.Parse(val);
-                        break;
-
-                    default:
-                        if (val.Contains('+'))
-                        {
-                            v = LegoDataList.FromString(val);
-                        }
-                        else if (val.Contains('\u001F'))
-                        {
-                            var floats = val.Split('\u001F').Select(s => float.Parse(s, CultureInfo.InvariantCulture))
-                                .ToArray();
-
-                            v = floats.Length switch
-                            {
-                                1 => floats[0],
-                                2 => new Vector2(floats[0], floats[1]),
-                                3 => new Vector3(floats[0], floats[1], floats[2]),
-                                4 => new Vector4(floats[0], floats[1], floats[2], floats[3]),
-                                _ => (object) val
-                            };
-                        }
-                        else
-                        {
-                            v = val;
-                        }
-
-                        break;
-                }
-
-                dict[key, (byte) type] = v;
+                dict.Add(key, type, val);
             }
 
             return dict;
         }
+
     }
 }

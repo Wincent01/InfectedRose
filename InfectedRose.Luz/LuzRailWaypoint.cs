@@ -1,12 +1,13 @@
 using System.Numerics;
 using InfectedRose.Core;
+using InfectedRose.Luz.Extensions;
 using RakDotNet.IO;
 
 namespace InfectedRose.Luz
 {
     public class LuzRailWaypoint : LuzPathWaypoint
     {
-        public LuzPathConfig[] Configs { get; set; }
+        public LegoDataDictionary Configs { get; set; }
 
         public Quaternion UnknownQuaternion { get; set; }
         
@@ -27,12 +28,7 @@ namespace InfectedRose.Luz
                 writer.Write(Speed);
             }
 
-            writer.Write((uint) Configs.Length);
-
-            foreach (var config in Configs)
-            {
-                config.Serialize(writer);
-            }
+            Configs.SerializePathConfigs(writer);
         }
 
         public override void Deserialize(BitReader reader)
@@ -46,14 +42,8 @@ namespace InfectedRose.Luz
                 Speed = reader.Read<float>();
             }
 
-            var configCount = reader.Read<uint>();
-            Configs = new LuzPathConfig[configCount];
-
-            for (var i = 0; i < configCount; i++)
-            {
-                Configs[i] = new LuzPathConfig();
-                Configs[i].Deserialize(reader);
-            }
+            Configs = new LegoDataDictionary();
+            Configs.DeserializePathConfigs(reader);
         }
     }
 }
