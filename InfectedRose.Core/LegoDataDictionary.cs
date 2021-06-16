@@ -96,6 +96,11 @@ namespace InfectedRose.Core
             return _map.Select(k => new KeyValuePair<string, object>(k.Key, k.Value.Item2)).GetEnumerator();
         }
 
+        public IEnumerable <Tuple<string, byte, object>> AsTuples()
+        {
+            return _map.Select(k => new Tuple<string, byte, object>(k.Key, k.Value.Item1, k.Value.Item2));
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 

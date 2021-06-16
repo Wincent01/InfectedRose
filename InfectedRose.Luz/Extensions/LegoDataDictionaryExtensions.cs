@@ -1,3 +1,5 @@
+using System;
+using System.Numerics;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -24,19 +26,20 @@ namespace InfectedRose.Luz.Extensions
         {
             writer.Write((uint) @this.Count);
 
-            foreach (var (key, value) in @this)
+            foreach (var (key, type, value) in @this.AsTuples())
             {
-                var type =
-                    value is int ? 1 :
-                    value is float ? 3 :
-                    value is double ? 4 :
-                    value is uint ? 5 :
-                    value is bool ? 7 :
-                    value is long ? 8 :
-                    value is byte[] ? 13 : 0;
+                var output = value switch
+                {
+                    bool b => b ? "1" : "0",
+                    Vector2 vec2 => $"{vec2.X}{LegoDataDictionary.InfoSeparator}{vec2.Y}",
+                    Vector3 vec3 => $"{vec3.X}{LegoDataDictionary.InfoSeparator}{vec3.Z}{LegoDataDictionary.InfoSeparator}{vec3.Y}",
+                    Vector4 vec4 => $"{vec4.X}{LegoDataDictionary.InfoSeparator}{vec4.Z}{LegoDataDictionary.InfoSeparator}{vec4.Y}{LegoDataDictionary.InfoSeparator}{vec4.W}",
+                    LegoDataList list => list.ToString(),
+                    _ => value.ToString(),
+                };
 
                 writer.WriteNiString(key, true, true);
-                writer.WriteNiString(type + ":" + value, true, true);
+                writer.WriteNiString(type + ":" + output, true, true);
             }
         }
     }
