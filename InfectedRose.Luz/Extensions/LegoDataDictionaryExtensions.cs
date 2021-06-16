@@ -16,6 +16,11 @@ namespace InfectedRose.Luz.Extensions
                 var key = reader.ReadNiString(true, true);
                 var typeAndValue = reader.ReadNiString(true, true);
                 var firstColon = typeAndValue.IndexOf(':');
+                if (firstColon == -1)
+                {
+                    @this.Add(key, typeAndValue);
+                    continue;
+                }
                 var type = int.Parse(typeAndValue[..firstColon]);
                 var val = typeAndValue[(firstColon + 1)..];
                 @this.Add(key, type, val);
