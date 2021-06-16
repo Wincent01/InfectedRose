@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Xml.Serialization;
+using InfectedRose.Core;
 using InfectedRose.Lvl;
 
 namespace InfectedRose.World
