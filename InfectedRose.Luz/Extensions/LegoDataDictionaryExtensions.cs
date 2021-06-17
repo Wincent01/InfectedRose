@@ -7,6 +7,16 @@ namespace InfectedRose.Luz.Extensions
 {
     public static class LegoDataDictionaryExtensions
     {
+        /// <summary>
+        /// Build a LegoDataDictionary from path config values. Path configs have a different serialization than LDF in
+        /// Lvl files has.
+        /// </summary>
+        /// <remarks>
+        /// Some config entries have no type defined, for example `pathspeed=0.8` or `delay=5`.
+        /// This code tries to interpret those values first as an int, then as a float, and if
+        /// neither succeeds, stores it as a string.
+        /// </remarks>
+        /// <seealso cref="SerializePathConfigs"/>
         public static void DeserializePathConfigs(this LegoDataDictionary @this, BitReader reader)
         {
             var configCount = reader.Read<uint>();
@@ -16,12 +26,30 @@ namespace InfectedRose.Luz.Extensions
                 var key = reader.ReadNiString(true, true);
                 var typeAndValue = reader.ReadNiString(true, true);
                 var firstColon = typeAndValue.IndexOf(':');
+                if (firstColon == -1)
+                {
+                    if (int.TryParse(typeAndValue, out var intValue))
+                        @this.Add(key, intValue);
+                    else if (float.TryParse(typeAndValue, out var floatVal))
+                        @this.Add(key, floatVal);
+                    else
+                        @this.Add(key, typeAndValue);
+
+                    continue;
+                }
                 var type = int.Parse(typeAndValue[..firstColon]);
                 var val = typeAndValue[(firstColon + 1)..];
                 @this.Add(key, type, val);
             }
         }
 
+        /// <summary>
+        /// Serialize a LegoDataDictionary as path configs.
+        /// </summary>
+        /// <remarks>
+        /// The output of this includes the type that entries like `pathspeed=0.8` were parsed as.
+        /// </remarks>
+        /// <seealso cref="DeserializePathConfigs"/>
         public static void SerializePathConfigs(this LegoDataDictionary @this, BitWriter writer)
         {
             writer.Write((uint) @this.Count);
