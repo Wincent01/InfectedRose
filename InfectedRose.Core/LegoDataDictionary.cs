@@ -191,6 +191,7 @@ namespace InfectedRose.Core
             {
                 var val = v switch
                 {
+                    bool boolean => boolean ? "1" : "0",
                     Vector2 vec2 => $"{vec2.X}{InfoSeparator}{vec2.Y}",
                     Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}",
                     Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}",
