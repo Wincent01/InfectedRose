@@ -161,7 +161,7 @@ namespace InfectedRose.Database
         {
             using var stream = File.OpenRead(file);
 
-            using var reader = new BitReader(stream);
+            using var reader = new ByteReader(stream);
 
             var source = new DatabaseFile();
 

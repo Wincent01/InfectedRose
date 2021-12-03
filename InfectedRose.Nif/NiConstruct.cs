@@ -3,7 +3,7 @@ using RakDotNet.IO;
 
 namespace InfectedRose.Nif
 {
-    public class NiConstruct<T> : IConstruct where T : struct
+    public class NiConstruct<T> : IConstruct where T : unmanaged
     {
         public T Value { get; set; }
 

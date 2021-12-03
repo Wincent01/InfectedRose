@@ -4,7 +4,7 @@ namespace InfectedRose.Database.Sql
 {
     internal static class ColumnExtensions
     {
-        internal static string WhereSegment(this Column @this)
+        internal static string WhereSegment(this Row @this)
         {
             var builder = new StringBuilder("WHERE ");
 
@@ -20,7 +20,7 @@ namespace InfectedRose.Database.Sql
             return builder.ToString();
         }
 
-        internal static string ValuesSegment(this Column @this)
+        internal static string ValuesSegment(this Row @this)
         {
             var builder = new StringBuilder("VALUES (");
 
@@ -33,7 +33,7 @@ namespace InfectedRose.Database.Sql
             return builder.ToString();
         }
 
-        internal static string SqlInsert(this Column @this)
+        internal static string SqlInsert(this Row @this)
         {
             var builder = new StringBuilder();
 
@@ -44,7 +44,7 @@ namespace InfectedRose.Database.Sql
             return builder.ToString();
         }
 
-        internal static string SqlDelete(this Column @this)
+        internal static string SqlDelete(this Row @this)
         {
             var builder = new StringBuilder();
 

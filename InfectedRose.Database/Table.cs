@@ -8,7 +8,7 @@ using InfectedRose.Database.Sql;
 
 namespace InfectedRose.Database
 {
-    public class Table : IList<Column>
+    public class Table : IList<Row>
     {
         internal Table(FdbColumnHeader info, FdbRowBucket data, AccessDatabase database)
         {
@@ -38,11 +38,11 @@ namespace InfectedRose.Database
 
         public TableInfo TableInfo => new TableInfo(this);
 
-        private List<Column> Fields
+        private List<Row> Fields
         {
             get
             {
-                var columns = new List<Column>();
+                var columns = new List<Row>();
 
                 foreach (var info in Data.RowHeader.RowInfos)
                 {
@@ -50,7 +50,7 @@ namespace InfectedRose.Database
 
                     while (linked != default)
                     {
-                        columns.Add(new Column(linked, this));
+                        columns.Add(new Row(linked, this));
 
                         linked = linked.Linked;
                     }
@@ -60,7 +60,7 @@ namespace InfectedRose.Database
             }
         }
 
-        public IEnumerator<Column> GetEnumerator()
+        public IEnumerator<Row> GetEnumerator()
         {
             return Fields.GetEnumerator();
         }
@@ -70,7 +70,7 @@ namespace InfectedRose.Database
             return GetEnumerator();
         }
 
-        public void Add(Column item)
+        public void Add(Row item)
         {
             if (item == default) return;
 
@@ -86,17 +86,17 @@ namespace InfectedRose.Database
             Data.RowHeader.RowInfos = new FdbRowInfo[0];
         }
 
-        public bool Contains(Column item)
+        public bool Contains(Row item)
         {
             return Fields.Contains(item);
         }
 
-        public void CopyTo(Column[] array, int arrayIndex)
+        public void CopyTo(Row[] array, int arrayIndex)
         {
             Fields.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(Column item)
+        public bool Remove(Row item)
         {
             if (item == default) return false;
 
@@ -141,12 +141,12 @@ namespace InfectedRose.Database
 
         public bool IsReadOnly => false;
 
-        public int IndexOf(Column item)
+        public int IndexOf(Row item)
         {
             return Fields.IndexOf(item);
         }
 
-        public void Insert(int index, Column item)
+        public void Insert(int index, Row item)
         {
             if (item == default) return;
 
@@ -162,7 +162,7 @@ namespace InfectedRose.Database
             Remove(this[index]);
         }
 
-        public Column this[int index]
+        public Row this[int index]
         {
             get => Fields[index];
             set => throw new NotSupportedException();
@@ -175,9 +175,9 @@ namespace InfectedRose.Database
         ///     This is the same principle used the access rows when the database is in use
         /// </remarks>
         /// <param name="key">The key of the row you seek</param>
-        /// <param name="column">The column found for this key</param>
+        /// <param name="row">The column found for this key</param>
         /// <returns>If the key was found in this table</returns>
-        public bool Seek(int key, out Column column)
+        public bool Seek(int key, out Row row)
         {
             var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
             
@@ -193,17 +193,17 @@ namespace InfectedRose.Database
 
             if (bucket != null)
             {
-                column = new Column(bucket, this);
+                row = new Row(bucket, this);
 
                 return true;
             }
 
-            column = null;
+            row = null;
 
             return false;
         }
 
-        public IEnumerable<Column> SeekMultiple(int key)
+        public IEnumerable<Row> SeekMultiple(int key)
         {
             var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
             
@@ -213,7 +213,7 @@ namespace InfectedRose.Database
             {
                 if ((int) bucket.DataHeader.Data.Fields[0].value == key)
                 {
-                    yield return new Column(bucket, this);
+                    yield return new Row(bucket, this);
                 }
                 
                 bucket = bucket.Linked;
@@ -241,7 +241,7 @@ namespace InfectedRose.Database
             return max + 1;
         }
         
-        public Column Create()
+        public Row Create()
         {
             if (TableInfo[0].Type != DataType.Integer)
                 throw new NotSupportedException("AccessDatabase can only generate primary keys for Int32 types.");
@@ -259,7 +259,7 @@ namespace InfectedRose.Database
             return Create(max + 1);
         }
 
-        public Column Create(object key, object values = null)
+        public Row Create(object key, object values = null)
         {
             var list = Data.RowHeader.RowInfos.ToList();
 
@@ -347,7 +347,7 @@ namespace InfectedRose.Database
 
             Data.RowHeader.RowInfos = list.ToArray();
 
-            var col = new Column(column, this);
+            var col = new Row(column, this);
 
             Database.RegisterSql(col.SqlInsert());
 
@@ -369,7 +369,7 @@ namespace InfectedRose.Database
                 col[id].Value = value;
             }
 
-            return new Column(column, this);
+            return new Row(column, this);
         }
 
         public void Recalculate() => Recalculate(0);

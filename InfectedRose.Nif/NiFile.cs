@@ -65,7 +65,7 @@ namespace InfectedRose.Nif
                 
                 using var stream = new MemoryStream(data);
 
-                using var blockReader = new BitReader(stream);
+                using var blockReader = new ByteReader(stream);
                 
                 var blockType = blockTypes.FirstOrDefault(
                     t => t.Name == typeName

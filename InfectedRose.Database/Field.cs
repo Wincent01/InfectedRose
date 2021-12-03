@@ -5,12 +5,12 @@ namespace InfectedRose.Database
 {
     public class Field
     {
-        internal Field(FdbRowData data, int index, Table table, Column column)
+        internal Field(FdbRowData data, int index, Table table, Row row)
         {
             Data = data;
             Index = index;
             Table = table;
-            Column = column;
+            Row = row;
         }
 
         internal FdbRowData Data { get; }
@@ -19,7 +19,7 @@ namespace InfectedRose.Database
 
         internal Table Table { get; }
 
-        internal Column Column { get; }
+        internal Row Row { get; }
 
         public string Name => Table.TableInfo[Index].Name;
 
@@ -53,7 +53,7 @@ namespace InfectedRose.Database
             }
             set
             {
-                var where = Column.WhereSegment();
+                var where = Row.WhereSegment();
 
                 var dataField = Data.Fields[Index];
 

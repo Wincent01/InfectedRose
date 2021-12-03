@@ -6,9 +6,9 @@ using InfectedRose.Database.Fdb;
 
 namespace InfectedRose.Database
 {
-    public class Column : IList<Field>
+    public class Row : IList<Field>
     {
-        internal Column(FdbRowInfo data, Table table)
+        internal Row(FdbRowInfo data, Table table)
         {
             Data = data;
             Table = table;

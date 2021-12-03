@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using InfectedRose.Core;
 using RakDotNet.IO;
 
@@ -30,13 +29,13 @@ namespace InfectedRose.Database.Fdb
 
         public void Serialize(BitWriter writer)
         {
-            var pointers = new List<PointerToken>();
+            var pointers = new PointerToken[Fields.Length];
 
             for (var i = 0; i < Fields.Length; i++)
             {
                 writer.Write((uint) Fields[i].type);
 
-                pointers.Add(new PointerToken(writer));
+                pointers[i] = new PointerToken(writer);
             }
 
             for (var i = 0; i < Fields.Length; i++)
