@@ -13,7 +13,7 @@ namespace InfectedRose.Core
         {
             Structure.Add(obj);
         }
-        
+
         public virtual byte[] Compile(Action<int> onData = default)
         {
             var compiled = new List<byte>();
@@ -23,7 +23,7 @@ namespace InfectedRose.Core
             foreach (var obj in Structure)
             {
                 onData?.Invoke(++index);
-                
+
                 switch (obj)
                 {
                     case null:
@@ -58,7 +58,7 @@ namespace InfectedRose.Core
 
             return compiled.ToArray();
         }
-        
+
         private static byte[] ToBytes(object obj)
         {
             if (!obj.GetType().IsValueType)
@@ -67,13 +67,14 @@ namespace InfectedRose.Core
 
                 return new byte[0];
             }
-            
+
             var size = Marshal.SizeOf(obj);
             var buf = new byte[size];
             var ptr = Marshal.AllocHGlobal(size);
 
             Marshal.StructureToPtr(obj, ptr, false);
             Marshal.Copy(ptr, buf, 0, size);
+            Marshal.FreeHGlobal(ptr)
 
             return buf;
         }
@@ -81,7 +82,7 @@ namespace InfectedRose.Core
         public static HashMap operator +(HashMap map, object obj)
         {
             map.Add(obj);
-            
+
             return map;
         }
     }
