@@ -74,7 +74,7 @@ namespace InfectedRose.Core
 
             Marshal.StructureToPtr(obj, ptr, false);
             Marshal.Copy(ptr, buf, 0, size);
-            Marshal.FreeHGlobal(ptr)
+            Marshal.FreeHGlobal(ptr);
 
             return buf;
         }
