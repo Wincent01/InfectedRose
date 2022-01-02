@@ -7,6 +7,11 @@ namespace InfectedRose.Database.Fdb
     {
         public long Value { get; set; }
 
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
         public void Deserialize(BitReader reader)
         {
             using var s = new DatabaseScope(reader, true);

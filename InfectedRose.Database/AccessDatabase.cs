@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using InfectedRose.Database.Fdb;
 using RakDotNet.IO;
+using Microsoft.Data.Sqlite;
 
 namespace InfectedRose.Database
 {
@@ -157,6 +159,19 @@ namespace InfectedRose.Database
             set => Source.TableHeader.Tables[index] = (value.Info, value.Data);
         }
 
+        public static AccessDatabase Open(string file)
+        {
+            using var stream = File.OpenRead(file);
+
+            using var reader = new ByteReader(stream);
+
+            var source = new DatabaseFile();
+
+            source.Deserialize(reader);
+
+            return new AccessDatabase(source);
+        }
+        
         public static async Task<AccessDatabase> OpenAsync(string file)
         {
             using var stream = File.OpenRead(file);
@@ -170,7 +185,7 @@ namespace InfectedRose.Database
             return new AccessDatabase(source);
         }
 
-        public async Task SaveAsync(string file)
+        public void Save(string file)
         {
             using var stream = File.Create(file);
 
@@ -178,12 +193,136 @@ namespace InfectedRose.Database
 
             Source.Serialize(reader);
         }
-
-        public static async Task OpenEmptyAsync()
+        
+        public async Task SaveAsync(string file)
         {
-            var source = new DatabaseFile();
+            using var stream = File.Create(file);
 
-            source.TableHeader = new FdbTableHeader(0);
+            using var reader = new BitWriter(stream);
+            Source.Serialize(reader);
+        }
+
+        public static void OpenEmpty()
+        {
+            var source = new DatabaseFile { TableHeader = new FdbTableHeader(0) };
+        }
+
+        public void SaveSqlite(SqliteConnection connection)
+        {
+            // For each table, create a sql table
+            foreach (var table in this)
+            {
+                var tableName = table.Name;
+
+                var createTable = $"CREATE TABLE {tableName} (";
+
+                foreach (var column in table.TableInfo)
+                {
+                    var columnName = column.Name;
+
+                    string columnType;
+                    switch (column.Type)
+                    {
+                        case DataType.Integer:
+                            columnType = "INT32";
+                            break;
+                        case DataType.Float:
+                            columnType = "REAL";
+                            break;
+                        case DataType.Text:
+                            columnType = "TEXT_4";
+                            break;
+                        case DataType.Boolean:
+                            columnType = "INT_BOOL";
+                            break;
+                        case DataType.Bigint:
+                            columnType = "INTEGER";
+                            break;
+                        case DataType.Varchar:
+                            columnType = "TEXT_4";
+                            break;
+                        default:
+                            columnType = "TEXT_4";
+                            break;
+                    }
+                    
+                    createTable += $"\"{columnName}\" {columnType} NULL,";
+                }
+
+                createTable = createTable.TrimEnd(',');
+                createTable += ");";
+
+                var command = new SqliteCommand(createTable, connection);
+                command.ExecuteNonQuery();
+
+                var count = table.Count;
+                
+                if (count <= 0) continue;
+                
+                // Create one query to insert all the rows
+                var insertQuery = new StringBuilder(count * table.TableInfo.Count * 8);
+
+                insertQuery.Append($"INSERT INTO {tableName} (");
+
+                foreach (var column in table.TableInfo)
+                {
+                    insertQuery.Append($"\"{column.Name}\",");
+                }
+
+                insertQuery.Length--;
+
+                insertQuery.Append(") VALUES ");
+
+                foreach (var row in table.Data.RowHeader.RowInfos)
+                {
+                    var linked = row;
+
+                    while (linked != null)
+                    {
+                        insertQuery.Append('(');
+
+                        foreach (var (type, value) in linked.DataHeader.Data.Fields)
+                        {
+                            if (type == DataType.Nothing)
+                            {
+                                insertQuery.Append("null,");
+                            }
+                            else if (type == DataType.Text || type == DataType.Varchar)
+                            {
+                                insertQuery.Append($"'{(value.ToString().Replace("'", "''"))}',");
+                            }
+                            else
+                            {
+                                insertQuery.Append($"{value},");
+                            }
+                        }
+
+                        insertQuery.Length--;
+
+                        linked = linked.Linked;
+
+                        insertQuery.Append("),");
+                    }
+                }
+
+                insertQuery.Length--;
+
+                insertQuery.Append(';');
+
+                var query = insertQuery.ToString();
+
+                command = new SqliteCommand(query, connection);
+                try
+                {
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(query);
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
         }
 
         internal void RegisterSql(string sql)

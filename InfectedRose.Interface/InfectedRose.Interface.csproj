@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>8</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InfectedRose.Core\InfectedRose.Core.csproj" />
+      <ProjectReference Include="..\InfectedRose.Database\InfectedRose.Database.csproj" />
+      <ProjectReference Include="..\InfectedRose.Geometry\InfectedRose.Geometry.csproj" />
+      <ProjectReference Include="..\InfectedRose.Luz\InfectedRose.Luz.csproj" />
+      <ProjectReference Include="..\InfectedRose.Lvl\InfectedRose.Lvl.csproj" />
+      <ProjectReference Include="..\InfectedRose.Nif\InfectedRose.Nif.csproj" />
+      <ProjectReference Include="..\InfectedRose.Terrain\InfectedRose.Terrain.csproj" />
+      <ProjectReference Include="..\InfectedRose.Triggers\InfectedRose.Triggers.csproj" />
+      <ProjectReference Include="..\InfectedRose.Utilities\InfectedRose.Utilities.csproj" />
+      <ProjectReference Include="..\RakDotNet.IO\RakDotNet.IO.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
+    </ItemGroup>
+
+</Project>

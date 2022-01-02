@@ -15,7 +15,7 @@ namespace InfectedRose.Database.Fdb
 
         public override string ToString()
         {
-            return "FdbString";
+            return Value;
         }
 
         public void Serialize(BitWriter writer)
