@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using CommandLine;
 using InfectedRose.Database;
 using InfectedRose.Database.Fdb;
@@ -71,16 +72,6 @@ namespace InfectedRose.Interface
             return JsonSerializer.Deserialize<T>(stream) ?? new T();
         }
 
-        public static string GetComponentTable(string component)
-        {
-            if (component.Contains("PhysicsComponent"))
-            {
-                return "PhysicsComponent";
-            }
-
-            return component;
-        }
-
         public static void ApplyRow(Mod mod)
         {
             if (mod.Action != "add")
@@ -88,7 +79,7 @@ namespace InfectedRose.Interface
                 return;
             }
 
-            var tableName = GetComponentTable(mod.Type);
+            var tableName = ModContext.GetComponentTableName(mod.Type);
 
             if (!string.IsNullOrWhiteSpace(mod.Table))
             {
@@ -147,6 +138,17 @@ namespace InfectedRose.Interface
                 ModContext.Mods[mod.Id] = mod;
                 
                 ApplyMod(mod);
+
+                if (!mod.ShowDefaults.HasValue || mod.ShowDefaults.Value == false)
+                {
+                    foreach (var (key, value) in mod.Defaults)
+                    {
+                        if (mod.HasValue(key) && mod.Values[key].ToString() == value.ToString())
+                        {
+                            mod.Values.Remove(key);
+                        }
+                    }
+                }
             }
             
             Directory.SetCurrentDirectory(directory);
@@ -259,7 +261,7 @@ namespace InfectedRose.Interface
                 
                 components.Add(componentMod.Id);
 
-                if (!ModContext.Database[GetComponentTable(componentMod.Type)].Seek(componentId, out var componentRow))
+                if (!ModContext.Database[ModContext.GetComponentTableName(componentMod.Type)].Seek(componentId, out var componentRow))
                 {
                     continue;
                 }
@@ -308,6 +310,22 @@ namespace InfectedRose.Interface
             
             ModContext.Configuration = ReadOrCreateJson<Mods>(CommandLineOptions.Input);
 
+            // Load locale
+            XmlSerializer localeSerializer = new XmlSerializer(typeof(Localization));
+
+            var localeSourcePath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "./locale.xml");
+            var localeDestinationPath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "../locale/locale.xml");
+
+            if (!File.Exists(localeSourcePath))
+            {
+                File.Copy(localeDestinationPath, localeSourcePath);
+            }
+
+            using (var stream = File.OpenRead(localeSourcePath))
+            {
+                ModContext.Localization = (Localization) localeSerializer.Deserialize(stream)!;
+            }
+
             // Check version
             if (string.IsNullOrWhiteSpace(ModContext.Configuration.Version))
             {
@@ -324,9 +342,10 @@ namespace InfectedRose.Interface
             // Open database
             if (!File.Exists(ModContext.Configuration.Database))
             {
-                Console.WriteLine("Please specify a valid path to the base fdb database in mods.json.");
+                var databaseSourcePath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "./cdclient.fdb");
+                var databaseDestinationPath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "../res/cdclient.fdb");
                 
-                return;
+                File.Copy(databaseDestinationPath, databaseSourcePath);
             }
 
             var origin = Console.GetCursorPosition();
@@ -426,6 +445,14 @@ namespace InfectedRose.Interface
 
             Console.SetCursorPosition(origin.Left, origin.Top);
 
+            using (var stream = File.Create(localeDestinationPath))
+            {
+                ModContext.Localization.Locales.Count = ModContext.Localization.Locales.Locale.Length;
+                ModContext.Localization.Phrases.Count = ModContext.Localization.Phrases.Phrase.Count;
+                
+                localeSerializer.Serialize(stream, ModContext.Localization);
+            }
+            
             Console.WriteLine("Complete!");
         }
     }

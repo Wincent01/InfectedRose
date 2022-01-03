@@ -23,6 +23,8 @@ namespace InfectedRose.Interface
 
         public static AccessDatabase Database { get; set; }
         
+        public static Localization Localization { get; set; }
+        
         public static Dictionary<string, int> Ids { get; set; } = new Dictionary<string, int>();
         
         public static Dictionary<string, Mod> Mods { get; set; } = new Dictionary<string, Mod>();
@@ -59,6 +61,60 @@ namespace InfectedRose.Interface
         {
             return Mods[id];
         }
+
+        public static Table? GetComponentTable(ComponentId component)
+        {
+            return Database[GetComponentTableName(component)];
+        }
+
+        public static Table? GetComponentTable(string component)
+        {
+            return Database[GetComponentTableName(component)];
+        }
+        
+        public static string GetComponentTableName(ComponentId component)
+        {
+            return GetComponentTableName(component.ToString());
+        }
+        
+        public static string GetComponentTableName(string component)
+        {
+            if (component.Contains("PhysicsComponent"))
+            {
+                return "PhysicsComponent";
+            }
+
+            return component;
+        }
+
+        public static void AddToLocale(string id, string text, string locale)
+        {
+            var phrase = Localization.Phrases.Phrase.FirstOrDefault(p => p.Id == id);
+
+            if (phrase == null)
+            {
+                phrase = new Phrase();
+
+                phrase.Id = id;
+                
+                phrase.Translations = new List<Translation>();
+                
+                Localization.Phrases.Phrase.Add(phrase);
+            }
+
+            var translation = phrase.Translations.FirstOrDefault(t => t.Locale == locale);
+
+            if (translation == null)
+            {
+                translation = new Translation();
+
+                translation.Locale = locale;
+                
+                phrase.Translations.Add(translation);
+            }
+
+            translation.Text = text;
+        }
         
         public static string ParseValue(string value)
         {
@@ -84,6 +140,12 @@ namespace InfectedRose.Interface
 
                 value = value.Substring(8);
             }
+            else if (value.StartsWith("ICON:"))
+            {
+                root = "../../res/mesh/bricks/";
+
+                value = value.Substring(5);
+            }
 
             root = Root + root;
 
@@ -97,16 +159,20 @@ namespace InfectedRose.Interface
         {
             foreach (var (key, objValue) in mod.Values)
             {
-                var value = (JsonElement) objValue;
+                var info = table.TableInfo.FirstOrDefault(column => column.Name == key);
+
+                if (info == null)
+                {
+                    continue;
+                }
                 
                 var field = row[key];
-                var info = table.TableInfo.First(column => column.Name == key);
 
                 switch (info.Type)
                 {
                     case DataType.Integer:
                     {
-                        var str = value.ToString();
+                        var str = objValue.ToString();
 
                         if (str.Contains(':'))
                         {
@@ -117,23 +183,23 @@ namespace InfectedRose.Interface
                         }
                         else
                         {
-                            field.Value = value.GetInt32();
+                            field.Value = mod.GetValue<int>(key);
                         }
                         
                         break;
                     }
                     case DataType.Float:
-                        field.Value = value.GetSingle();
+                        field.Value = mod.GetValue<float>(key);
                         break;
                     case DataType.Varchar:
                     case DataType.Text:
-                        field.Value = ParseValue(value.GetString()!);
+                        field.Value = ParseValue(objValue.ToString()!);
                         break;
                     case DataType.Boolean:
-                        field.Value = value.GetBoolean();
+                        field.Value = mod.GetValue<bool>(key);
                         break;
                     case DataType.Bigint:
-                        field.Value = value.GetInt64();
+                        field.Value = mod.GetValue<long>(key);
                         break;
                 }
             }
