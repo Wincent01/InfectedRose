@@ -32,6 +32,12 @@ namespace InfectedRose.Interface
         [JsonPropertyName("skills")]
         public JsonValue[]? Skills { get; set; }
         
+        [JsonPropertyName("tasks")]
+        public MissionModTask[]? Tasks { get; set; }
+        
+        [JsonPropertyName("missions")]
+        public MissionOffer[]? MissionOffers { get; set; }
+
         [JsonPropertyName("locale")]
         public Dictionary<string, string>? Locale { get; set; } = new Dictionary<string, string>
         {
@@ -39,10 +45,10 @@ namespace InfectedRose.Interface
         };
         
         [JsonPropertyName("values")]
-        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object?> Values { get; set; } = new Dictionary<string, object?>();
         
         [JsonIgnore]
-        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object?> Defaults { get; set; } = new Dictionary<string, object?>();
 
         public T GetValue<T>(string id)
         {
@@ -54,6 +60,11 @@ namespace InfectedRose.Interface
             if (Values[id] is T value)
             {
                 return value;
+            }
+
+            if (Values[id] is null)
+            {
+                return default;
             }
 
             return (T) Convert.ChangeType(Values[id], typeof(T));
@@ -73,6 +84,15 @@ namespace InfectedRose.Interface
             Values[id] = value;
         }
 
+        public void DefaultNull(string id)
+        {
+            Defaults[id] = null;
+            
+            if (HasValue(id)) return;
+
+            Values[id] = null;
+        }
+        
         public int GetComponentType()
         {
             return (int) Enum.Parse(typeof(ComponentId), Type);

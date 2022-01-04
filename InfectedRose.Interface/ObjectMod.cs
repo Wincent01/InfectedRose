@@ -72,6 +72,8 @@ namespace InfectedRose.Interface
                 row["component_id"].Value = component.Key;
             
                 ModContext.ApplyValues(mod, component, table);
+                
+                ModContext.RegisterId(mod.Id + ":" + componentId, component.Key);
 
                 return component;
             }

@@ -143,7 +143,7 @@ namespace InfectedRose.Interface
                 {
                     foreach (var (key, value) in mod.Defaults)
                     {
-                        if (mod.HasValue(key) && mod.Values[key].ToString() == value.ToString())
+                        if (mod.HasValue(key) && (mod.Values[key] == null || mod.Values[key].ToString() == value.ToString()))
                         {
                             mod.Values.Remove(key);
                         }

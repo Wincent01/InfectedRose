@@ -24,11 +24,12 @@ namespace InfectedRose.Interface
             mod.Default("collisionGroup", 3);
             mod.Default("airSpeed", 5);
             mod.Default("jumpAirSpeed", 25);
+            mod.DefaultNull("interactionDistance");
             
-            mod.Default("chatBubbleOffset", 6);
+            mod.DefaultNull("chatBubbleOffset");
             mod.Default("fade", true);
             mod.Default("fadeInTime", 1);
-            mod.Default("billboardHeight", 6);
+            mod.DefaultNull("billboardHeight");
             mod.Default("AudioMetaEventSet", "Emotes_Non_Player");
             mod.Default("usedropshadow", false);
             mod.Default("preloadAnimations", false);
@@ -37,7 +38,7 @@ namespace InfectedRose.Interface
             mod.Default("staticBillboard", false);
             mod.Default("attachIndicatorsToNode", false);
             
-            mod.Default("npcTemplateID", 17);
+            mod.Default("npcTemplateID", 14);
             mod.Default("nametag", true);
             mod.Default("placeable", true);
             mod.Default("localize", true);
@@ -73,6 +74,34 @@ namespace InfectedRose.Interface
                         ModContext.AwaitId(itemId, lot => itemComponent["itemid"].Value = lot);
                     }
                 }
+            }
+
+            if (mod.MissionOffers != null)
+            {
+                var id = 0;
+
+                foreach (var missionOffer in mod.MissionOffers)
+                {
+                    var missionNpcComponent = ObjectMod.AddComponent(mod, obj, ComponentId.MissionNPCComponent, id)!;
+
+                    id = missionNpcComponent.Key;
+
+                    missionNpcComponent["offersMission"].Value = missionOffer.Offer;
+                    missionNpcComponent["acceptsMission"].Value = missionOffer.Accept;
+
+                    ModContext.AwaitId(missionOffer.Mission, value => missionNpcComponent["missionID"].Value = value);
+                }
+
+                var mapIconTable = ModContext.Database["mapIcon"];
+                var row = mapIconTable.Create(obj.Key);
+                row["iconID"].Value = 1;
+                row["iconState"].Value = 1;
+                row = mapIconTable.Create(obj.Key);
+                row["iconID"].Value = 3;
+                row["iconState"].Value = 2;
+                row = mapIconTable.Create(obj.Key);
+                row["iconID"].Value = 4;
+                row["iconState"].Value = 4;
             }
         }
     }

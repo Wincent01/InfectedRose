@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using InfectedRose.Database;
 using InfectedRose.Database.Fdb;
 
@@ -33,6 +34,18 @@ namespace InfectedRose.Interface
         
         public static List<IdCallback> IdCallbacks { get; set; } = new List<IdCallback>();
 
+        public static void AwaitId(JsonValue json, Action<int> callback)
+        {
+            if (json.TryGetValue<int>(out var value))
+            {
+                callback(value);
+                
+                return;
+            }
+            
+            IdCallbacks.Add(new IdCallback { Id = json.ToString(), Callback = callback });
+        }
+        
         public static void AwaitId(string id, Action<int> callback)
         {
             if (Ids.TryGetValue(id, out var value))
@@ -85,6 +98,15 @@ namespace InfectedRose.Interface
             }
 
             return component;
+        }
+
+        public static T ParseEnum<T>(string value)
+        {
+            // Remove spaces and dashes
+            value = value.Replace(" ", "").Replace("-", "");
+            
+            // Parse the enum case-insensitively
+            return (T) Enum.Parse(typeof(T), value, true);
         }
 
         public static void AddToLocale(string id, string text, string locale)
@@ -155,6 +177,19 @@ namespace InfectedRose.Interface
             return relative.Replace("/", "\\\\");
         }
 
+        public static int AddIcon(string file)
+        {
+            file = ParseValue(file);
+
+            var table = Database["Icons"]!;
+
+            var icon = table.Create()!;
+
+            icon["IconPath"].Value = file;
+
+            return icon.Key;
+        }
+
         public static void ApplyValues(Mod mod, Row row, Table table)
         {
             foreach (var (key, objValue) in mod.Values)
@@ -167,7 +202,14 @@ namespace InfectedRose.Interface
                 }
                 
                 var field = row[key];
-
+                
+                if (objValue == null)
+                {
+                    field.Value = null;
+                    
+                    continue;
+                }
+                
                 switch (info.Type)
                 {
                     case DataType.Integer:
