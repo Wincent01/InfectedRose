@@ -22,6 +22,9 @@ namespace InfectedRose.Interface
 
         [JsonPropertyName("sqlite")]
         public string Sqlite { get; set; } = "CDServer.sqlite";
+        
+        [JsonPropertyName("resource-folder")]
+        public string ResourceFolder { get; set; }
 
         [JsonPropertyName("priorities")]
         public List<ModPriority> Priorities { get; set; } = new List<ModPriority>();

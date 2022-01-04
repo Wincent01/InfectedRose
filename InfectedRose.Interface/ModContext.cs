@@ -109,6 +109,31 @@ namespace InfectedRose.Interface
             return (T) Enum.Parse(typeof(T), value, true);
         }
 
+        public static void AddToLocale(string id, string locale, Mod mod)
+        {
+            if (!mod.HasValue(locale))
+            {
+                var normalized = locale.Replace("_", "").Replace("-", "").ToLower();
+                
+                if (mod.HasValue(normalized))
+                {
+                    AddToLocale(id, mod.GetValue<Dictionary<string, string>>(normalized));
+                }
+                
+                return;
+            }
+            
+            AddToLocale(id, mod.GetValue<Dictionary<string, string>>(locale));
+        }
+
+        public static void AddToLocale(string id, Dictionary<string, string> locales)
+        {
+            foreach (var (locale, text) in locales)
+            {
+                AddToLocale(id, text, locale);
+            }
+        }
+
         public static void AddToLocale(string id, string text, string locale)
         {
             var phrase = Localization.Phrases.Phrase.FirstOrDefault(p => p.Id == id);
@@ -138,7 +163,7 @@ namespace InfectedRose.Interface
             translation.Text = text;
         }
         
-        public static string ParseValue(string value)
+        public static string ParseValue(string value, bool ignoreSpecialRoot = false)
         {
             if (value.StartsWith("INCLUDE:"))
             {
@@ -169,12 +194,41 @@ namespace InfectedRose.Interface
                 value = value.Substring(5);
             }
 
+            if (ignoreSpecialRoot)
+            {
+                root = "../../res/";
+            }
+
+            string final;
+
+            // Copy the file to the selected resource folder is specified
+            if (!string.IsNullOrWhiteSpace(Configuration.ResourceFolder))
+            {
+                final = Path.Combine(Root, Configuration.ResourceFolder, Path.GetRelativePath(Root, Directory.GetCurrentDirectory()), value);
+
+                var directory = Path.GetDirectoryName(final);
+
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory!);
+                }
+
+                if (!File.Exists(final))
+                {
+                    File.Copy(value, final);
+                }
+            }
+            else
+            {
+                final = value;
+            }
+
             root = Root + root;
 
             // Get the relative path from root to asset
-            var relative = Path.GetRelativePath(root, Path.Combine(value));
+            var finalRelative = Path.GetRelativePath(root, final);
             
-            return relative.Replace("/", "\\\\");
+            return finalRelative.Replace("/", "\\");
         }
 
         public static int AddIcon(string file)
@@ -185,7 +239,7 @@ namespace InfectedRose.Interface
 
             var icon = table.Create()!;
 
-            icon["IconPath"].Value = file;
+            icon["IconPath"].Value = "..\\..\\textures/../" + file;
 
             return icon.Key;
         }

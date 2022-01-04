@@ -335,6 +335,18 @@ namespace InfectedRose.Interface
             {
                 throw new Exception($"Version {Version} incompatible with mods.json version {ModContext.Configuration.Version}");
             }
+
+            if (!string.IsNullOrWhiteSpace(ModContext.Configuration.ResourceFolder))
+            {
+                var assetsDirectory = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, ModContext.Configuration.ResourceFolder);
+
+                if (Directory.Exists(assetsDirectory))
+                {
+                    Directory.Delete(assetsDirectory, true);
+                }
+
+                Directory.CreateDirectory(assetsDirectory);
+            }
             
             // Create the mods.json file or update it
             WriteJson(CommandLineOptions.Input, ModContext.Configuration);

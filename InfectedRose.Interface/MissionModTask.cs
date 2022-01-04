@@ -27,6 +27,9 @@ namespace InfectedRose.Interface
         [JsonPropertyName("icon")]
         public string Icon { get; set; }
         
+        [JsonPropertyName("small-icon")]
+        public string SmallIcon { get; set; }
+        
         [JsonPropertyName("locale")]
         public Dictionary<string, string>? Locale { get; set; } = new Dictionary<string, string>
         {
