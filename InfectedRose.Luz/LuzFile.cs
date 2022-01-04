@@ -142,7 +142,8 @@ namespace InfectedRose.Luz
             if (Version >= 0x26)
             {
                 SpawnPoint = reader.Read<Vector3>();
-                SpawnRotation = reader.Read<Quaternion>();
+                var spawnRotation = reader.Read<Quaternion>();
+                SpawnRotation = new Quaternion(spawnRotation.Y, spawnRotation.Z, spawnRotation.W, spawnRotation.X);
             }
 
             var sceneCount = Version < 0x25 ? reader.Read<byte>() : reader.Read<uint>();
