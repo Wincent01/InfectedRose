@@ -27,10 +27,11 @@ namespace InfectedRose.Interface
 
             ObjectMod.AddComponent(mod, obj, ComponentId.RenderComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.ItemComponent);
-            ObjectMod.AddComponent(mod, obj, ComponentId.SkillComponent);
 
             if (mod.Skills != null)
             {
+                ObjectMod.AddComponent(mod, obj, ComponentId.SkillComponent);
+                
                 var objectSkillsTable = ModContext.Database["ObjectSkills"];
                 
                 foreach (var skill in mod.Skills)

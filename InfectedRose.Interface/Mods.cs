@@ -23,6 +23,9 @@ namespace InfectedRose.Interface
         [JsonPropertyName("sqlite")]
         public string Sqlite { get; set; } = "CDServer.sqlite";
         
+        [JsonPropertyName("copy-mods")]
+        public string? Copy { get; set; }
+        
         [JsonPropertyName("resource-folder")]
         public string ResourceFolder { get; set; }
 

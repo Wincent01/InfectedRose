@@ -14,15 +14,18 @@ namespace InfectedRose.Core
 
         protected override void Construct()
         {
-            var position = Stream.Position;
-
-            var bytes = BitConverter.GetBytes(Zero ? 0 : (uint) Stream.Position);
+            var position = (uint) Stream.Position;
 
             Stream.Position = Reference;
             
-            for (var i = 0; i < 4; i++)
+            unsafe
             {
-                Stream.WriteByte(bytes[i]);
+                var buffer = (byte*) &position;
+                
+                for (var i = 0; i < sizeof(uint); ++i)
+                {
+                    Stream.WriteByte(buffer[i]);
+                }
             }
 
             Stream.Position = position;

@@ -12,6 +12,11 @@ namespace InfectedRose.Database.Fdb
             return Value.ToString();
         }
 
+        public FdbBitInt(long value = 0)
+        {
+            Value = value;
+        }
+
         public void Deserialize(BitReader reader)
         {
             using var s = new DatabaseScope(reader, true);

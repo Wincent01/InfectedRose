@@ -45,7 +45,7 @@ namespace InfectedRose.Core
             }
         }
 
-        public static void Write<T>(this BitWriter @this, ICollection<T> collection) where T : struct
+        public static void Write<T>(this BitWriter @this, ICollection<T> collection) where T : unmanaged
         {
             foreach (var value in collection)
             {

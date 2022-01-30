@@ -39,7 +39,7 @@ namespace InfectedRose.Interface
             var missionsTable = ModContext.Database["Missions"];
             var missionTasksTable = ModContext.Database["MissionTasks"];
 
-            var mission = missionsTable.Create();
+            var mission = missionsTable.FromLookup(mod);
 
             foreach (var (locale, text) in mod.Locale!)
             {

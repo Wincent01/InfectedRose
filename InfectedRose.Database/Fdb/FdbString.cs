@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 using InfectedRose.Core;
 using RakDotNet.IO;
@@ -18,12 +19,14 @@ namespace InfectedRose.Database.Fdb
             return Value;
         }
 
+        public FdbString(string value = "")
+        {
+            Value = value;
+        }
+        
         public void Serialize(BitWriter writer)
         {
-            foreach (var character in Value)
-            {
-                writer.Write((byte) character);
-            }
+            writer.Write(Value.Select(v => (byte) v).ToArray());
 
             writer.Write<byte>(0);
         }

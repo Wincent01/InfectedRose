@@ -168,6 +168,23 @@ namespace InfectedRose.Database
             set => throw new NotSupportedException();
         }
 
+        public bool ContainsKey(int key)
+        {
+            var index = (uint) key % (uint) Data.RowHeader.RowInfos.Length;
+            
+            var bucket = Data.RowHeader.RowInfos[index];
+
+            while (bucket != null)
+            {
+                if ((int) bucket.DataHeader.Data.Fields[0].value == key)
+                    return true;
+                
+                bucket = bucket.Linked;
+            }
+
+            return false;
+        }
+
         /// <summary>
         ///     Seek a row
         /// </summary>
@@ -229,7 +246,7 @@ namespace InfectedRose.Database
 
             for (var i = min; i < max; i++)
             {
-                if (this.Any(c => c.Key == i) || ClaimedKeys.Contains(i)) continue;
+                if (ContainsKey(i) || ClaimedKeys.Contains(i)) continue;
                 
                 ClaimedKeys.Add(i);
 
@@ -250,7 +267,7 @@ namespace InfectedRose.Database
 
             for (var i = 1; i < max; i++)
             {
-                if (this.All(c => c.Key != i) && !ClaimedKeys.Contains(i))
+                if (!ContainsKey(i) && !ClaimedKeys.Contains(i))
                 {
                     return Create(i);
                 }
@@ -261,7 +278,7 @@ namespace InfectedRose.Database
 
         public Row Create(object key, object values = null)
         {
-            var list = Data.RowHeader.RowInfos.ToList();
+            var list = Data.RowHeader.RowInfos;
 
             var column = new FdbRowInfo
             {
@@ -313,9 +330,9 @@ namespace InfectedRose.Database
                 column.DataHeader.Data.Fields[i] = (newType, GetDefault(type));
             }
 
-            var primaryKey = GetKey(key) % (list.Count > 0 ? list.Count : 1);
+            var primaryKey = GetKey(key) % (list.Length > 0 ? list.Length : 1);
 
-            if (list.Count > 0)
+            if (list.Length > 0)
             {
                 var bucket = list[primaryKey];
 
@@ -338,14 +355,16 @@ namespace InfectedRose.Database
                     bucket = bucket.Linked;
                 }
             }
+            
+            Array.Resize(ref list, list.Length + 1);
 
-            list.Add(column);
+            list[^1] = column;
 
             found:
 
             column.DataHeader.Data.Fields[0].value = key;
 
-            Data.RowHeader.RowInfos = list.ToArray();
+            //Data.RowHeader.RowInfos = list.ToArray();
 
             var col = new Row(column, this);
 
@@ -378,14 +397,8 @@ namespace InfectedRose.Database
         {
             var taken = new List<int>();
 
-            var all = new Dictionary<int, int>();
-
             foreach (var row in this)
             {
-                if (!all.ContainsKey(row.Key)) all[row.Key] = 0;
-
-                all[row.Key] += 1;
-
                 if (taken.Contains(row.Key)) continue;
 
                 taken.Add(row.Key);

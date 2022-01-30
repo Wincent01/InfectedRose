@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using InfectedRose.Database.Fdb;
+using InfectedRose.Interface;
 using RakDotNet.IO;
 using Microsoft.Data.Sqlite;
 
@@ -187,24 +188,227 @@ namespace InfectedRose.Database
 
         public void Save(string file)
         {
-            using var stream = File.Create(file);
-
-            using var reader = new BitWriter(stream);
+            using var stream = new MemoryStream(40 * 1000 * 1024);
+            
+            using var reader = new ByteWriter(stream);
 
             Source.Serialize(reader);
-        }
-        
-        public async Task SaveAsync(string file)
-        {
-            using var stream = File.Create(file);
 
-            using var reader = new BitWriter(stream);
-            Source.Serialize(reader);
+            using var fileStream = File.Create(file);
+
+            stream.WriteTo(fileStream);
         }
 
-        public static void OpenEmpty()
+        public static AccessDatabase OpenEmpty()
         {
             var source = new DatabaseFile { TableHeader = new FdbTableHeader(0) };
+            
+            return new AccessDatabase(source);
+        }
+
+        public static AccessDatabase OpenXml(AccessDatabase constraints, XmlDatabase xmlDatabase)
+        {
+            var source = new DatabaseFile { TableHeader = new FdbTableHeader(0) };
+            
+            var list = new List<(FdbColumnHeader info, FdbRowBucket data)>();
+
+            foreach (var table in constraints)
+            {
+                var xmlTable = xmlDatabase.Tables.FirstOrDefault(t => t.Name == table.Name);
+
+                if (xmlTable == null)
+                {
+                    list.Add((table.Info, table.Data));
+                    
+                    continue;
+                }
+
+                var header = new FdbRowInfo();
+                var root = header;
+
+                var (info, data) = (new FdbColumnHeader
+                {
+                                Data = new FdbColumnData((uint) table.TableInfo.Count)
+                                {
+                                                Fields = table.TableInfo.Select(
+                                                                c => (c.Type, new FdbString {Value = c.Name})
+                                                ).ToArray()
+                                },
+                                TableName = new FdbString {Value = table.Name}
+                }, new FdbRowBucket
+                {
+                                RowHeader = new FdbRowHeader(1)
+                                {
+                                                RowInfos = new FdbRowInfo[1]
+                                                {
+                                                                root
+                                                }
+                                }
+                });
+
+                if (xmlTable.Rows.Rows == null)
+                {
+                    data.RowHeader.RowInfos = new FdbRowInfo[0];
+
+                    continue;
+                }
+
+                FdbRowInfo prev = null;
+
+                foreach (var xmlRow in xmlTable.Rows.Rows)
+                {
+                    header.DataHeader = new FdbRowDataHeader
+                    {
+                                    Data = new FdbRowData((uint) table.TableInfo.Count)
+                    };
+
+                    for (var i = 0; i < table.TableInfo.Count; i++)
+                    {
+                        var column = table.TableInfo[i];
+                        if (!xmlRow.Attributes.TryGetValue(column.Name, out var value))
+                        {
+                            header.DataHeader.Data.Fields[i] = (DataType.Nothing, null);
+
+                            continue;
+                        }
+
+                        switch (column.Type)
+                        {
+                            case DataType.Integer:
+                                header.DataHeader.Data.Fields[i] = (column.Type, Convert.ToInt32(value));
+                                break;
+                            case DataType.Float:
+                                header.DataHeader.Data.Fields[i] = (column.Type, Convert.ToSingle(value));
+                                break;
+                            case DataType.Varchar:
+                            case DataType.Text:
+                                header.DataHeader.Data.Fields[i] = (column.Type, new FdbString(Convert.ToString(value)));
+                                break;
+                            case DataType.Boolean:
+                                header.DataHeader.Data.Fields[i] = (column.Type, Convert.ToInt32(value) > 0);
+                                break;
+                            case DataType.Bigint:
+                                header.DataHeader.Data.Fields[i] = (column.Type, new FdbBitInt(Convert.ToInt64(value)));
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+
+                    var linked = new FdbRowInfo();
+                    header.Linked = linked;
+                    prev = header;
+                    header = linked;
+                }
+                    
+                list.Add((info, data));
+
+                if (prev != null)
+                {
+                    prev.Linked = null;
+                }
+            }
+
+            source.TableHeader.Tables = list.ToArray();
+
+            return new AccessDatabase(source);
+        }
+        
+        public static AccessDatabase OpenXml(XmlDatabase xmlDatabase)
+        {
+            var source = new DatabaseFile { TableHeader = new FdbTableHeader(0) };
+            
+            source.TableHeader.Tables = new (FdbColumnHeader info, FdbRowBucket data)[xmlDatabase.Tables.Length];
+
+            for (var index = 0; index < xmlDatabase.Tables.Length; index++)
+            {
+                var table = xmlDatabase.Tables[index];
+                
+                var header = new FdbRowInfo();
+                var root = header;
+                
+                source.TableHeader.Tables[index] = (new FdbColumnHeader
+                {
+                                Data = new FdbColumnData((uint) table.Columns.Columns.Length)
+                                {
+                                                Fields = table.Columns.Columns.Select(
+                                                                c => (c.Type, new FdbString {Value = c.Name})
+                                                ).ToArray()
+                                },
+                                TableName = new FdbString {Value = table.Name}
+                }, new FdbRowBucket
+                {
+                                RowHeader = new FdbRowHeader(1)
+                                {
+                                                RowInfos = new FdbRowInfo[1]
+                                                {
+                                                                root
+                                                }
+                                }
+                });
+
+                if (xmlDatabase.Tables[index].Rows.Rows == null)
+                {
+                    source.TableHeader.Tables[index].data.RowHeader.RowInfos = new FdbRowInfo[0];
+                    
+                    continue;
+                }
+
+                FdbRowInfo prev = null;
+                
+                foreach (var xmlRow in xmlDatabase.Tables[index].Rows.Rows)
+                {
+                    header.DataHeader = new FdbRowDataHeader
+                    {
+                                    Data = new FdbRowData((uint) table.Columns.Columns.Length)
+                    };
+
+                    for (var i = 0; i < table.Columns.Columns.Length; i++)
+                    {
+                        var column = table.Columns.Columns[i];
+                        if (!xmlRow.Attributes.TryGetValue(column.Name, out var value))
+                        {
+                            header.DataHeader.Data.Fields[i] = (DataType.Nothing, null);
+                            
+                            continue;
+                        }
+
+                        switch (column.Type)
+                        {
+                            case DataType.Integer:
+                                header.DataHeader.Data.Fields[i] = (column.Type, Convert.ToInt32(value));
+                                break;
+                            case DataType.Float:
+                                header.DataHeader.Data.Fields[i] = (column.Type, Convert.ToSingle(value));
+                                break;
+                            case DataType.Varchar:
+                            case DataType.Text:
+                                header.DataHeader.Data.Fields[i] = (column.Type, new FdbString(Convert.ToString(value)));
+                                break;
+                            case DataType.Boolean:
+                                header.DataHeader.Data.Fields[i] = (column.Type, Convert.ToInt32(value) > 0);
+                                break;
+                            case DataType.Bigint:
+                                header.DataHeader.Data.Fields[i] = (column.Type, new FdbBitInt(Convert.ToInt64(value)));
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+
+                    var linked = new FdbRowInfo();
+                    header.Linked = linked;
+                    prev = header;
+                    header = linked;
+                }
+
+                if (prev != null)
+                {
+                    prev.Linked = null;
+                }
+            }
+
+            return new AccessDatabase(source);
         }
 
         public void SaveSqlite(SqliteConnection connection)

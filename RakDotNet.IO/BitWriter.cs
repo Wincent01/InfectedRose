@@ -243,7 +243,7 @@ namespace RakDotNet.IO
         }
         #endif
 
-        public virtual int Write<T>(T val, int bits) where T : struct
+        public virtual int Write<T>(T val, int bits) where T : unmanaged
         {
             var size = Marshal.SizeOf<T>();
             var buf = new byte[size];
@@ -260,7 +260,7 @@ namespace RakDotNet.IO
             #endif
         }
 
-        public virtual int Write<T>(T val) where T : struct
+        public virtual int Write<T>(T val) where T : unmanaged
             => Write<T>(val, Marshal.SizeOf<T>() * 8);
 
         public virtual void Write(ISerializable serializable)

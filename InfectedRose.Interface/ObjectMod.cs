@@ -9,7 +9,7 @@ namespace InfectedRose.Interface
         {
             var table = ModContext.Database["Objects"];
 
-            var row = table.Create();
+            var row = table.FromLookup(mod);
 
             row["name"].Value = mod.Id;
             row["description"].Value = mod.Id;

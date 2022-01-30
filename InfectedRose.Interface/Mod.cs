@@ -10,6 +10,9 @@ namespace InfectedRose.Interface
     {
         [JsonPropertyName("id")]
         public string Id { get; set; } = "";
+
+        [JsonPropertyName("old-ids")]
+        public string[]? OldIds { get; set; }
         
         [JsonPropertyName("type")]
         public string Type { get; set; } = "";
@@ -37,7 +40,10 @@ namespace InfectedRose.Interface
         
         [JsonPropertyName("missions")]
         public MissionOffer[]? MissionOffers { get; set; }
-
+        
+        [JsonPropertyName("behaviors")]
+        public Dictionary<string, Behavior> Behaviors { get; set; }
+        
         [JsonPropertyName("locale")]
         public Dictionary<string, string>? Locale { get; set; } = new Dictionary<string, string>
         {

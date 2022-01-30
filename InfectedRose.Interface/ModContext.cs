@@ -26,13 +26,13 @@ namespace InfectedRose.Interface
         
         public static Localization Localization { get; set; }
         
-        public static Dictionary<string, int> Ids { get; set; } = new Dictionary<string, int>();
-        
         public static Dictionary<string, Mod> Mods { get; set; } = new Dictionary<string, Mod>();
         
         public static List<string> ServerSql { get; set; } = new List<string>();
         
         public static List<IdCallback> IdCallbacks { get; set; } = new List<IdCallback>();
+        
+        public static Lookup Lookup { get; set; }
 
         public static void AwaitId(JsonValue json, Action<int> callback)
         {
@@ -48,7 +48,7 @@ namespace InfectedRose.Interface
         
         public static void AwaitId(string id, Action<int> callback)
         {
-            if (Ids.TryGetValue(id, out var value))
+            if (Lookup.TryGetValue(id, out var value))
             {
                 callback(value);
                 
@@ -67,7 +67,7 @@ namespace InfectedRose.Interface
                 IdCallbacks.Remove(idCallback);
             }
             
-            Ids[id] = value;
+            Lookup[id] = value;
         }
 
         public static Mod GetMod(string id)
@@ -162,6 +162,34 @@ namespace InfectedRose.Interface
 
             translation.Text = text;
         }
+
+        public static bool TryGetFromLookup(Mod mod, out int key)
+        {
+            if (Lookup.TryGetValue(mod.Id, out var value))
+            {
+                key = value;
+                
+                return true;
+            }
+
+            if (mod.OldIds == null)
+            {
+                key = 0;
+                
+                return false;
+            }
+
+            if (mod.OldIds.Any(oldId => Lookup.TryGetValue(oldId, out value)))
+            {
+                key = value;
+                
+                return true;
+            }
+
+            key = 0;
+            
+            return false;
+        }
         
         public static string ParseValue(string value, bool ignoreSpecialRoot = false)
         {
@@ -186,6 +214,12 @@ namespace InfectedRose.Interface
                 root = "../../res/physics/";
 
                 value = value.Substring(8);
+            }
+            else if (value.StartsWith("MAP:"))
+            {
+                root = "../../res/maps/";
+
+                value = value.Substring(4);
             }
             else if (value.StartsWith("ICON:"))
             {
@@ -244,6 +278,89 @@ namespace InfectedRose.Interface
             return icon.Key;
         }
 
+        public static void ApplyValues(Dictionary<string, object> values, Row row, Table table, bool defaultNull = false)
+        {
+            for (var index = 1; index < table.TableInfo.Count; index++)
+            {
+                var info = table.TableInfo[index];
+                if (info == null)
+                {
+                    continue;
+                }
+
+                var field = row[info.Name];
+
+                if (!values.TryGetValue(info.Name, out var objValue))
+                {
+                    if (defaultNull)
+                    {
+                        field.Value = null;
+                    }
+
+                    continue;
+                }
+
+                if (objValue == null)
+                {
+                    field.Value = null;
+
+                    continue;
+                }
+
+                switch (info.Type)
+                {
+                    case DataType.Integer:
+                    {
+                        var str = objValue.ToString();
+
+                        if (str.Contains(':'))
+                        {
+                            AwaitId(str, id => { field.Value = id; });
+                        }
+                        else
+                        {
+                            field.Value = InterpretValue<int>(objValue);
+                        }
+
+                        break;
+                    }
+                    case DataType.Float:
+                        field.Value = InterpretValue<float>(objValue);
+                        break;
+                    case DataType.Varchar:
+                    case DataType.Text:
+                        field.Value = ParseValue(objValue.ToString()!);
+                        break;
+                    case DataType.Boolean:
+                        field.Value = InterpretValue<bool>(objValue);
+                        break;
+                    case DataType.Bigint:
+                        field.Value = InterpretValue<long>(objValue);
+                        break;
+                }
+            }
+        }
+
+        public static T InterpretValue<T>(object obj)
+        {
+            if (obj is JsonElement jsonElement)
+            {
+                return jsonElement.Deserialize<T>()!;
+            }
+            
+            if (obj is T value)
+            {
+                return value;
+            }
+
+            if (obj is null)
+            {
+                return default;
+            }
+
+            return (T) Convert.ChangeType(obj, typeof(T));
+        }
+        
         public static void ApplyValues(Mod mod, Row row, Table table)
         {
             foreach (var (key, objValue) in mod.Values)
