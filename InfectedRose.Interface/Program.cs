@@ -667,11 +667,9 @@ namespace InfectedRose.Interface
                 if (Directory.Exists(ModContext.Configuration.Copy))
                 {
                     Directory.Delete(ModContext.Configuration.Copy, true);
-
-                    Directory.CreateDirectory(ModContext.Configuration.Copy);
                 }
                 
-                CopyFilesRecursively(ModContext.Root, ModContext.Configuration.Copy);
+                File.CreateSymbolicLink(ModContext.Configuration.Copy, ModContext.Root);
             }
 
             origin = Console.GetCursorPosition();

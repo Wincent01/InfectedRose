@@ -10,6 +10,9 @@ namespace InfectedRose.Interface
     {
         [JsonPropertyName("id")]
         public string Id { get; set; } = "";
+        
+        [JsonPropertyName("explicit-id")]
+        public int? ExplicitId { get; set; }
 
         [JsonPropertyName("old-ids")]
         public string[]? OldIds { get; set; }

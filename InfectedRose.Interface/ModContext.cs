@@ -171,7 +171,14 @@ namespace InfectedRose.Interface
                 
                 return true;
             }
+            
+            if (mod.ExplicitId.HasValue)
+            {
+                key = mod.ExplicitId.Value;
 
+                return true;
+            }
+            
             if (mod.OldIds == null)
             {
                 key = 0;
@@ -185,7 +192,7 @@ namespace InfectedRose.Interface
                 
                 return true;
             }
-
+            
             key = 0;
             
             return false;
@@ -261,8 +268,8 @@ namespace InfectedRose.Interface
 
             // Get the relative path from root to asset
             var finalRelative = Path.GetRelativePath(root, final);
-            
-            return finalRelative.Replace("/", "\\");
+
+            return finalRelative;
         }
 
         public static int AddIcon(string file)
