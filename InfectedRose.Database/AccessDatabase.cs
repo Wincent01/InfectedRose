@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 using InfectedRose.Database.Fdb;
 using InfectedRose.Interface;
 using RakDotNet.IO;
@@ -318,9 +320,9 @@ namespace InfectedRose.Database
         {
             var source = new DatabaseFile { TableHeader = new FdbTableHeader(0) };
             
-            source.TableHeader.Tables = new (FdbColumnHeader info, FdbRowBucket data)[xmlDatabase.Tables.Length];
+            source.TableHeader.Tables = new (FdbColumnHeader info, FdbRowBucket data)[xmlDatabase.Tables.Count];
 
-            for (var index = 0; index < xmlDatabase.Tables.Length; index++)
+            for (var index = 0; index < xmlDatabase.Tables.Count; index++)
             {
                 var table = xmlDatabase.Tables[index];
                 
@@ -329,7 +331,7 @@ namespace InfectedRose.Database
                 
                 source.TableHeader.Tables[index] = (new FdbColumnHeader
                 {
-                                Data = new FdbColumnData((uint) table.Columns.Columns.Length)
+                                Data = new FdbColumnData((uint) table.Columns.Columns.Count)
                                 {
                                                 Fields = table.Columns.Columns.Select(
                                                                 c => (c.Type, new FdbString {Value = c.Name})
@@ -360,10 +362,10 @@ namespace InfectedRose.Database
                 {
                     header.DataHeader = new FdbRowDataHeader
                     {
-                                    Data = new FdbRowData((uint) table.Columns.Columns.Length)
+                                    Data = new FdbRowData((uint) table.Columns.Columns.Count)
                     };
 
-                    for (var i = 0; i < table.Columns.Columns.Length; i++)
+                    for (var i = 0; i < table.Columns.Columns.Count; i++)
                     {
                         var column = table.Columns.Columns[i];
                         if (!xmlRow.Attributes.TryGetValue(column.Name, out var value))
@@ -409,6 +411,81 @@ namespace InfectedRose.Database
             }
 
             return new AccessDatabase(source);
+        }
+
+        public XmlDatabase ToXml()
+        {
+            var xml = new XmlDatabase
+            {
+                Tables = new List<XmlTable>(Count)
+            };
+
+            for (var i = 0; i < Count; i++)
+            {
+                var table = Source.TableHeader.Tables[i];
+                var xmlTable = new XmlTable
+                {
+                    Name = table.info.TableName.Value,
+                    Columns = new XmlColumns
+                    {
+                        Columns = new List<XmlColumn>(table.info.Data.Fields.Length)
+                    }
+                };
+
+                for (var j = 0; j < table.info.Data.Fields.Length; j++)
+                {
+                    var column = table.info.Data.Fields[j];
+                    xmlTable.Columns.Columns.Add(new XmlColumn
+                    {
+                        Name = column.name,
+                        Type = column.type
+                    });
+                }
+
+                xml.Tables.Add(xmlTable);
+                
+                if (table.data.RowHeader.RowInfos.Length == 0)
+                {
+                    continue;
+                }
+
+                var managedTable = this[table.info.TableName];
+                var xmlRows = new List<XmlRow>();
+
+                foreach (var row in managedTable)
+                {
+                    var xmlRow = new XmlRow();
+
+                    for (var k = 0; k < row.Count; k++)
+                    {
+                        var field = row[k];
+                        if (field.Value == null) continue;
+                        xmlRow.Attributes[field.Name] = field.Value;
+                    }
+                    
+                    xmlRows.Add(xmlRow);
+                }
+                
+                var rows = new XmlRows
+                {
+                    Rows = xmlRows
+                };
+
+                xml.Tables[i].Rows = rows;
+            }
+
+            return xml;
+        }
+
+        public void SaveXml(string path)
+        {
+            var xml = ToXml();
+            var serializer = new XmlSerializer(typeof(XmlDatabase));
+            // Serialize with proper indentation
+            var writer = new StringWriter();
+            serializer.Serialize(writer, xml);
+            var doc = XDocument.Parse(writer.ToString());
+            File.WriteAllText(path, doc.ToString());
         }
 
         public void SaveSqlite(SqliteConnection connection)
@@ -528,7 +605,7 @@ namespace InfectedRose.Database
                 }
             }
         }
-
+        
         internal void RegisterSql(string sql)
         {
             OnSql?.Invoke(sql);

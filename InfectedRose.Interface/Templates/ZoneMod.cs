@@ -1,7 +1,7 @@
 using System;
 using InfectedRose.Database;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     [ModType("zone")]
     public class ZoneMod : ModType

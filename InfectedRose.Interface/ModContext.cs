@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using InfectedRose.Database;
 using InfectedRose.Database.Fdb;
+using InfectedRose.Interface.Templates;
 
 namespace InfectedRose.Interface
 {
@@ -24,6 +25,8 @@ namespace InfectedRose.Interface
 
         public static AccessDatabase Database { get; set; }
         
+        public static XmlDatabase OriginalDatabase { get; set; }
+
         public static Localization Localization { get; set; }
         
         public static Dictionary<string, Mod> Mods { get; set; } = new Dictionary<string, Mod>();
@@ -33,6 +36,8 @@ namespace InfectedRose.Interface
         public static List<IdCallback> IdCallbacks { get; set; } = new List<IdCallback>();
         
         public static Lookup Lookup { get; set; }
+        
+        public static Artifacts Artifacts { get; set; }
 
         public static void AwaitId(JsonValue json, Action<int> callback)
         {
@@ -70,6 +75,43 @@ namespace InfectedRose.Interface
             Lookup[id] = value;
         }
 
+        public static void RegisterArtifact(string source, string destination)
+        {
+            Artifacts[source] = destination;
+        }
+
+        public static void CreateArtifact(string source, string destination)
+        {
+            if (!File.Exists(source))
+            {
+                throw new FileNotFoundException($"Could not create artifact to non-existent file: {source}");
+            }
+
+            File.CreateSymbolicLink(source, destination);
+            
+            RegisterArtifact(source, destination);
+        }
+
+        public static void CreateArtifactFrom(string sourceFile, string destinationDirectory)
+        {
+            var dr = Path.Combine(Root, "../", destinationDirectory);
+
+            var src = Path.GetRelativePath(dr, Directory.GetCurrentDirectory());
+                
+            var destination = Path.Combine(dr, Path.GetFileName(sourceFile));
+
+            src = Path.Combine(src, sourceFile);
+            
+            if (File.Exists(destination))
+            {
+                File.Delete(destination);
+            }
+
+            File.CreateSymbolicLink(destination, src);
+            
+            RegisterArtifact(src, destination);
+        }
+
         public static Mod GetMod(string id)
         {
             return Mods[id];
@@ -87,6 +129,11 @@ namespace InfectedRose.Interface
         
         public static string GetComponentTableName(ComponentId component)
         {
+            if (component == ComponentId.QuickBuildComponent)
+            {
+                return "RebuildComponent";
+            }
+            
             return GetComponentTableName(component.ToString());
         }
         
@@ -213,6 +260,8 @@ namespace InfectedRose.Interface
             }
 
             value = value.Substring(6);
+
+            var createSymlink = false;
             
             var root = "../../res/";
             
@@ -233,6 +282,14 @@ namespace InfectedRose.Interface
                 root = "../../res/mesh/bricks/";
 
                 value = value.Substring(5);
+            }
+            else if (value.StartsWith("LXFML:"))
+            {
+                createSymlink = true;
+
+                root = "res/BrickModels/";
+
+                value = value.Substring(6);
             }
 
             if (ignoreSpecialRoot)
@@ -262,6 +319,30 @@ namespace InfectedRose.Interface
             else
             {
                 final = value;
+            }
+
+            if (createSymlink)
+            {
+                CreateArtifactFrom(value, root);
+                
+                /*
+                var dr = Path.Combine(Root, "../", root);
+
+                var src = Path.GetRelativePath(dr, Directory.GetCurrentDirectory());
+                
+                var destination = Path.Combine(dr, Path.GetFileName(value));
+
+                src = Path.Combine(src, value);
+                
+                Console.WriteLine(destination);
+
+                if (File.Exists(destination))
+                {
+                    File.Delete(destination);
+                }
+
+                File.CreateSymbolicLink(destination, src);
+                */
             }
 
             root = Root + root;

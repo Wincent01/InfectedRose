@@ -1,4 +1,4 @@
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     [ModType("enemy")]
     public class EnemyMod : ModType

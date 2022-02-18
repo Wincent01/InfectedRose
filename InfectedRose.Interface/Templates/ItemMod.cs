@@ -1,4 +1,4 @@
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     [ModType("item")]
     public class ItemMod : ModType

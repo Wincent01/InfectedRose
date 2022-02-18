@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     public class Effect
     {

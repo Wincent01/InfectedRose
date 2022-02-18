@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     public class MissionOffer
     {

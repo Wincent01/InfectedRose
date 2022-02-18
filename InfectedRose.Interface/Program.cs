@@ -8,10 +8,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using CommandLine;
 using InfectedRose.Database;
 using InfectedRose.Database.Fdb;
+using InfectedRose.Interface.Templates;
 using Microsoft.Data.Sqlite;
 using RakDotNet.IO;
 
@@ -477,6 +479,25 @@ namespace InfectedRose.Interface
             return database;
         }
         
+        public static XmlDatabase LoadXmlDatabase(string file)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(XmlDatabase));
+
+            var content = File.ReadAllText(file);
+
+            content = content
+                            .Replace("", "'")
+                            .Replace("", "")
+                            .Replace("", "")
+                            .Replace("", "a");
+            
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+            
+            var xmlDatabase = (XmlDatabase) serializer.Deserialize(stream)!;
+
+            return xmlDatabase;
+        }
+
         private static void CopyFilesRecursively(string sourcePath, string targetPath)
         {
             //Now Create all of the directories
@@ -521,6 +542,17 @@ namespace InfectedRose.Interface
 
             // Load locale
             XmlSerializer localeSerializer = new XmlSerializer(typeof(Localization));
+
+            // Load artifacts
+            ModContext.Artifacts = ReadOrCreateJson<Artifacts>("artifacts.json");
+
+            foreach (var (key, value) in ModContext.Artifacts)
+            {
+                if (File.Exists(value))
+                {
+                    File.Delete(value);
+                }
+            }
 
             var localeSourcePath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "./locale.xml");
             var localeDestinationPath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "../locale/locale.xml");
@@ -582,6 +614,7 @@ namespace InfectedRose.Interface
                 var database = AccessDatabase.Open(databasePath);
 
                 ModContext.Database = database;
+                ModContext.OriginalDatabase = database.ToXml();
             });
 
             var rotation = Task.Run(async () =>
@@ -660,6 +693,9 @@ namespace InfectedRose.Interface
             
             // Create the lookup.json for ids
             WriteJson("lookup.json", ModContext.Lookup);
+            
+            // Create the artifacts.json for symlinks
+            WriteJson("artifacts.json", ModContext.Artifacts);
 
             // Copy over files
             if (ModContext.Configuration.Copy != null)
@@ -674,6 +710,11 @@ namespace InfectedRose.Interface
 
             origin = Console.GetCursorPosition();
 
+            if (File.Exists("lupdata.xml"))
+            {
+                // TODO: Generate lupdata.xml for interop with Happy Flower
+            }
+            
             Console.Write("Saving  \b");
             
             var saveDatabaseTask = Task.Run(SaveDatabase);

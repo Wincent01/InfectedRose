@@ -1,7 +1,6 @@
 using System.Linq;
-using System.Text.Json.Serialization;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     [ModType("mission")]
     public class MissionMod : ModType

@@ -1,6 +1,6 @@
 using InfectedRose.Database;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     [ModType("object")]
     public class ObjectMod : ModType

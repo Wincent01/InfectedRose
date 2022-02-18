@@ -1,4 +1,4 @@
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     [ModType("skill")]
     public class SkillMod : ModType

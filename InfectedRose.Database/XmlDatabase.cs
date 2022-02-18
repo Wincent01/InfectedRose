@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -49,19 +50,46 @@ namespace InfectedRose.Interface
                         throw new Exception($"Unknown type {XmlType}!");
                 }
             }
+            set
+            {
+                switch (value)
+                {
+                    case DataType.Integer:
+                        XmlType = "int";
+                        break;
+                    case DataType.Nothing:
+                    case DataType.Text:
+                        XmlType = "text";
+                        break;
+                    case DataType.Varchar:
+                        XmlType = "varchar";
+                        break;
+                    case DataType.Float:
+                        XmlType = "float";
+                        break;
+                    case DataType.Boolean:
+                        XmlType = "bit";
+                        break;
+                    case DataType.Bigint:
+                        XmlType = "bigint";
+                        break;
+                    default:
+                        throw new Exception($"Unknown type {value}!");
+                }
+            }
         }
     }
     
     public class XmlColumns
     {
         [XmlElement("column")]
-        public XmlColumn[] Columns { get; set; }
+        public List<XmlColumn> Columns { get; set; } = new List<XmlColumn>();
     }
     
     public class XmlRows
     {
         [XmlElement("row")]
-        public XmlRow[] Rows { get; set; }
+        public List<XmlRow> Rows { get; set; } = new List<XmlRow>();
     }
 
     [XmlRoot("table")]
@@ -131,6 +159,6 @@ namespace InfectedRose.Interface
     public class XmlDatabase
     {
         [XmlElement("table")]
-        public XmlTable[] Tables { get; set; }
+        public List<XmlTable> Tables { get; set; } = new List<XmlTable>();
     }
 }

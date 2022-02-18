@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface.Templates
 {
     public class Behavior
     {
