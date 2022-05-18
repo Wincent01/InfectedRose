@@ -188,15 +188,15 @@ namespace InfectedRose.Interface
         public static void SaveDatabase()
         {
             // Save the database
-            foreach (var table in ModContext.Database)
-            {
-                table.Recalculate();
-            }
-            
-            ModContext.Database.Save(Path.Combine(CommandLineOptions.Input, "../../res/cdclient.fdb"));
-
             if (CommandLineOptions.NoSqlite)
             {
+                foreach (var table in ModContext.Database)
+                {
+                    table.Recalculate();
+                }
+            
+                ModContext.Database.Save(Path.Combine(CommandLineOptions.Input, "../../res/cdclient.fdb"));
+
                 return;
             }
             
@@ -211,9 +211,65 @@ namespace InfectedRose.Interface
             using var connection = new SqliteConnection(connectionStringBuilder.ConnectionString);
             
             connection.Open();
-            
+
             ModContext.Database.SaveSqlite(connection);
             
+            {
+                // Setup lookup table
+                new SqliteCommand(
+                    "CREATE TABLE lookupTable ( \"id\" TEXT_4 PRIMARY KEY NOT NULL, \"value\" INT NOT NULL );",
+                    connection
+                ).ExecuteNonQuery();
+
+                // Create lookup function
+                connection.CreateFunction("lookup", (string id) => ModContext.Lookup[id]);
+
+                // Insert all the ids
+                foreach (var (id, value) in ModContext.Lookup)
+                {
+                    SqliteCommand command = new SqliteCommand(
+                        "INSERT INTO lookupTable (id, value) VALUES (@id, @value);",
+                        connection
+                    );
+
+                    command.Parameters.AddWithValue("@id", id);
+                    command.Parameters.AddWithValue("@value", value);
+
+                    command.ExecuteNonQuery();
+
+                    // Test the function
+                    command = new SqliteCommand(
+                        "SELECT lookup(@id);",
+                        connection
+                    );
+
+                    command.Parameters.AddWithValue("@id", id);
+
+                    var result = command.ExecuteReader();
+
+                    if (!result.Read())
+                    {
+                        throw new Exception($"Could not find {id} in lookup table!");
+                    }
+
+                    if (result.GetInt32(0) != value)
+                    {
+                        throw new Exception($"Lookup function returned {result.GetInt32(0)} instead of {value}!");
+                    }
+                }
+            }
+
+            // Run general sql commands
+            foreach (var command in ModContext.GeneralSql)
+            {
+                using var commandInstance = new SqliteCommand(command, connection);
+
+                commandInstance.ExecuteNonQuery();
+            }
+
+            // Do a trip from SQL -> XML -> FDB
+            XmlDatabase tmp = XmlDatabase.LoadSql(connection);
+
             // Run sql commands specified by mods on the server
             foreach (var command in ModContext.ServerSql)
             {
@@ -221,7 +277,16 @@ namespace InfectedRose.Interface
                 
                 commandInstance.ExecuteNonQuery();
             }
+            
+            AccessDatabase accessDatabase = AccessDatabase.OpenXml(tmp);
+            
+            foreach (var table in accessDatabase)
+            {
+                table.Recalculate();
+            }
 
+            accessDatabase.Save(Path.Combine(CommandLineOptions.Input, "../../res/cdclient.fdb"));
+            
             connection.Close();
         }
 
@@ -553,6 +618,8 @@ namespace InfectedRose.Interface
                     File.Delete(value);
                 }
             }
+            
+            ModContext.Artifacts.Clear();
 
             var localeSourcePath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "./locale.xml");
             var localeDestinationPath = Path.Combine(Path.GetDirectoryName(CommandLineOptions.Input)!, "../locale/locale.xml");

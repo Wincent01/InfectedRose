@@ -19,7 +19,7 @@ namespace InfectedRose.Interface
 
             if (mod.OldIds == null)
             {
-                return @this.Create();
+                return @this.CreateWithFilter(ModContext.Lookup.Values);
             }
 
             foreach (var oldId in mod.OldIds)

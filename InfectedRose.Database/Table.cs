@@ -276,6 +276,24 @@ namespace InfectedRose.Database
             return Create(max + 1);
         }
 
+        public Row CreateWithFilter(ICollection<int> exclude)
+        {
+            if (TableInfo[0].Type != DataType.Integer)
+                throw new NotSupportedException("AccessDatabase can only generate primary keys for Int32 types.");
+            
+            var max = Count > 0 ? this.Max(c => c.Key) : 0;
+
+            for (var i = 1; i < max; i++)
+            {
+                if (!exclude.Contains(i) && !ContainsKey(i) && !ClaimedKeys.Contains(i))
+                {
+                    return Create(i);
+                }
+            }
+
+            return Create(max + 1);
+        }
+
         public Row Create(object key, object values = null)
         {
             var list = Data.RowHeader.RowInfos;

@@ -349,7 +349,7 @@ namespace InfectedRose.Database
                                 }
                 });
 
-                if (xmlDatabase.Tables[index].Rows.Rows == null)
+                if (xmlDatabase.Tables[index].Rows.Rows == null || xmlDatabase.Tables[index].Rows.Rows.Count == 0)
                 {
                     source.TableHeader.Tables[index].data.RowHeader.RowInfos = new FdbRowInfo[0];
                     

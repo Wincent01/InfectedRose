@@ -45,7 +45,7 @@ namespace InfectedRose.Interface.Templates
             {
                 row["component_id"].Value = id;
                 row["component_type"].Value = ModContext.GetMod(component).GetComponentType();
-            });
+            }, true);
         }
 
         public static Row? AddComponent(Mod mod, Row obj, ComponentId componentId, int id = 0)

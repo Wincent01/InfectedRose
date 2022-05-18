@@ -33,6 +33,8 @@ namespace InfectedRose.Interface
         
         public static List<string> ServerSql { get; set; } = new List<string>();
         
+        public static List<string> GeneralSql { get; set; } = new List<string>();
+
         public static List<IdCallback> IdCallbacks { get; set; } = new List<IdCallback>();
         
         public static Lookup Lookup { get; set; }
@@ -51,9 +53,9 @@ namespace InfectedRose.Interface
             IdCallbacks.Add(new IdCallback { Id = json.ToString(), Callback = callback });
         }
         
-        public static void AwaitId(string id, Action<int> callback)
+        public static void AwaitId(string id, Action<int> callback, bool requireMod = false)
         {
-            if (Lookup.TryGetValue(id, out var value))
+            if (Lookup.TryGetValue(id, out var value) && !requireMod || requireMod && Mods.ContainsKey(id))
             {
                 callback(value);
                 
@@ -108,7 +110,10 @@ namespace InfectedRose.Interface
             }
 
             File.CreateSymbolicLink(destination, src);
-            
+
+            src = Path.GetRelativePath(Root, src);
+            destination = Path.GetRelativePath(Root, destination);
+
             RegisterArtifact(src, destination);
         }
 

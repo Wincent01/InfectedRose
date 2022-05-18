@@ -7,6 +7,9 @@ namespace InfectedRose.Interface.Templates
         {
             switch (mod.Action)
             {
+                case "run":
+                    ModContext.GeneralSql.Add(ModContext.ParseValue(mod.GetValue<string>("sql")));
+                    break;
                 case "run-server":
                     ModContext.ServerSql.Add(ModContext.ParseValue(mod.GetValue<string>("sql")));
                     break;
