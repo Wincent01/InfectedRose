@@ -2,10 +2,17 @@ using System.Text;
 
 namespace InfectedRose.Database.Sql
 {
-    internal static class ColumnExtensions
+    public static class ColumnExtensions
     {
+        public static bool Enabled = true;
+        
         internal static string WhereSegment(this Row @this)
         {
+            if (!Enabled)
+            {
+                return string.Empty;
+            }
+            
             var builder = new StringBuilder("WHERE ");
 
             foreach (var field in @this)
@@ -22,6 +29,11 @@ namespace InfectedRose.Database.Sql
 
         internal static string ValuesSegment(this Row @this)
         {
+            if (!Enabled)
+            {
+                return string.Empty;
+            }
+            
             var builder = new StringBuilder("VALUES (");
 
             foreach (var field in @this) builder.Append($"{field.ValuesSegment()}, ");
@@ -35,6 +47,11 @@ namespace InfectedRose.Database.Sql
 
         internal static string SqlInsert(this Row @this)
         {
+            if (!Enabled)
+            {
+                return string.Empty;
+            }
+            
             var builder = new StringBuilder();
 
             builder.Append(@this.Table.InsertSegment());
@@ -46,6 +63,11 @@ namespace InfectedRose.Database.Sql
 
         internal static string SqlDelete(this Row @this)
         {
+            if (!Enabled)
+            {
+                return string.Empty;
+            }
+            
             var builder = new StringBuilder();
 
             builder.Append(@this.Table.DeleteSegment());

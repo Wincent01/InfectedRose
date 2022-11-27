@@ -7,6 +7,14 @@ namespace InfectedRose.Lvl
         public ParticleStruct[] ParticleStructs { get; set; }
 
         public override uint ChunkType => 2002;
+        
+        public uint LvlVersion { get; set; }
+        
+        public LevelEnvironmentConfig(uint lvlVersion)
+        {
+            LvlVersion = lvlVersion;
+            DataVersion = 2;
+        }
 
         public override void Serialize(BitWriter writer)
         {
@@ -24,7 +32,7 @@ namespace InfectedRose.Lvl
 
             for (var i = 0; i < ParticleStructs.Length; i++)
             {
-                var particle = new ParticleStruct();
+                var particle = new ParticleStruct(LvlVersion);
                 particle.Deserialize(reader);
 
                 ParticleStructs[i] = particle;

@@ -10,25 +10,25 @@ namespace InfectedRose.Lvl
 
         public string[] Skybox { get; set; } = new string[6];
 
-        public float[] UnknownFloatArray0 { get; set; } = new float[0];
+        public float[] LightInformation { get; set; } = new float[0];
 
-        public float[] UnknownFloatArray1 { get; set; } = new float[3];
+        public float[] FogColor { get; set; } = new float[3];
 
-        public float[] UnknownFloatArray2 { get; set; } = new float[3];
+        public float[] DirectionalLightColor { get; set; } = new float[3];
 
-        public byte[] UnknownSectionData { get; set; } = new byte[0];
+        public byte[] SavedColors { get; set; } = new byte[0];
 
         public override uint ChunkType => 2000;
         
         public override void Serialize(BitWriter writer)
         {
-            writer.Write((uint) (8 + UnknownFloatArray0.Length * 4));
+            writer.Write((uint) (8 + LightInformation.Length * 4));
 
             var skySectionPointer = new PointerToken(writer);
 
             var otherSectionPointer = new PointerToken(writer);
 
-            foreach (var f in UnknownFloatArray0)
+            foreach (var f in LightInformation)
             {
                 writer.Write(f);
             }
@@ -42,12 +42,12 @@ namespace InfectedRose.Lvl
 
             for (var i = 0; i < 3; i++)
             {
-                writer.Write(UnknownFloatArray1[i]);
+                writer.Write(FogColor[i]);
             }
             
             for (var i = 0; i < 3; i++)
             {
-                writer.Write(UnknownFloatArray2[i]);
+                writer.Write(DirectionalLightColor[i]);
             }
 
             skySectionPointer.Dispose();
@@ -77,9 +77,9 @@ namespace InfectedRose.Lvl
             using var stream = new MemoryStream();
             using var writer = new BitWriter(stream);
 
-            writer.Write((uint) UnknownSectionData.Length);
+            writer.Write((uint) SavedColors.Length);
 
-            writer.Write(UnknownSectionData);
+            writer.Write(SavedColors);
 
             return stream.ToArray();
         }
@@ -92,11 +92,11 @@ namespace InfectedRose.Lvl
             
             var otherSectionAddress = reader.Read<uint>();
 
-            UnknownFloatArray0 = new float[(sizeOfData - 8) / 4];
+            LightInformation = new float[(sizeOfData - 8) / 4];
             
-            for (var i = 0; i < UnknownFloatArray0.Length; i++)
+            for (var i = 0; i < LightInformation.Length; i++)
             {
-                UnknownFloatArray0[i] = reader.Read<float>();
+                LightInformation[i] = reader.Read<float>();
             }
 
             Identifiers = new IdStruct[reader.Read<uint>()];
@@ -111,12 +111,12 @@ namespace InfectedRose.Lvl
 
             for (var i = 0; i < 3; i++)
             {
-                UnknownFloatArray1[i] = reader.Read<float>();
+                FogColor[i] = reader.Read<float>();
             }
             
             for (var i = 0; i < 3; i++)
             {
-                UnknownFloatArray2[i] = reader.Read<float>();
+                DirectionalLightColor[i] = reader.Read<float>();
             }
 
             reader.BaseStream.Position = skySectionAddress;
@@ -128,7 +128,7 @@ namespace InfectedRose.Lvl
 
             reader.BaseStream.Position = otherSectionAddress;
 
-            UnknownSectionData = reader.ReadBuffer(reader.Read<uint>());
+            SavedColors = reader.ReadBuffer(reader.Read<uint>());
         }
     }
 }

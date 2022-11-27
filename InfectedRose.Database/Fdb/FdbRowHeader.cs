@@ -10,6 +10,8 @@ namespace InfectedRose.Database.Fdb
 
         public FdbRowInfo[] RowInfos;
 
+        public uint Used = 0;
+
         public FdbRowHeader(uint rowCount)
         {
             _rowCount = rowCount;
@@ -55,6 +57,8 @@ namespace InfectedRose.Database.Fdb
                     }
                 }
             }
+
+            Used = _rowCount;
         }
 
         public void Serialize(BitWriter writer)

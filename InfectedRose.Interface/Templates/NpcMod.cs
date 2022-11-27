@@ -51,58 +51,6 @@ namespace InfectedRose.Interface.Templates
             ObjectMod.AddComponent(mod, obj, ComponentId.SimplePhysicsComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.RenderComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.MinifigComponent);
-
-            if (mod.Items != null)
-            {
-                var id = 0;
-                
-                foreach (var item in mod.Items)
-                {
-                    var itemComponent = ObjectMod.AddComponent(mod, obj, ComponentId.InventoryComponent, id)!;
-
-                    itemComponent["count"].Value = 1;
-                    itemComponent["equip"].Value = true;
-                    
-                    id = itemComponent.Key;
-                    
-                    if (item.TryGetValue(out int? value))
-                    {
-                        itemComponent["itemid"].Value = value;
-                    }
-                    else if (item.TryGetValue(out string? itemId))
-                    {
-                        ModContext.AwaitId(itemId, lot => itemComponent["itemid"].Value = lot);
-                    }
-                }
-            }
-
-            if (mod.MissionOffers != null)
-            {
-                var id = 0;
-
-                foreach (var missionOffer in mod.MissionOffers)
-                {
-                    var missionNpcComponent = ObjectMod.AddComponent(mod, obj, ComponentId.MissionNPCComponent, id)!;
-
-                    id = missionNpcComponent.Key;
-
-                    missionNpcComponent["offersMission"].Value = missionOffer.Offer;
-                    missionNpcComponent["acceptsMission"].Value = missionOffer.Accept;
-
-                    ModContext.AwaitId(missionOffer.Mission, value => missionNpcComponent["missionID"].Value = value);
-                }
-
-                var mapIconTable = ModContext.Database["mapIcon"];
-                var row = mapIconTable.Create(obj.Key);
-                row["iconID"].Value = 1;
-                row["iconState"].Value = 1;
-                row = mapIconTable.Create(obj.Key);
-                row["iconID"].Value = 3;
-                row["iconState"].Value = 2;
-                row = mapIconTable.Create(obj.Key);
-                row["iconID"].Value = 4;
-                row["iconState"].Value = 4;
-            }
         }
     }
 }

@@ -28,5 +28,15 @@ namespace InfectedRose.Database.Fdb
         {
             writer.Write(Value);
         }
+        
+        public static implicit operator long(FdbBitInt value)
+        {
+            return value.Value;
+        }
+        
+        public static implicit operator int(FdbBitInt value)
+        {
+            return (int) value.Value;
+        }
     }
 }

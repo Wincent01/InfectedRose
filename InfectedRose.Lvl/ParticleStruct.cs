@@ -6,49 +6,59 @@ namespace InfectedRose.Lvl
 {
     public class ParticleStruct : IConstruct
     {
-        public byte[] UnknownByteArray0 { get; set; } = new byte[2];
+        public ushort Priority { get; set; }
         
         public Vector3 Position { get; set; }
         
         public Quaternion Rotation { get; set; }
         
         public string ParticleName { get; set; }
-
-        public byte[] UnknownByteArray1 { get; set; } = new byte[4];
+        
+        public string Config { get; set; } // ???
+        
+        public uint Version { get; set; }
+        
+        public ParticleStruct(uint version)
+        {
+            Version = version;
+        }
         
         public void Serialize(BitWriter writer)
         {
-            writer.Write(UnknownByteArray0);
+            if (Version >= 43)
+            {
+                writer.Write(Priority);
+            }
 
             writer.Write(Position);
 
             writer.WriteNiQuaternion(Rotation);
 
             writer.WriteNiString(ParticleName, true);
-
-            writer.Write(UnknownByteArray1);
+            
+            if (Version < 46)
+            {
+                writer.Write<ushort>(0);
+            }
         }
 
         public void Deserialize(BitReader reader)
         {
-            UnknownByteArray0 = reader.ReadBuffer(2);
-
+            if (Version >= 43)
+            {
+                Priority = reader.Read<ushort>();
+            }
+            
             Position = reader.Read<Vector3>();
 
             Rotation = reader.ReadNiQuaternion();
 
-            var position = reader.BaseStream.Position;
+            ParticleName = reader.ReadNiString(true);
 
-            try
+            if (Version < 46)
             {
-                ParticleName = reader.ReadNiString(true);
+                reader.Read<ushort>();
             }
-            catch
-            {
-                reader.BaseStream.Position = position + 4;
-            }
-
-            UnknownByteArray1 = reader.ReadBuffer(4);
         }
     }
 }

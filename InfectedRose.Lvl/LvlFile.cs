@@ -24,8 +24,6 @@ namespace InfectedRose.Lvl
 
         private static readonly byte[] ChunkHeader = "CHNK".Select(c => (byte) c).ToArray();
 
-        private ushort _index;
-        
         public void Serialize(BitWriter writer)
         {
             if (OldLevelHeader == default)
@@ -34,6 +32,9 @@ namespace InfectedRose.Lvl
 
                 if (LevelObjects != default)
                     LevelObjects.LvlVersion = LvlVersion;
+
+                if (LevelEnvironmentConfig != default)
+                    LevelEnvironmentConfig.LvlVersion = LvlVersion;
                 
                 SerializeNew(writer);
                 
@@ -52,30 +53,29 @@ namespace InfectedRose.Lvl
 
         private void SerializeNew(BitWriter writer)
         {
-            _index = 0;
-            
             SerializeChunk(writer, LevelInfo);
-            SerializeChunk(writer, LevelSkyConfig);
-
+            
             if (LevelSkyConfig == default)
             {
                 LevelInfo.SkyBoxPointer.Zero = true;
             }
-            
-            SerializeChunk(writer, LevelObjects);
 
             if (LevelObjects == default)
             {
                 LevelInfo.ObjectsPointer.Zero = true;
             }
-            
-            SerializeChunk(writer, LevelEnvironmentConfig);
 
             if (LevelEnvironmentConfig == default)
             {
                 LevelInfo.EnvironmentPointer.Zero = true;
             }
-            
+
+            SerializeChunk(writer, LevelSkyConfig);
+
+            SerializeChunk(writer, LevelObjects);
+
+            SerializeChunk(writer, LevelEnvironmentConfig);
+
             LevelInfo.EnvironmentPointer.Dispose();
             LevelInfo.ObjectsPointer.Dispose();
             LevelInfo.SkyBoxPointer.Dispose();
@@ -85,9 +85,8 @@ namespace InfectedRose.Lvl
         {
             if (chunkBase == default) return;
 
-            _index++;
-
-            chunkBase.Index = _index;
+            chunkBase.DataVersion = 1;
+            chunkBase.HeaderVersion = 1;
             
             using var token = new LengthToken(writer);
             
@@ -108,9 +107,9 @@ namespace InfectedRose.Lvl
 
             writer.Write(chunkBase.ChunkType);
 
-            writer.Write<ushort>(1);
+            writer.Write(chunkBase.HeaderVersion);
 
-            writer.Write(chunkBase.Index);
+            writer.Write(chunkBase.DataVersion);
                 
             token.Allocate();
 
@@ -166,7 +165,7 @@ namespace InfectedRose.Lvl
 
                 var chunkType = reader.Read<uint>();
 
-                reader.Read<ushort>();
+                var headerVersion = reader.Read<ushort>();
 
                 var index = reader.Read<ushort>();
 
@@ -183,7 +182,8 @@ namespace InfectedRose.Lvl
                     case 1000:
                         var chunk1000 = new LevelInfo
                         {
-                            Index = index
+                            DataVersion = index,
+                            HeaderVersion = headerVersion
                         };
                         
                         chunk1000.Deserialize(reader);
@@ -195,7 +195,8 @@ namespace InfectedRose.Lvl
                     case 2000:
                         var chunk2000 = new LevelSkyConfig
                         {
-                            Index = index
+                            DataVersion = index,
+                            HeaderVersion = headerVersion
                         };
 
                         chunk2000.Deserialize(reader);
@@ -205,7 +206,8 @@ namespace InfectedRose.Lvl
                     case 2001:
                         var chunk2001 = new LevelObjects(LvlVersion)
                         {
-                            Index = index
+                            DataVersion = index,
+                            HeaderVersion = headerVersion
                         };
 
                         chunk2001.Deserialize(reader);
@@ -213,9 +215,10 @@ namespace InfectedRose.Lvl
                         LevelObjects = chunk2001;
                         break;
                     case 2002:
-                        var chunk2002 = new LevelEnvironmentConfig
+                        var chunk2002 = new LevelEnvironmentConfig(LevelInfo.LvlVersion)
                         {
-                            Index = index
+                            DataVersion = index,
+                            HeaderVersion = headerVersion
                         };
 
                         chunk2002.Deserialize(reader);

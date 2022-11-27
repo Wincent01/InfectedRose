@@ -13,9 +13,15 @@ using System.Xml.Serialization;
 using CommandLine;
 using InfectedRose.Database;
 using InfectedRose.Database.Fdb;
+using InfectedRose.Database.Generic;
 using InfectedRose.Interface.Templates;
+using InfectedRose.Luz;
+using InfectedRose.Lvl;
+using InfectedRose.Terrain;
+using InfectedRose.Utilities;
 using Microsoft.Data.Sqlite;
 using RakDotNet.IO;
+using SqlExt = InfectedRose.Database.Sql.ColumnExtensions;
 
 namespace InfectedRose.Interface
 {
@@ -83,11 +89,6 @@ namespace InfectedRose.Interface
 
         public static void ApplyRow(Mod mod)
         {
-            if (mod.Action != "add")
-            {
-                return;
-            }
-
             var tableName = ModContext.GetComponentTableName(mod.Type);
 
             if (!string.IsNullOrWhiteSpace(mod.Table))
@@ -99,7 +100,46 @@ namespace InfectedRose.Interface
 
             if (table != null)
             {
-                var row = table.Create();
+                Row row;
+                
+                if (mod.Action == "add")
+                {
+                    row = table.Create();
+                }
+                else if (mod.Action == "edit")
+                {
+                    if (!Enum.TryParse<ComponentId>(mod.Type, out var componentId))
+                    {
+                        throw new Exception($"Could not parse component ID {mod.Type}!");
+                    }
+                    
+                    if (!mod.Id.StartsWith("lego-universe:"))
+                    {
+                        throw new InvalidOperationException($"Can not edit mod of id '{mod.Id}'; only mods starting with a prefix of 'lego-universe:' can be edited.");
+                    }
+                    
+                    var id = int.Parse(mod.Id.Split(':')[1]);
+                    
+                    var componentRegistry = ModContext.Database["ComponentsRegistry"];
+
+                    var componentRow = componentRegistry.SeekMultiple(id).FirstOrDefault(
+                        c => (int)c["component_type"].Value == (int)componentId
+                    );
+                    
+                    if (componentRow == null)
+                    {
+                        throw new InvalidOperationException($"Could not find component with ID {id} of type {componentId}!");
+                    }
+
+                    if (!table.Seek((int) componentRow["component_id"].Value, out row))
+                    {
+                        throw new InvalidOperationException($"Could not find mod to edit of id '{mod.Id}' in table '{tableName}'.");
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Unknown action '{mod.Action}' for mod of id '{mod.Id}'.");
+                }
             
                 ModContext.RegisterId(mod.Id, row.Key);
                 
@@ -288,6 +328,15 @@ namespace InfectedRose.Interface
             accessDatabase.Save(Path.Combine(CommandLineOptions.Input, "../../res/cdclient.fdb"));
             
             connection.Close();
+
+            var sqliteCopy = Path.Combine(CommandLineOptions.Input, "../../res/CDServer.sqlite");
+            
+            if (File.Exists(sqliteCopy))
+            {
+                File.Delete(sqliteCopy);
+            }
+            
+            File.Copy(ModContext.Configuration.Sqlite, sqliteCopy);
         }
 
         public static async Task ConsoleRotateAnimation(Task other)
@@ -576,6 +625,206 @@ namespace InfectedRose.Interface
             {
                 File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
             }
+        }
+
+        private static void CompareZones(string pathA, string pathB)
+        {
+            using var luzAStream = File.OpenRead(pathA);
+            using var luzAReader = new ByteReader(luzAStream);
+            
+            var luzA = new LuzFile();
+            luzA.Deserialize(luzAReader);
+            
+            var rootA = Path.GetDirectoryName(pathA)!;
+            
+            using var luzBStream = File.OpenRead(pathB);
+            using var luzBReader = new ByteReader(luzBStream);
+            
+            var luzB = new LuzFile();
+            luzB.Deserialize(luzBReader);
+            
+            var rootB = Path.GetDirectoryName(pathB)!;
+            
+            if (luzA.Scenes.Length != luzB.Scenes.Length)
+            {
+                throw new Exception("Scene count mismatch");
+            }
+            
+            if (luzA.Transitions.Length != luzB.Transitions.Length)
+            {
+                throw new Exception("Transition count mismatch");
+            }
+
+            for (var index = 0; index < luzA.PathData.Length; ++index)
+            {
+                var pathAData = luzA.PathData[index];
+                var pathBData = luzB.PathData.First(b => b.PathName == pathAData.PathName);
+
+                if (pathAData.PathName == "smashNetwork4")
+                {
+                    continue;
+                }
+                
+                if (pathAData.Type != pathBData.Type)
+                {
+                    throw new Exception($"Path type mismatch: {pathAData.PathName}");
+                }
+                
+                if (pathAData.Behavior != pathBData.Behavior)
+                {
+                    throw new Exception($"Path behavior mismatch: {pathAData.PathName}");
+                }
+                
+                if (pathAData.Waypoints.Length != pathBData.Waypoints.Length)
+                {
+                    throw new Exception($"Path waypoint count mismatch: {pathAData.PathName}");
+                }
+            }
+
+            /*
+            for (var index = 0; index < luzA.Transitions.Length; index++)
+            {
+                var transitionA = luzA.Transitions[index];
+                var transitionB = luzB.Transitions[index];
+                
+                if (transitionA.SceneTransitionName != transitionB.SceneTransitionName)
+                {
+                    throw new Exception("Transition name mismatch");
+                }
+                
+                if (transitionA.TransitionPoints.Length != transitionB.TransitionPoints.Length)
+                {
+                    throw new Exception("Transition point count mismatch");
+                }
+                
+                for (var pointIndex = 0; pointIndex < transitionA.TransitionPoints.Length; pointIndex++)
+                {
+                    var pointA = transitionA.TransitionPoints[pointIndex];
+                    var pointB = transitionB.TransitionPoints[pointIndex];
+                    
+                    if (pointA.SceneId != pointB.SceneId)
+                    {
+                        throw new Exception("Transition point scene id mismatch");
+                    }
+                }
+            }
+            */
+
+            for (var sceneIndex = 0; sceneIndex < luzA.Scenes.Length; ++sceneIndex)
+            {
+                var sceneA = luzA.Scenes[sceneIndex];
+                var sceneB = luzB.Scenes[sceneIndex];
+                
+                if (sceneA.LayerId != sceneB.LayerId || sceneA.SceneId != sceneB.SceneId)
+                {
+                    throw new Exception("Scene id/layer mismatch");
+                }
+                
+                var lvlAPath = Path.Combine(rootA, sceneA.FileName);
+                
+                using var lvlAStream = File.OpenRead(lvlAPath);
+                using var lvlAReader = new ByteReader(lvlAStream);
+                
+                var lvlA = new LvlFile();
+                lvlA.Deserialize(lvlAReader);
+                
+                var lvlBPath = Path.Combine(rootB, sceneB.FileName);
+                
+                using var lvlBStream = File.OpenRead(lvlBPath);
+                using var lvlBReader = new ByteReader(lvlBStream);
+                
+                var lvlB = new LvlFile();
+                lvlB.Deserialize(lvlBReader);
+                
+                if ((lvlA.LevelObjects == null) != (lvlB.LevelObjects == null))
+                {
+                    continue;
+                }
+                
+                if (lvlA.LevelEnvironmentConfig != null && lvlB.LevelEnvironmentConfig != null)
+                {
+                    var envA = lvlA.LevelEnvironmentConfig;
+                    var envB = lvlB.LevelEnvironmentConfig;
+                    
+                    if (envA.ParticleStructs.Length != envB.ParticleStructs.Length)
+                    {
+                        throw new Exception("Particle count mismatch");
+                    }
+
+                    for (var particleIndex = 0; particleIndex < envA.ParticleStructs.Length; ++particleIndex)
+                    {
+                        var particleA = envA.ParticleStructs[particleIndex];
+                        var particleB = envB.ParticleStructs[particleIndex];
+
+                        if (particleA.Config != particleB.Config)
+                        {
+                            throw new Exception("Particle config mismatch");
+                        }
+                        
+                        if (particleA.ParticleName != particleB.ParticleName)
+                        {
+                            throw new Exception("Particle name mismatch");
+                        }
+                        
+                        if (particleA.Priority != particleB.Priority)
+                        {
+                            throw new Exception("Particle priority mismatch");
+                        }
+                    }
+                }
+                
+                if (lvlA.LevelSkyConfig != null && lvlB.LevelSkyConfig != null)
+                {
+                    var skyA = lvlA.LevelSkyConfig;
+                    var skyB = lvlB.LevelSkyConfig;
+                    
+                    if (skyA.Skybox[0] != skyB.Skybox[0])
+                    {
+                        throw new Exception("Skybox mismatch");
+                    }
+                }
+                
+                if (lvlA.LevelObjects.Templates.Length != lvlB.LevelObjects.Templates.Length)
+                {
+                    throw new Exception("Template count mismatch");
+                }
+                
+                // Loop through all templates
+                for (var templateIndex = 0; templateIndex < lvlA.LevelObjects.Templates.Length; ++templateIndex)
+                {
+                    var templateA = lvlA.LevelObjects.Templates[templateIndex];
+                    var templateB = lvlB.LevelObjects.Templates[templateIndex];
+
+                    if (templateA.ObjectId != templateB.ObjectId)
+                    {
+                        throw new Exception("Template id mismatch");
+                    }
+                    
+                    if (templateA.Lot != templateB.Lot)
+                    {
+                        throw new Exception("Template lot mismatch");
+                    }
+                    
+                    if (Math.Abs(templateA.Scale - templateB.Scale) > 0.01f)
+                    {
+                        throw new Exception("Template scale mismatch");
+                    }
+                    
+                    if (templateA.AssetType != templateB.AssetType)
+                    {
+                        throw new Exception("Template asset type mismatch");
+                    }
+                    
+                    if (templateA.LegoInfo.ToString() != templateB.LegoInfo.ToString())
+                    {
+                        Console.WriteLine("Template LegoInfo mismatch");
+                    }
+                }
+                
+                Console.WriteLine($"Scene {sceneIndex} OK");
+            }
+            
+            Console.WriteLine("OK");
         }
 
         public static void Main(string[] arguments)

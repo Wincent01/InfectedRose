@@ -17,6 +17,13 @@ namespace InfectedRose.Interface
                 return @this.Create(value);
             }
 
+            if (mod.Id.StartsWith("lego-universe:"))
+            {
+                @this.Seek(int.Parse(mod.Id[14..]), out var row);
+
+                return row;
+            }
+
             if (mod.OldIds == null)
             {
                 return @this.CreateWithFilter(ModContext.Lookup.Values);

@@ -97,31 +97,8 @@ namespace InfectedRose.Interface.Templates
             ObjectMod.AddComponent(mod, obj, ComponentId.ControllablePhysicsComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.RenderComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.DestructibleComponent);
-            ObjectMod.AddComponent(mod, obj, ComponentId.SkillComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.MovementAIComponent);
             ObjectMod.AddComponent(mod, obj, ComponentId.BaseCombatAIComponent);
-            
-            if (mod.Skills != null)
-            {
-                var objectSkillsTable = ModContext.Database["ObjectSkills"];
-                
-                foreach (var skill in mod.Skills)
-                {
-                    var objectSkill = objectSkillsTable.Create(obj.Key);
-
-                    objectSkill["castOnType"].Value = mod.HasValue("castOnType") ? mod.GetValue<int>("castOnType") : 0;
-                    objectSkill["AICombatWeight"].Value = 0;
-                    
-                    if (skill.TryGetValue(out int? value))
-                    {
-                        objectSkill["skillID"].Value = value;
-                    }
-                    else if (skill.TryGetValue(out string? itemId))
-                    {
-                        ModContext.AwaitId(itemId, lot => objectSkill["skillID"].Value = lot);
-                    }
-                }
-            }
         }
     }
 }

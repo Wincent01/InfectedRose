@@ -15,6 +15,7 @@ namespace InfectedRose.Database
             Info = info;
             Data = data;
             Database = database;
+            TableInfo = new TableInfo(this);
         }
 
         internal FdbColumnHeader Info { get; }
@@ -22,7 +23,7 @@ namespace InfectedRose.Database
         internal FdbRowBucket Data { get; }
 
         internal AccessDatabase Database { get; }
-        
+
         internal List<int> ClaimedKeys { get; set; } = new List<int>();
         
         public uint Buckets => (uint) Data.RowHeader.RowInfos.Length;
@@ -36,7 +37,7 @@ namespace InfectedRose.Database
             };
         }
 
-        public TableInfo TableInfo => new TableInfo(this);
+        public TableInfo TableInfo { get; }
 
         private List<Row> Fields
         {
@@ -228,7 +229,16 @@ namespace InfectedRose.Database
 
             while (bucket != null)
             {
-                if ((int) bucket.DataHeader.Data.Fields[0].value == key)
+                var value = bucket.DataHeader.Data.Fields[0].value;
+
+                if (!(value is int))
+                {
+                    if (value is FdbBitInt b) value = (int)b.Value;
+                    if (value is FdbString s) value = Hash(s.Value.Select(s => (byte)s).ToArray());
+                    if (value is uint u) value = (int) u;
+                }
+                
+                if ((int) value == key)
                 {
                     yield return new Row(bucket, this);
                 }
@@ -348,10 +358,12 @@ namespace InfectedRose.Database
                 column.DataHeader.Data.Fields[i] = (newType, GetDefault(type));
             }
 
-            var primaryKey = GetKey(key) % (list.Length > 0 ? list.Length : 1);
-
             if (list.Length > 0)
             {
+                var primaryKey = GetKey(key) % list.Length;
+                
+                if (primaryKey < 0) primaryKey = -primaryKey;
+
                 var bucket = list[primaryKey];
 
                 if (bucket == default)
@@ -375,6 +387,8 @@ namespace InfectedRose.Database
             }
             
             Array.Resize(ref list, list.Length + 1);
+            
+            Console.WriteLine("Resized row list to " + list.Length);
 
             list[^1] = column;
 

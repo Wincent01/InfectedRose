@@ -13,9 +13,9 @@ namespace InfectedRose.Lvl
         
         public uint AssetType { get; set; }
         
-        public uint UnknownInt { get; set; }
+        public uint GlomId { get; set; }
         
-        public uint UnknownInt1 { get; set; }
+        public uint RenderTechnique { get; set; }
 
         public Vector3 Position { get; set; }
         
@@ -42,7 +42,7 @@ namespace InfectedRose.Lvl
                 writer.Write(AssetType);
 
             if (LvlVersion >= 0x20)
-                writer.Write(UnknownInt);
+                writer.Write(GlomId);
 
             writer.Write(Position);
 
@@ -53,7 +53,7 @@ namespace InfectedRose.Lvl
             writer.WriteNiString(LegoInfo.ToString("\n"), true);
 
             if (LvlVersion >= 0x7)
-                writer.Write(UnknownInt1);
+                writer.Write(RenderTechnique);
         }
 
         public void Deserialize(BitReader reader)
@@ -66,7 +66,7 @@ namespace InfectedRose.Lvl
                 AssetType = reader.Read<uint>();
 
             if (LvlVersion >= 0x20)
-                UnknownInt = reader.Read<uint>();
+                GlomId = reader.Read<uint>();
 
             Position = reader.Read<Vector3>();
 
@@ -92,7 +92,7 @@ namespace InfectedRose.Lvl
             }
 
             if (LvlVersion >= 0x7)
-                UnknownInt1 = reader.Read<uint>();
+                RenderTechnique = reader.Read<uint>();
         }
     }
 }

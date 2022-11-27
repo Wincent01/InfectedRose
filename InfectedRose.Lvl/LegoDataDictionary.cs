@@ -21,6 +21,8 @@ namespace InfectedRose.Lvl
         public ICollection<string> Keys => _map.Keys;
         public ICollection<object> Values => _map.Values.Select(v => v.Item2).ToArray();
 
+        public Dictionary<string, (byte, object)> InternalMap => _map;
+
         public object this[string key]
         {
             get => _map[key].Item2;
@@ -199,6 +201,8 @@ namespace InfectedRose.Lvl
                     Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}",
                     Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}",
                     LegoDataList list => list.ToString(),
+                    false => "0",
+                    true => "1",
                     _ => v.ToString()
                 };
 
@@ -292,6 +296,21 @@ namespace InfectedRose.Lvl
                         else if (val.Contains('\u001F'))
                         {
                             var floats = val.Split('\u001F').Select(s => float.Parse(s, CultureInfo.InvariantCulture))
+                                .ToArray();
+
+                            v = floats.Length switch
+                            {
+                                1 => floats[0],
+                                2 => new Vector2(floats[0], floats[1]),
+                                3 => new Vector3(floats[0], floats[1], floats[2]),
+                                4 => new Vector4(floats[0], floats[1], floats[2], floats[3]),
+                                _ => (object) val
+                            };
+                        }
+                        else if (val.Contains('\u003C'))
+                        {
+                            val = val.Replace("<", "").Replace(">", "");
+                            var floats = val.Split(',').Select(s => float.Parse(s, CultureInfo.InvariantCulture))
                                 .ToArray();
 
                             v = floats.Length switch

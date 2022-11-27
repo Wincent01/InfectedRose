@@ -15,6 +15,10 @@ namespace InfectedRose.Luz
         public long SpawnerObjectId { get; set; }
         
         public bool ActivateSpawnerNetworkOnLoad { get; set; }
+        
+        public string SpawnedId { get; set; }
+        
+        public string SpawnerObject { get; set; }
 
         public LuzSpawnerPath(uint version) : base(version)
         {

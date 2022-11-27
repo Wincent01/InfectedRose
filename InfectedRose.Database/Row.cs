@@ -54,7 +54,7 @@ namespace InfectedRose.Database
                 if (index == -1)
                 {
                     throw new KeyNotFoundException(
-                        $"The given field key of {name} does not exist in the {Table.Name} table"
+                        $"The given field key of '{name}' does not exist in the {Table.Name} table"
                     );
                 }
 

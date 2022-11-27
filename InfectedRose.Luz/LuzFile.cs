@@ -72,7 +72,7 @@ namespace InfectedRose.Luz
             
             writer.WriteNiString(TerrainDescription, false, true);
 
-            if (Version >= 20)
+            if (Version >= 0x20)
             {
                 writer.Write((uint) Transitions.Length);
 
@@ -169,59 +169,58 @@ namespace InfectedRose.Luz
             }
 
             if (Version < 0x23) return;
+            
+            reader.Read<uint>();
+            PathFormatVersion = reader.Read<uint>();
+            
+            var pathDataCount = reader.Read<uint>();
+            
+            PathData = new LuzPathData[pathDataCount];
+
+            for (var i = 0; i < pathDataCount; i++)
             {
-                reader.Read<uint>();
-                PathFormatVersion = reader.Read<uint>();
-                
-                var pathDataCount = reader.Read<uint>();
-                
-                PathData = new LuzPathData[pathDataCount];
+                var version = reader.Read<uint>();
+                var name = reader.ReadNiString(true, true);
+                var type = (PathType) reader.Read<uint>();
 
-                for (var i = 0; i < pathDataCount; i++)
+                PathData[i] = type switch
                 {
-                    var version = reader.Read<uint>();
-                    var name = reader.ReadNiString(true, true);
-                    var type = (PathType) reader.Read<uint>();
+                    PathType.Movement => new LuzPathData(version),
+                    PathType.MovingPlatform => new LuzMovingPlatformPath(version),
+                    PathType.Property => new LuzPropertyPath(version),
+                    PathType.Camera => new LuzCameraPath(version),
+                    PathType.Spawner => new LuzSpawnerPath(version),
+                    PathType.Showcase => new LuzPathData(version),
+                    PathType.Race => new LuzPathData(version),
+                    PathType.Rail => new LuzPathData(version),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
 
-                    PathData[i] = type switch
+                PathData[i].UnknownInt = reader.Read<uint>();
+
+                PathData[i].PathName = name;
+                PathData[i].Type = type;
+                PathData[i].Deserialize(reader);
+
+                var count = reader.Read<uint>();
+                PathData[i].Waypoints = new LuzPathWaypoint[count];
+
+                for (var j = 0; j < count; j++)
+                {
+                    PathData[i].Waypoints[j] = type switch
                     {
-                        PathType.Movement => new LuzPathData(version),
-                        PathType.MovingPlatform => new LuzMovingPlatformPath(version),
-                        PathType.Property => new LuzPropertyPath(version),
-                        PathType.Camera => new LuzCameraPath(version),
-                        PathType.Spawner => new LuzSpawnerPath(version),
-                        PathType.Showcase => new LuzPathData(version),
-                        PathType.Race => new LuzPathData(version),
-                        PathType.Rail => new LuzPathData(version),
+                        PathType.Movement => new LuzMovementWaypoint(version),
+                        PathType.MovingPlatform => new LuzMovingPlatformWaypoint(version),
+                        PathType.Property => new LuzPathWaypoint(version),
+                        PathType.Camera => new LuzCameraWaypoint(version),
+                        PathType.Spawner => new LuzSpawnerWaypoint(version),
+                        PathType.Showcase => new LuzPathWaypoint(version),
+                        PathType.Race => new LuzRaceWaypoint(version),
+                        PathType.Rail => new LuzRailWaypoint(version),
                         _ => throw new ArgumentOutOfRangeException()
                     };
 
-                    PathData[i].UnknownInt = reader.Read<uint>();
-
-                    PathData[i].PathName = name;
-                    PathData[i].Type = type;
-                    PathData[i].Deserialize(reader);
-
-                    var count = reader.Read<uint>();
-                    PathData[i].Waypoints = new LuzPathWaypoint[count];
-
-                    for (var j = 0; j < count; j++)
-                    {
-                        PathData[i].Waypoints[j] = type switch
-                        {
-                            PathType.Movement => new LuzMovementWaypoint(version),
-                            PathType.MovingPlatform => new LuzMovingPlatformWaypoint(version),
-                            PathType.Property => new LuzPathWaypoint(version),
-                            PathType.Camera => new LuzCameraWaypoint(version),
-                            PathType.Spawner => new LuzSpawnerWaypoint(version),
-                            PathType.Showcase => new LuzPathWaypoint(version),
-                            PathType.Race => new LuzRaceWaypoint(version),
-                            PathType.Rail => new LuzRailWaypoint(version),
-                            _ => throw new ArgumentOutOfRangeException()
-                        };
-
-                        PathData[i].Waypoints[j].Deserialize(reader);
-                    }
+                    PathData[i].Waypoints[j].Deserialize(reader);
                 }
             }
         }

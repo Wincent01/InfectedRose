@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using InfectedRose.Interface.Templates;
+using InfectedRose.Interface.Templates.ValueTypes;
 
 namespace InfectedRose.Interface
 {
@@ -37,7 +38,7 @@ namespace InfectedRose.Interface
         public JsonValue[]? Items { get; set; }
 
         [JsonPropertyName("skills")]
-        public JsonValue[]? Skills { get; set; }
+        public ObjectSkillEntry[]? Skills { get; set; }
         
         [JsonPropertyName("tasks")]
         public MissionModTask[]? Tasks { get; set; }
@@ -47,6 +48,9 @@ namespace InfectedRose.Interface
         
         [JsonPropertyName("behaviors")]
         public Dictionary<string, Behavior> Behaviors { get; set; }
+        
+        [JsonPropertyName("zone")]
+        public Zone? Zone { get; set; }
         
         [JsonPropertyName("locale")]
         public Dictionary<string, string>? Locale { get; set; } = new Dictionary<string, string>

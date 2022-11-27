@@ -8,7 +8,7 @@ namespace InfectedRose.Luz
     {
         public Quaternion Rotation { get; set; }
         
-        public byte[] UnknownBytes { get; set; }
+        public byte[] UnknownBytes { get; set; } = {1, 0};
         
         public Vector3 UnknownVector { get; set; }
         

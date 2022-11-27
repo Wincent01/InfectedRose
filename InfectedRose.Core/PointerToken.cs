@@ -17,6 +17,8 @@ namespace InfectedRose.Core
             var position = (uint) Stream.Position;
 
             Stream.Position = Reference;
+
+            if (Zero) position = 0U;
             
             unsafe
             {

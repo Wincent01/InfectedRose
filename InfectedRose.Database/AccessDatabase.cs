@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using InfectedRose.Database.Fdb;
+using InfectedRose.Database.Sql;
 using InfectedRose.Interface;
 using RakDotNet.IO;
 using Microsoft.Data.Sqlite;
@@ -558,7 +559,7 @@ namespace InfectedRose.Database
                 {
                     var linked = row;
 
-                    while (linked != null)
+                    while (linked != null && linked.DataHeader != null)
                     {
                         insertQuery.Append('(');
 
@@ -585,8 +586,15 @@ namespace InfectedRose.Database
                         insertQuery.Append("),");
                     }
                 }
-
-                insertQuery.Length--;
+                
+                if (insertQuery[^1] == ',')
+                {
+                    insertQuery.Length--;
+                }
+                else if (insertQuery[^1] == ' ')
+                {
+                    continue;
+                }
 
                 insertQuery.Append(';');
 
@@ -608,6 +616,8 @@ namespace InfectedRose.Database
         
         internal void RegisterSql(string sql)
         {
+            if (!ColumnExtensions.Enabled) return;
+            
             OnSql?.Invoke(sql);
         }
     }

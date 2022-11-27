@@ -49,12 +49,30 @@ namespace InfectedRose.Interface
                 
                 return;
             }
+
+            if (!json.TryGetValue<string>(out var id)) throw new Exception("Invalid ID");
             
-            IdCallbacks.Add(new IdCallback { Id = json.ToString(), Callback = callback });
+            if (id.StartsWith("lego-universe:"))
+            {
+                // Parse ID from legacy format
+                callback(int.Parse(id[14..]));
+                
+                return;
+            }
+
+            IdCallbacks.Add(new IdCallback { Id = id, Callback = callback });
         }
         
-        public static void AwaitId(string id, Action<int> callback, bool requireMod = false)
+        public static void AwaitId(string id, Action<int> callback, bool requireMod = false, bool nonDefault = false)
         {
+            if (id.StartsWith("lego-universe:") && !nonDefault)
+            {
+                // Parse ID from legacy format
+                callback(int.Parse(id[14..]));
+                
+                return;
+            }
+            
             if (Lookup.TryGetValue(id, out var value) && !requireMod || requireMod && Mods.ContainsKey(id))
             {
                 callback(value);
@@ -63,6 +81,48 @@ namespace InfectedRose.Interface
             }
             
             IdCallbacks.Add(new IdCallback { Id = id, Callback = callback });
+        }
+        
+        public static int AssertId(JsonValue json)
+        {
+            if (json.TryGetValue<int>(out var value))
+            {
+                return value;
+            }
+            
+            if (!json.TryGetValue<string>(out var id))
+            {
+                throw new Exception($"Undefined reference to id: {json}");
+            }
+
+            if (id.StartsWith("lego-universe:"))
+            {
+                // Parse ID from legacy format
+                return int.Parse(id[14..]);
+            }
+            
+            if (Lookup.TryGetValue(id, out var i))
+            {
+                return i;
+            }
+            
+            throw new Exception($"Undefined reference to id: {json}");
+        }
+
+        public static int AssertId(string id)
+        {
+            if (id.StartsWith("lego-universe:"))
+            {
+                // Parse ID from legacy format
+                return int.Parse(id[14..]);
+            }
+            
+            if (Lookup.TryGetValue(id, out var i))
+            {
+                return i;
+            }
+            
+            throw new Exception($"Undefined reference to id: {id}");
         }
 
         public static void RegisterId(string id, int value)
@@ -147,6 +207,11 @@ namespace InfectedRose.Interface
             if (component.Contains("PhysicsComponent"))
             {
                 return "PhysicsComponent";
+            }
+
+            if (component == "QuickBuildComponent")
+            {
+                return "RebuildComponent";
             }
 
             return component;
@@ -250,7 +315,7 @@ namespace InfectedRose.Interface
             return false;
         }
         
-        public static string ParseValue(string value, bool ignoreSpecialRoot = false)
+        public static string ParseValue(string value, bool ignoreSpecialRoot = false, string root = "../../res/")
         {
             if (value.StartsWith("INCLUDE:"))
             {
@@ -267,8 +332,6 @@ namespace InfectedRose.Interface
             value = value.Substring(6);
 
             var createSymlink = false;
-            
-            var root = "../../res/";
             
             if (value.StartsWith("PHYSICS:"))
             {

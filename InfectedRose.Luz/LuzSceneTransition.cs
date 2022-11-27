@@ -22,14 +22,14 @@ namespace InfectedRose.Luz
 
         public void Serialize(BitWriter writer)
         {
-            if (Version < 40)
+            if (Version < 0x28)
             {
                 writer.WriteNiString(SceneTransitionName, false, true);
 
                 writer.Write(UnknownFloat);
             }
             
-            var pointCount = Version < 39 ? 5 : 2;
+            var pointCount = Version < 0x27 ? 5 : 2;
 
             var luzSceneTransitionPoints = TransitionPoints;
             
@@ -57,14 +57,14 @@ namespace InfectedRose.Luz
 
         public void Deserialize(BitReader reader)
         {
-            if (Version < 40)
+            if (Version < 0x28)
             {
                 SceneTransitionName = reader.ReadNiString(false, true);
 
                 UnknownFloat = reader.Read<float>();
             }
 
-            var pointCount = Version < 39 ? 5 : 2;
+            var pointCount = Version < 0x27 ? 5 : 2;
 
             TransitionPoints = new LuzSceneTransitionPoint[pointCount];
 
