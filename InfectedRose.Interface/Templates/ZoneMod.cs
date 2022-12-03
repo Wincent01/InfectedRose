@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using InfectedRose.Core;
 using InfectedRose.Database;
 using InfectedRose.Interface.Templates.ValueTypes;
 using InfectedRose.Luz;
@@ -26,7 +27,10 @@ namespace InfectedRose.Interface.Templates
             
             if (ModContext.TryGetFromLookup(mod, out var key))
             {
-                entry = zoneTable.Create(key);
+                if (!zoneTable.Seek(key, out entry))
+                {
+                    entry =  zoneTable.Create(key);
+                }
             }
             else
             {
@@ -82,7 +86,10 @@ namespace InfectedRose.Interface.Templates
             
             if (ModContext.TryGetFromLookup(mod, out var key))
             {
-                entry = zoneTable.Create(key);
+                if (!zoneTable.Seek(key, out entry))
+                {
+                    entry =  zoneTable.Create(key);
+                }
             }
             else
             {
@@ -120,7 +127,9 @@ namespace InfectedRose.Interface.Templates
 
             var zone = mod.Zone!;
 
-            var root = $"./compiled/{mod.Id}/";
+            var fileName = mod.Id.Replace("-", "_").Replace(":", "_");
+
+            var root = $"./compiled/{fileName}/";
 
             if (!Directory.Exists(root))
             {
@@ -133,14 +142,16 @@ namespace InfectedRose.Interface.Templates
                     File.Delete(file);
                 }
             }
+
+            var terrainFile = $"{fileName}.raw";
             
-            File.CreateSymbolicLink(Path.Combine(root, Path.GetFileName(zone.TerrainFile)), Path.Combine("../../", zone.TerrainFile));
+            File.CreateSymbolicLink(Path.Combine(root, terrainFile), Path.Combine("../../", zone.TerrainFile));
             
             var luzFile = new LuzFile();
 
-            luzFile.TerrainFile = zone.TerrainFile;
-            luzFile.TerrainFileName = zone.TerrainFile;
-            luzFile.TerrainDescription = Path.GetFileNameWithoutExtension(zone.TerrainFile);
+            luzFile.TerrainFile = terrainFile;
+            luzFile.TerrainFileName = terrainFile;
+            luzFile.TerrainDescription = Path.GetFileNameWithoutExtension(terrainFile);
 
             luzFile.Version = 0x29U;
 
@@ -314,11 +325,11 @@ namespace InfectedRose.Interface.Templates
                 string filename;
                 if (scene.Layer == 0)
                 {
-                    filename = Path.Combine(root, $"{mod.Id.Replace("-", "_")}_{scene.Id}_{scene.Name.ToLower().Replace(" ", "_")}.lvl");
+                    filename = Path.Combine(root, $"{fileName}_{scene.Id}_{scene.Name.ToLower().Replace(" ", "_")}.lvl");
                 }
                 else
                 {
-                    filename = Path.Combine(root, $"{mod.Id.Replace("-", "_")}_{scene.Id}x{scene.Layer}_{scene.Name.ToLower().Replace(" ", "_")}.lvl");
+                    filename = Path.Combine(root, $"{fileName}_{scene.Id}x{scene.Layer}_{scene.Name.ToLower().Replace(" ", "_")}.lvl");
                 }
                 luzScene.FileName = Path.GetFileName(filename);
 
@@ -560,7 +571,7 @@ namespace InfectedRose.Interface.Templates
                 luzFile.Transitions[index] = transition;
             }
             
-            var luzFilename = Path.Combine(root, $"{mod.Id.ToLower()}.luz");
+            var luzFilename = Path.Combine(root, $"{fileName}.luz");
             
             using var zoneFileStream = File.Create(luzFilename);
             using var zoneWriter = new ByteWriter(zoneFileStream);

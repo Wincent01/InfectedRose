@@ -282,17 +282,17 @@ namespace InfectedRose.Interface
 
         public static bool TryGetFromLookup(Mod mod, out int key)
         {
-            if (Lookup.TryGetValue(mod.Id, out var value))
-            {
-                key = value;
-                
-                return true;
-            }
-            
             if (mod.ExplicitId.HasValue)
             {
                 key = mod.ExplicitId.Value;
 
+                return true;
+            }
+
+            if (Lookup.TryGetValue(mod.Id, out var value))
+            {
+                key = value;
+                
                 return true;
             }
             

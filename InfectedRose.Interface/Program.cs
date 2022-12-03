@@ -1048,8 +1048,23 @@ namespace InfectedRose.Interface
             {
                 ModContext.Localization.Locales.Count = ModContext.Localization.Locales.Locale.Length;
                 ModContext.Localization.Phrases.Count = ModContext.Localization.Phrases.Phrase.Count;
+
+                foreach (var pTranslation in ModContext.Localization.Phrases.Phrase.SelectMany(p => p.Translations))
+                {
+                    if (pTranslation.Text == null) continue;
+                    
+                    pTranslation.Text = pTranslation.Text.Replace("'", "[']").Replace("\n", @"[\n]");
+                }
                 
                 localeSerializer.Serialize(stream, ModContext.Localization);
+            }
+
+            {
+                var localeContent = File.ReadAllText(localeDestinationPath);
+                
+                localeContent = localeContent.Replace("[']", "&apos;").Replace(@"[\n]", "&#x0A;");
+                
+                File.WriteAllText(localeDestinationPath, localeContent);
             }
             
             Console.WriteLine("Complete!");
