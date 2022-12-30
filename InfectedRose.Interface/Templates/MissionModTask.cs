@@ -22,7 +22,7 @@ namespace InfectedRose.Interface.Templates
         public string Location { get; set; }
         
         [JsonPropertyName("parameters")]
-        public string Parameters { get; set; }
+        public JsonArray Parameters { get; set; }
 
         [JsonPropertyName("icon")]
         public string Icon { get; set; }

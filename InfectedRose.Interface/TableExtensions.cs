@@ -12,16 +12,16 @@ namespace InfectedRose.Interface
         
         public static Row FromLookup(this Table @this, Mod mod)
         {
-            if (ModContext.Lookup.TryGetValue(mod.Id, out var value))
-            {
-                return @this.Create(value);
-            }
-
             if (mod.Id.StartsWith("lego-universe:"))
             {
                 @this.Seek(int.Parse(mod.Id[14..]), out var row);
 
                 return row;
+            }
+            
+            if (ModContext.Lookup.TryGetValue(mod.Id, out var value))
+            {
+                return @this.Create(value);
             }
 
             if (mod.OldIds == null)

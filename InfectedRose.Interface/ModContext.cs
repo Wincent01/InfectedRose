@@ -41,6 +41,17 @@ namespace InfectedRose.Interface
         
         public static Artifacts Artifacts { get; set; }
 
+        public static bool IsId(JsonValue json)
+        {
+            // It is an id if it's a string and contains a ':' or is an integer.
+            if (json.TryGetValue<string>(out var id))
+            {
+                return id.Contains(':') || int.TryParse(id, out _);
+            }
+            
+            return false;
+        }
+        
         public static void AwaitId(JsonValue json, Action<int> callback)
         {
             if (json.TryGetValue<int>(out var value))
@@ -50,7 +61,7 @@ namespace InfectedRose.Interface
                 return;
             }
 
-            if (!json.TryGetValue<string>(out var id)) throw new Exception("Invalid ID");
+            if (!json.TryGetValue<string>(out var id)) throw new Exception($"Invalid id: {json}");
             
             if (id.StartsWith("lego-universe:"))
             {
@@ -59,12 +70,31 @@ namespace InfectedRose.Interface
                 
                 return;
             }
+            
+            if (!id.Contains(':')) throw new Exception($"Invalid id: {json}, does not contain any ':' to define scope");
 
             IdCallbacks.Add(new IdCallback { Id = id, Callback = callback });
         }
         
+        public static bool AwaitIdIfRequired(JsonValue json, Action<int> callback)
+        {
+            if (!IsId(json)) return false;
+            
+            AwaitId(json, callback);
+                
+            return true;
+
+        }
+        
         public static void AwaitId(string id, Action<int> callback, bool requireMod = false, bool nonDefault = false)
         {
+            if (int.TryParse(id, out var integer))
+            {
+                callback(integer);
+                
+                return;
+            }
+            
             if (id.StartsWith("lego-universe:") && !nonDefault)
             {
                 // Parse ID from legacy format
@@ -107,6 +137,11 @@ namespace InfectedRose.Interface
             }
             
             throw new Exception($"Undefined reference to id: {json}");
+        }
+
+        public static bool ShouldBeNull(string id)
+        {
+            return string.IsNullOrWhiteSpace(id) || id == "lego-universe:0" || id == "lego-universe:-1";
         }
 
         public static int AssertId(string id)
@@ -257,12 +292,12 @@ namespace InfectedRose.Interface
 
             if (phrase == null)
             {
-                phrase = new Phrase();
+                phrase = new Phrase
+                {
+                    Id = id,
+                    Translations = new List<Translation>()
+                };
 
-                phrase.Id = id;
-                
-                phrase.Translations = new List<Translation>();
-                
                 Localization.Phrases.Phrase.Add(phrase);
             }
 
@@ -270,10 +305,11 @@ namespace InfectedRose.Interface
 
             if (translation == null)
             {
-                translation = new Translation();
+                translation = new Translation
+                {
+                    Locale = locale
+                };
 
-                translation.Locale = locale;
-                
                 phrase.Translations.Add(translation);
             }
 
@@ -364,7 +400,7 @@ namespace InfectedRose.Interface
             {
                 root = "../../res/";
             }
-
+            
             string final;
 
             // Copy the file to the selected resource folder is specified
@@ -423,6 +459,11 @@ namespace InfectedRose.Interface
 
         public static int AddIcon(string file)
         {
+            if (file.StartsWith("lego-universe:"))
+            {
+                return int.Parse(file.Substring(14));
+            }
+            
             file = ParseValue(file);
 
             var table = Database["Icons"]!;
