@@ -40,6 +40,8 @@ namespace InfectedRose.Lvl
             {
                 writer.Write<ushort>(0);
             }
+            
+            writer.WriteNiString(Config, true);
         }
 
         public void Deserialize(BitReader reader)
@@ -59,6 +61,8 @@ namespace InfectedRose.Lvl
             {
                 reader.Read<ushort>();
             }
+            
+            Config = reader.ReadNiString(true);
         }
     }
 }

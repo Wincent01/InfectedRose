@@ -285,7 +285,25 @@ namespace InfectedRose.Database
             
             return Create(max + 1);
         }
+        
+        public Row CreateMin(int minKey)
+        {
+            if (TableInfo[0].Type != DataType.Integer)
+                throw new NotSupportedException("AccessDatabase can only generate primary keys for Int32 types.");
 
+            var max = Count > 0 ? this.Max(c => c.Key) : 0;
+
+            for (var i = minKey; i < max; i++)
+            {
+                if (!ContainsKey(i) && !ClaimedKeys.Contains(i))
+                {
+                    return Create(i);
+                }
+            }
+            
+            return Create(max + 1);
+        }
+        
         public Row CreateWithFilter(ICollection<int> exclude)
         {
             if (TableInfo[0].Type != DataType.Integer)

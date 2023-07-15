@@ -172,8 +172,8 @@ namespace InfectedRose.Lvl
                         var str = value switch
                         {
                             Vector2 vec2 => $"{vec2.X}{InfoSeparator}{vec2.Y}",
-                            Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}",
-                            Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}",
+                            Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Y}{InfoSeparator}{vec3.Z}",
+                            Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.W}",
                             LegoDataList list => list.ToString(),
                             _ => value.ToString()
                         };
@@ -198,8 +198,8 @@ namespace InfectedRose.Lvl
                 var val = v switch
                 {
                     Vector2 vec2 => $"{vec2.X}{InfoSeparator}{vec2.Y}",
-                    Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}",
-                    Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}",
+                    Vector3 vec3 => $"{vec3.X}{InfoSeparator}{vec3.Y}{InfoSeparator}{vec3.Z}",
+                    Vector4 vec4 => $"{vec4.X}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.W}",
                     LegoDataList list => list.ToString(),
                     false => "0",
                     true => "1",

@@ -62,6 +62,27 @@ namespace InfectedRose.Database
             }
         }
 
+        public int GetFieldIndex(string name)
+        {
+            var index = -1;
+
+            for (var i = 0; i < Table.TableInfo.Count; i++)
+            {
+                var column = Table.TableInfo[i];
+
+                if (column.Name == name) index = i;
+            }
+
+            if (index == -1)
+            {
+                throw new KeyNotFoundException(
+                    $"The given field key of '{name}' does not exist in the {Table.Name} table"
+                );
+            }
+
+            return index;
+        }
+
         public IEnumerator<Field> GetEnumerator()
         {
             int index = default;

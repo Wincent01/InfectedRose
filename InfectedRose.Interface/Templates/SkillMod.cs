@@ -1,35 +1,51 @@
-namespace InfectedRose.Interface.Templates
+namespace InfectedRose.Interface.Templates;
+
+[ModType("skill")]
+public class SkillMod : ModType
 {
-    [ModType("skill")]
-    public class SkillMod : ModType
+    public override void Apply(Mod mod)
     {
-        public override void Apply(Mod mod)
+        if (mod.Action != "add")
         {
-            if (mod.Action != "add")
-            {
-                return;
-            }
+            return;
+        }
 
-            var skillBehaviorTable = ModContext.Database["SkillBehavior"]!;
+        var skillBehaviorTable = ModContext.Database["SkillBehavior"]!;
 
-            var skillBehavior = skillBehaviorTable.FromLookup(mod);
+        var skillBehavior = skillBehaviorTable.FromLookup(mod);
+
+        if (mod.Locale != null)
+        {
+            ModContext.AddToLocale($"SkillBehavior_{skillBehavior.Key}_name", mod.Locale);
+        }
+
+        ModContext.RegisterId(mod.Id, skillBehavior.Key);
+
+        foreach (var (key, behavior) in mod.Behaviors)
+        {
+            behavior.Apply(key);
+        }
+        
+        if (mod.HasValue("icon"))
+        {
+            var iconId = ModContext.AddIcon(mod.GetValue<string>("icon"), out var path);
             
-            ModContext.RegisterId(mod.Id, skillBehavior.Key);
+            mod.Values["skillIcon"] = iconId;
+        }
 
-            foreach (var (key, behavior) in mod.Behaviors)
-            {
-                behavior.Apply(key);
-            }
-            
-            ModContext.ApplyValues(mod, skillBehavior, skillBehaviorTable);
+        ModContext.ApplyValues(mod, skillBehavior, skillBehaviorTable);
 
-            if (mod.HasValue("root-behavior"))
+        if (mod.HasValue("icon"))
+        {
+            mod.Values.Remove("skillIcon");
+        }
+        
+        if (mod.HasValue("root-behavior"))
+        {
+            ModContext.AwaitId(mod.GetValue<string>("root-behavior"), i =>
             {
-                ModContext.AwaitId(mod.GetValue<string>("root-behavior"), i =>
-                {
-                    skillBehavior["behaviorID"].Value = i;
-                });
-            }
+                skillBehavior["behaviorID"].Value = i;
+            });
         }
     }
 }

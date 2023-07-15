@@ -1,7 +1,6 @@
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface;
+
+public abstract class ModType
 {
-    public abstract class ModType
-    {
-        public abstract void Apply(Mod mod);
-    }
+    public abstract void Apply(Mod mod);
 }

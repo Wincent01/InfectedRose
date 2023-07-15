@@ -8,610 +8,700 @@ using InfectedRose.Database;
 using InfectedRose.Database.Fdb;
 using InfectedRose.Interface.Templates;
 
-namespace InfectedRose.Interface
+namespace InfectedRose.Interface;
+
+public class IdCallback
 {
-    public class IdCallback
-    {
-        public string Id { get; set; }
+    public string Id { get; set; }
         
-        public Action<int> Callback { get; set; }
-    }
+    public Action<int> Callback { get; set; }
+}
     
-    public static class ModContext
+public static class ModContext
+{
+    public static Mods Configuration { get; set; }
+        
+    public static string Root { get; set; }
+
+    public static AccessDatabase Database { get; set; }
+        
+    public static XmlDatabase OriginalDatabase { get; set; }
+
+    public static Localization Localization { get; set; }
+        
+    public static Dictionary<string, Mod> Mods { get; set; } = new Dictionary<string, Mod>();
+        
+    public static List<string> ServerSql { get; set; } = new List<string>();
+        
+    public static List<string> GeneralSql { get; set; } = new List<string>();
+
+    public static List<IdCallback> IdCallbacks { get; set; } = new List<IdCallback>();
+        
+    public static Lookup Lookup { get; set; }
+        
+    public static Artifacts Artifacts { get; set; }
+
+    public static bool IsId(JsonValue json)
     {
-        public static Mods Configuration { get; set; }
-        
-        public static string Root { get; set; }
-
-        public static AccessDatabase Database { get; set; }
-        
-        public static XmlDatabase OriginalDatabase { get; set; }
-
-        public static Localization Localization { get; set; }
-        
-        public static Dictionary<string, Mod> Mods { get; set; } = new Dictionary<string, Mod>();
-        
-        public static List<string> ServerSql { get; set; } = new List<string>();
-        
-        public static List<string> GeneralSql { get; set; } = new List<string>();
-
-        public static List<IdCallback> IdCallbacks { get; set; } = new List<IdCallback>();
-        
-        public static Lookup Lookup { get; set; }
-        
-        public static Artifacts Artifacts { get; set; }
-
-        public static bool IsId(JsonValue json)
+        // It is an id if it's a string and contains a ':' or is an integer.
+        if (json.TryGetValue<string>(out var id))
         {
-            // It is an id if it's a string and contains a ':' or is an integer.
-            if (json.TryGetValue<string>(out var id))
-            {
-                return id.Contains(':') || int.TryParse(id, out _);
-            }
-            
-            return false;
+            return id.Contains(':') || int.TryParse(id, out _);
         }
+            
+        return false;
+    }
         
-        public static void AwaitId(JsonValue json, Action<int> callback)
+    public static bool AwaitIdIfRequired(JsonValue json, Action<int> callback)
+    {
+        if (!IsId(json)) return false;
+            
+        AwaitId(json, callback);
+                
+        return true;
+
+    }
+        
+    public static void AwaitId(string? id, Action<int> callback, bool requireMod = false, bool nonDefault = false)
+    {
+        if (id == null)
         {
-            if (json.TryGetValue<int>(out var value))
-            {
-                callback(value);
-                
-                return;
-            }
-
-            if (!json.TryGetValue<string>(out var id)) throw new Exception($"Invalid id: {json}");
-            
-            if (id.StartsWith("lego-universe:"))
-            {
-                // Parse ID from legacy format
-                callback(int.Parse(id[14..]));
-                
-                return;
-            }
-            
-            if (!id.Contains(':')) throw new Exception($"Invalid id: {json}, does not contain any ':' to define scope");
-
-            IdCallbacks.Add(new IdCallback { Id = id, Callback = callback });
+            return;
         }
-        
-        public static bool AwaitIdIfRequired(JsonValue json, Action<int> callback)
-        {
-            if (!IsId(json)) return false;
             
-            AwaitId(json, callback);
+        if (int.TryParse(id, out var integer))
+        {
+            callback(integer);
                 
-            return true;
-
+            return;
         }
-        
-        public static void AwaitId(string id, Action<int> callback, bool requireMod = false, bool nonDefault = false)
+            
+        if (id.StartsWith("lego-universe:") && !nonDefault)
         {
-            if (int.TryParse(id, out var integer))
-            {
-                callback(integer);
+            // Parse ID from legacy format
+            callback(int.Parse(id[14..]));
                 
-                return;
-            }
-            
-            if (id.StartsWith("lego-universe:") && !nonDefault)
-            {
-                // Parse ID from legacy format
-                callback(int.Parse(id[14..]));
-                
-                return;
-            }
-            
-            if (Lookup.TryGetValue(id, out var value) && !requireMod || requireMod && Mods.ContainsKey(id))
-            {
-                callback(value);
-                
-                return;
-            }
-            
-            IdCallbacks.Add(new IdCallback { Id = id, Callback = callback });
+            return;
         }
-        
-        public static int AssertId(JsonValue json)
+            
+        if (Lookup.TryGetValue(id, out var value) && !requireMod || requireMod && Mods.ContainsKey(id))
         {
-            if (json.TryGetValue<int>(out var value))
-            {
-                return value;
-            }
+            callback(value);
+                
+            return;
+        }
             
-            if (!json.TryGetValue<string>(out var id))
-            {
-                throw new Exception($"Undefined reference to id: {json}");
-            }
+        IdCallbacks.Add(new IdCallback { Id = id, Callback = callback });
+    }
+        
+    public static void AwaitId(JsonValue json, Action<int> callback, bool requireMod = false, bool nonDefault = false)
+    {
+        if (json.TryGetValue<int>(out var value))
+        {
+            callback(value);
+                
+            return;
+        }
+            
+        if (json.TryGetValue<string>(out var id))
+        {
+            AwaitId(id, callback, requireMod, nonDefault);
+                
+            return;
+        }
+            
+        throw new Exception($"Undefined reference to id: {json}");
+    }
 
-            if (id.StartsWith("lego-universe:"))
-            {
-                // Parse ID from legacy format
-                return int.Parse(id[14..]);
-            }
+    public static void AwaitMultiple(string[] ids, Action callback)
+    {
+        var count = 0;
             
-            if (Lookup.TryGetValue(id, out var i))
+        foreach (var id in ids)
+        {
+            AwaitId(id, _ =>
             {
-                return i;
-            }
+                count++;
+                    
+                if (count == ids.Length)
+                {
+                    callback();
+                }
+            });
+        }
+    }
+
+    public static int AssertId(JsonValue json)
+    {
+        if (json.TryGetValue<int>(out var value))
+        {
+            return value;
+        }
             
+        if (!json.TryGetValue<string>(out var id))
+        {
             throw new Exception($"Undefined reference to id: {json}");
         }
 
-        public static bool ShouldBeNull(string id)
+        if (id.StartsWith("lego-universe:"))
         {
-            return string.IsNullOrWhiteSpace(id) || id == "lego-universe:0" || id == "lego-universe:-1";
+            // Parse ID from legacy format
+            return int.Parse(id[14..]);
         }
-
-        public static int AssertId(string id)
+            
+        if (Lookup.TryGetValue(id, out var i))
         {
-            if (id.StartsWith("lego-universe:"))
+            return i;
+        }
+            
+        throw new Exception($"Undefined reference to id: {json}");
+    }
+
+    public static bool ShouldBeNull(string id)
+    {
+        return string.IsNullOrWhiteSpace(id) || id == "lego-universe:0" || id == "lego-universe:-1";
+    }
+
+    public static int AssertId(string id)
+    {
+        if (id.StartsWith("lego-universe:"))
+        {
+            // Parse ID from legacy format
+            return int.Parse(id[14..]);
+        }
+            
+        if (Lookup.TryGetValue(id, out var i))
+        {
+            return i;
+        }
+            
+        throw new Exception($"Undefined reference to id: {id}");
+    }
+
+    public static void RegisterId(string id, int value)
+    {
+        Lookup[id] = value;
+        
+        foreach (var idCallback in IdCallbacks.Where(callback => callback.Id == id).ToArray())
+        {
+            idCallback.Callback(value);
+
+            IdCallbacks.Remove(idCallback);
+        }
+    }
+
+    public static void RegisterArtifact(string file)
+    {
+        Artifacts.Add(file);
+    }
+    
+    public static void CreateArtifactFrom(string sourceFile, string destination)
+    {
+        var dr = new Uri(Path.Combine(Root, "../", destination));
+
+        var src = Path.GetRelativePath(Root, Directory.GetCurrentDirectory());
+        
+        var resources = Configuration.ResourceFolder;
+
+        var relative = sourceFile.Split("mods/").Last();
+            
+        // Create the path to the resource folder
+        var actual = new Uri(Path.Combine(Root, resources, src, relative));
+        
+        var relativePath = dr.MakeRelativeUri(actual).ToString();
+        
+        if (File.Exists(dr.LocalPath))
+        {
+            var artifactsRoot = Path.Combine(Root, "artifacts");
+            
+            if (!Directory.Exists(artifactsRoot))
             {
-                // Parse ID from legacy format
-                return int.Parse(id[14..]);
+                Directory.CreateDirectory(artifactsRoot);
             }
             
-            if (Lookup.TryGetValue(id, out var i))
+            // Copy the directory structure to the artifacts folder
+            var artifacts = Path.Combine(artifactsRoot, Path.GetDirectoryName(destination) ?? "./");
+            
+            if (!Directory.Exists(artifacts))
             {
-                return i;
+                Directory.CreateDirectory(artifacts);
             }
             
-            throw new Exception($"Undefined reference to id: {id}");
-        }
-
-        public static void RegisterId(string id, int value)
-        {
-            foreach (var idCallback in IdCallbacks.Where(callback => callback.Id == id).ToArray())
+            var dest = Path.Combine(artifacts, Path.GetFileName(dr.LocalPath));
+            
+            if (!File.Exists(dest))
             {
-                idCallback.Callback(value);
-
-                IdCallbacks.Remove(idCallback);
+                File.Copy(dr.LocalPath, dest, true);
             }
             
-            Lookup[id] = value;
+            File.Delete(dr.LocalPath);
         }
-
-        public static void RegisterArtifact(string source, string destination)
+        else
         {
-            Artifacts[source] = destination;
-        }
-
-        public static void CreateArtifact(string source, string destination)
-        {
-            if (!File.Exists(source))
-            {
-                throw new FileNotFoundException($"Could not create artifact to non-existent file: {source}");
-            }
-
-            File.CreateSymbolicLink(source, destination);
-            
-            RegisterArtifact(source, destination);
-        }
-
-        public static void CreateArtifactFrom(string sourceFile, string destinationDirectory)
-        {
-            var dr = Path.Combine(Root, "../", destinationDirectory);
-
-            var src = Path.GetRelativePath(dr, Directory.GetCurrentDirectory());
-                
-            var destination = Path.Combine(dr, Path.GetFileName(sourceFile));
-
-            src = Path.Combine(src, sourceFile);
-            
-            if (File.Exists(destination))
-            {
-                File.Delete(destination);
-            }
-
-            File.CreateSymbolicLink(destination, src);
-
-            src = Path.GetRelativePath(Root, src);
-            destination = Path.GetRelativePath(Root, destination);
-
-            RegisterArtifact(src, destination);
-        }
-
-        public static Mod GetMod(string id)
-        {
-            return Mods[id];
-        }
-
-        public static Table? GetComponentTable(ComponentId component)
-        {
-            return Database[GetComponentTableName(component)];
-        }
-
-        public static Table? GetComponentTable(string component)
-        {
-            return Database[GetComponentTableName(component)];
+            RegisterArtifact(dr.LocalPath);
         }
         
-        public static string GetComponentTableName(ComponentId component)
-        {
-            if (component == ComponentId.QuickBuildComponent)
-            {
-                return "RebuildComponent";
-            }
-            
-            return GetComponentTableName(component.ToString());
-        }
+        File.CreateSymbolicLink(dr.LocalPath, relativePath);
+    }
+
+    public static Mod GetMod(string id)
+    {
+        return Mods[id];
+    }
+
+    public static Table? GetComponentTable(ComponentId component)
+    {
+        return Database[GetComponentTableName(component)];
+    }
+
+    public static Table? GetComponentTable(string component)
+    {
+        return Database[GetComponentTableName(component)];
+    }
         
-        public static string GetComponentTableName(string component)
+    public static string GetComponentTableName(ComponentId component)
+    {
+        if (component == ComponentId.QuickBuildComponent)
         {
-            if (component.Contains("PhysicsComponent"))
-            {
-                return "PhysicsComponent";
-            }
-
-            if (component == "QuickBuildComponent")
-            {
-                return "RebuildComponent";
-            }
-
-            return component;
+            return "RebuildComponent";
         }
-
-        public static T ParseEnum<T>(string value)
-        {
-            // Remove spaces and dashes
-            value = value.Replace(" ", "").Replace("-", "");
             
-            // Parse the enum case-insensitively
-            return (T) Enum.Parse(typeof(T), value, true);
+        return GetComponentTableName(component.ToString());
+    }
+        
+    public static string GetComponentTableName(string component)
+    {
+        if (component.Contains("PhysicsComponent"))
+        {
+            return "PhysicsComponent";
         }
 
-        public static void AddToLocale(string id, string locale, Mod mod)
+        if (component == "QuickBuildComponent")
         {
-            if (!mod.HasValue(locale))
-            {
-                var normalized = locale.Replace("_", "").Replace("-", "").ToLower();
-                
-                if (mod.HasValue(normalized))
-                {
-                    AddToLocale(id, mod.GetValue<Dictionary<string, string>>(normalized));
-                }
-                
-                return;
-            }
+            return "RebuildComponent";
+        }
+
+        return component;
+    }
+
+    public static T ParseEnum<T>(string value)
+    {
+        // Remove spaces and dashes
+        value = value.Replace(" ", "").Replace("-", "");
             
-            AddToLocale(id, mod.GetValue<Dictionary<string, string>>(locale));
-        }
+        // Parse the enum case-insensitively
+        return (T) Enum.Parse(typeof(T), value, true);
+    }
 
-        public static void AddToLocale(string id, Dictionary<string, string> locales)
+    public static void AddToLocale(string id, string locale, Mod mod)
+    {
+        if (!mod.HasValue(locale))
         {
-            foreach (var (locale, text) in locales)
-            {
-                AddToLocale(id, text, locale);
-            }
-        }
-
-        public static void AddToLocale(string id, string text, string locale)
-        {
-            var phrase = Localization.Phrases.Phrase.FirstOrDefault(p => p.Id == id);
-
-            if (phrase == null)
-            {
-                phrase = new Phrase
-                {
-                    Id = id,
-                    Translations = new List<Translation>()
-                };
-
-                Localization.Phrases.Phrase.Add(phrase);
-            }
-
-            var translation = phrase.Translations.FirstOrDefault(t => t.Locale == locale);
-
-            if (translation == null)
-            {
-                translation = new Translation
-                {
-                    Locale = locale
-                };
-
-                phrase.Translations.Add(translation);
-            }
-
-            translation.Text = text;
-        }
-
-        public static bool TryGetFromLookup(Mod mod, out int key)
-        {
-            if (mod.ExplicitId.HasValue)
-            {
-                key = mod.ExplicitId.Value;
-
-                return true;
-            }
-
-            if (Lookup.TryGetValue(mod.Id, out var value))
-            {
-                key = value;
+            var normalized = locale.Replace("_", "").Replace("-", "").ToLower();
                 
-                return true;
+            if (mod.HasValue(normalized))
+            {
+                AddToLocale(id, mod.GetValue<Dictionary<string, string>>(normalized));
             }
+                
+            return;
+        }
             
-            if (mod.OldIds == null)
-            {
-                key = 0;
-                
-                return false;
-            }
+        AddToLocale(id, mod.GetValue<Dictionary<string, string>>(locale));
+    }
 
-            if (mod.OldIds.Any(oldId => Lookup.TryGetValue(oldId, out value)))
+    public static void AddToLocale(string id, Dictionary<string, string> locales)
+    {
+        foreach (var (locale, text) in locales)
+        {
+            AddToLocale(id, text, locale);
+        }
+    }
+
+    public static void AddToLocale(string id, string text, string locale)
+    {
+        var phrase = Localization.Phrases.Phrase.FirstOrDefault(p => p.Id == id);
+
+        if (phrase == null)
+        {
+            phrase = new Phrase
             {
-                key = value;
+                Id = id,
+                Translations = new List<Translation>()
+            };
+
+            Localization.Phrases.Phrase.Add(phrase);
+        }
+
+        var translation = phrase.Translations.FirstOrDefault(t => t.Locale == locale);
+
+        if (translation == null)
+        {
+            translation = new Translation
+            {
+                Locale = locale
+            };
+
+            phrase.Translations.Add(translation);
+        }
+
+        translation.Text = text;
+    }
+
+    public static bool TryGetFromLookup(Mod mod, out int key)
+    {
+        if (mod.ExplicitId.HasValue)
+        {
+            key = mod.ExplicitId.Value;
+
+            return true;
+        }
+
+        if (Lookup.TryGetValue(mod.Id, out var value))
+        {
+            key = value;
                 
-                return true;
-            }
+            return true;
+        }
             
+        if (mod.OldIds == null)
+        {
             key = 0;
-            
+                
             return false;
         }
+
+        if (mod.OldIds.Any(oldId => Lookup.TryGetValue(oldId, out value)))
+        {
+            key = value;
+                
+            return true;
+        }
+            
+        key = 0;
+            
+        return false;
+    }
         
-        public static string ParseValue(string value, bool ignoreSpecialRoot = false, string root = "../../res/")
+    public static string ParseValue(string value, bool ignoreSpecialRoot = false, string root = "../../res/", string columnName = "")
+    {
+        if (value.StartsWith("INCLUDE:"))
         {
-            if (value.StartsWith("INCLUDE:"))
-            {
-                value = value.Substring(8);
+            value = value.Substring(8);
                 
-                return File.ReadAllText(value);
-            }
-            
-            if (!value.StartsWith("ASSET:"))
-            {
-                return value;
-            }
-
-            value = value.Substring(6);
-
-            var createSymlink = false;
-            
-            if (value.StartsWith("PHYSICS:"))
-            {
-                root = "../../res/physics/";
-
-                value = value.Substring(8);
-            }
-            else if (value.StartsWith("MAP:"))
-            {
-                root = "../../res/maps/";
-
-                value = value.Substring(4);
-            }
-            else if (value.StartsWith("ICON:"))
-            {
-                root = "../../res/mesh/bricks/";
-
-                value = value.Substring(5);
-            }
-            else if (value.StartsWith("LXFML:"))
-            {
-                createSymlink = true;
-
-                root = "res/BrickModels/";
-
-                value = value.Substring(6);
-            }
-
-            if (ignoreSpecialRoot)
-            {
-                root = "../../res/";
-            }
-            
-            string final;
-
-            // Copy the file to the selected resource folder is specified
-            if (!string.IsNullOrWhiteSpace(Configuration.ResourceFolder))
-            {
-                final = Path.Combine(Root, Configuration.ResourceFolder, Path.GetRelativePath(Root, Directory.GetCurrentDirectory()), value);
-
-                var directory = Path.GetDirectoryName(final);
-
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory!);
-                }
-
-                if (!File.Exists(final))
-                {
-                    File.Copy(value, final);
-                }
-            }
-            else
-            {
-                final = value;
-            }
-
-            if (createSymlink)
-            {
-                CreateArtifactFrom(value, root);
-                
-                /*
-                var dr = Path.Combine(Root, "../", root);
-
-                var src = Path.GetRelativePath(dr, Directory.GetCurrentDirectory());
-                
-                var destination = Path.Combine(dr, Path.GetFileName(value));
-
-                src = Path.Combine(src, value);
-                
-                Console.WriteLine(destination);
-
-                if (File.Exists(destination))
-                {
-                    File.Delete(destination);
-                }
-
-                File.CreateSymbolicLink(destination, src);
-                */
-            }
-
-            root = Root + root;
-
-            // Get the relative path from root to asset
-            var finalRelative = Path.GetRelativePath(root, final);
-
-            return finalRelative;
+            return File.ReadAllText(value);
         }
 
-        public static int AddIcon(string file)
+        if (value.StartsWith("ICON:"))
         {
-            if (file.StartsWith("lego-universe:"))
+            value = value.Substring(5);
+
+            if (!value.Contains(':'))
             {
-                return int.Parse(file.Substring(14));
+                throw new Exception($"Invalid icon: {value}");
             }
+                
+            var folder = value.Split(':');
+                
+            var path = Path.Combine(Configuration.ResourceFolder, folder[0], "resources", "icon", folder[1]);
+
+            return path;
+        }
             
-            file = ParseValue(file);
+        if (string.IsNullOrWhiteSpace(Configuration.ResourceFolder))
+        {
+            throw new Exception("Resource folder not set");
+        }
+            
+        var resources = Configuration.ResourceFolder;
 
-            var table = Database["Icons"]!;
-
-            var icon = table.Create()!;
-
-            icon["IconPath"].Value = "..\\..\\textures/../" + file;
-
-            return icon.Key;
+        if (!value.Contains("mods/"))
+        {
+            return value;
         }
 
-        public static void ApplyValues(Dictionary<string, object> values, Row row, Table table, bool defaultNull = false)
+        if (columnName == "LXFMLFolder")
         {
-            for (var index = 1; index < table.TableInfo.Count; index++)
+            var r = value.Split("mods/").Last();
+            var a = new Uri(Path.Combine(Root, resources, r));
+            var s = new Uri(Path.Combine(Root, "../", "res/BrickModels/"));
+                
+            return s.MakeRelativeUri(a).ToString();
+        }
+            
+        var extension = Path.GetExtension(value);
+
+        if (string.IsNullOrWhiteSpace(extension) || string.IsNullOrWhiteSpace(Path.GetDirectoryName(value)))
+        {
+            return value;
+        }
+
+        var createSymlink = false;
+            
+        if (extension == ".hkx")
+        {
+            root = "res/physics/";
+        }
+        else if (extension == ".luz")
+        {
+            root = "res/maps/";
+        }
+        else if (extension == ".dds")
+        {
+            root = "res/mesh/bricks/";
+        }
+        else if (extension == ".lxfml")
+        {
+            root = "res/BrickModels/";
+        }
+        else if (extension is ".kfm" or ".nif")
+        {
+            root = "res/";
+        }
+
+        // Take all parts after the mods folder
+        var relative = value.Split("mods/").Last();
+            
+        // Create the path to the resource folder
+        var actual = new Uri(Path.Combine(Root, resources, relative));
+            
+        var source = new Uri(Path.Combine(Root, "../", root));
+            
+        // Get the relative path from the source to the resource folder
+        var relativePath = source.MakeRelativeUri(actual).ToString();
+            
+        return relativePath;
+    }
+
+    public static int AddIcon(string file)
+    {
+        if (file.StartsWith("lego-universe:"))
+        {
+            return int.Parse(file.Substring(14));
+        }
+            
+        file = ParseValue(file);
+
+        var table = Database["Icons"]!;
+
+        var icon = table.Create()!;
+
+        icon["IconPath"].Value = "..\\..\\textures/../" + file;
+
+        return icon.Key;
+    }
+    
+    public static int AddIcon(string file, out string path)
+    {
+        if (file.StartsWith("lego-universe:"))
+        {
+            throw new Exception("Cannot add icon with lego-universe ID");
+        }
+            
+        file = ParseValue(file);
+
+        var table = Database["Icons"]!;
+
+        var icon = table.Create()!;
+
+        path = "..\\..\\textures/../" + file;
+        
+        icon["IconPath"].Value = path;
+
+        return icon.Key;
+    }
+    
+    public static void ApplyValues(Dictionary<string, object> values, Row row, Table table, bool defaultNull = false)
+    {
+        for (var index = 1; index < table.TableInfo.Count; index++)
+        {
+            var info = table.TableInfo[index];
+            if (info == null)
             {
-                var info = table.TableInfo[index];
-                if (info == null)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                var field = row[info.Name];
+            var field = row[info.Name];
 
-                if (!values.TryGetValue(info.Name, out var objValue))
-                {
-                    if (defaultNull)
-                    {
-                        field.Value = null;
-                    }
-
-                    continue;
-                }
-
-                if (objValue == null)
+            if (!values.TryGetValue(info.Name, out var objValue))
+            {
+                if (defaultNull)
                 {
                     field.Value = null;
-
-                    continue;
                 }
 
-                switch (info.Type)
+                continue;
+            }
+
+            if (objValue == null)
+            {
+                field.Value = null;
+
+                continue;
+            }
+
+            switch (info.Type)
+            {
+                case DataType.Integer:
                 {
-                    case DataType.Integer:
+                    var str = objValue.ToString();
+
+                    if (str.Contains(':'))
                     {
-                        var str = objValue.ToString();
-
-                        if (str.Contains(':'))
-                        {
-                            AwaitId(str, id => { field.Value = id; });
-                        }
-                        else
-                        {
-                            field.Value = InterpretValue<int>(objValue);
-                        }
-
-                        break;
+                        AwaitId(str, id => { field.Value = id; });
                     }
-                    case DataType.Float:
-                        field.Value = InterpretValue<float>(objValue);
-                        break;
-                    case DataType.Varchar:
-                    case DataType.Text:
-                        field.Value = ParseValue(objValue.ToString()!);
-                        break;
-                    case DataType.Boolean:
-                        field.Value = InterpretValue<bool>(objValue);
-                        break;
-                    case DataType.Bigint:
-                        field.Value = InterpretValue<long>(objValue);
-                        break;
+                    else
+                    {
+                        field.Value = InterpretValue<int>(objValue);
+                    }
+
+                    break;
                 }
+                case DataType.Float:
+                    field.Value = InterpretValue<float>(objValue);
+                    break;
+                case DataType.Varchar:
+                case DataType.Text:
+                    field.Value = ParseValue(objValue.ToString()!);
+                    break;
+                case DataType.Boolean:
+                    field.Value = InterpretValue<bool>(objValue);
+                    break;
+                case DataType.Bigint:
+                    field.Value = InterpretValue<long>(objValue);
+                    break;
             }
         }
+    }
 
-        public static T InterpretValue<T>(object obj)
+    public static T InterpretValue<T>(object obj)
+    {
+        if (obj is JsonElement jsonElement)
         {
-            if (obj is JsonElement jsonElement)
-            {
-                return jsonElement.Deserialize<T>()!;
-            }
+            return jsonElement.Deserialize<T>()!;
+        }
             
-            if (obj is T value)
-            {
-                return value;
-            }
-
-            if (obj is null)
-            {
-                return default;
-            }
-
-            return (T) Convert.ChangeType(obj, typeof(T));
-        }
-        
-        public static void ApplyValues(Mod mod, Row row, Table table)
+        if (obj is T value)
         {
-            foreach (var (key, objValue) in mod.Values)
-            {
-                var info = table.TableInfo.FirstOrDefault(column => column.Name == key);
+            return value;
+        }
 
-                if (info == null)
-                {
-                    continue;
-                }
+        if (obj is null)
+        {
+            return default;
+        }
+
+        return (T) Convert.ChangeType(obj, typeof(T));
+    }
+        
+    public static void ApplyValues(Mod mod, Row row, Table table)
+    {
+        foreach (var (key, objValue) in mod.Values)
+        {
+            var info = table.TableInfo.FirstOrDefault(column => column.Name == key);
+
+            if (info == null)
+            {
+                continue;
+            }
                 
-                var field = row[key];
+            var field = row[key];
                 
-                if (objValue == null)
-                {
-                    field.Value = null;
+            if (objValue == null)
+            {
+                field.Value = null;
                     
-                    continue;
-                }
+                continue;
+            }
                 
-                switch (info.Type)
+            switch (info.Type)
+            {
+                case DataType.Integer:
                 {
-                    case DataType.Integer:
-                    {
-                        var str = objValue.ToString();
+                    var str = objValue.ToString();
 
-                        if (str.Contains(':'))
+                    var parsed = ParseValue(str);
+                        
+                    if (parsed != str) break;
+
+                    if (str.Contains(':'))
+                    {
+                        AwaitId(str, id =>
                         {
-                            AwaitId(str, id =>
+                            field.Value = id;
+                        });
+                    }
+                    else
+                    {
+                        field.Value = mod.GetValue<int>(key);
+                    }
+                        
+                    break;
+                }
+                case DataType.Float:
+                    field.Value = mod.GetValue<float>(key);
+                    break;
+                case DataType.Varchar:
+                case DataType.Text:
+                {
+                    field.Value = "";
+                        
+                    var str = objValue.ToString()!;
+
+                    if (str.Contains(",") && str.Contains(":"))
+                    {
+                        var parts = str.Split(",");
+                            
+                        foreach (var part in parts)
+                        {
+                            var count = 1;
+                                
+                            var parts2 = part.Split(":");
+
+                            if (parts2.Length >= 3)
                             {
-                                field.Value = id;
+                                var last = parts2.Last();
+                                    
+                                if (int.TryParse(last, out var c))
+                                {
+                                    count = c;
+                                }
+                                else
+                                {
+                                    throw new Exception($"Invalid count {last} in {str}");
+                                }
+                            }
+                                
+                            // Value is all parts except the last
+                            var value = string.Join(":", parts2.Take(parts2.Length - 1));
+
+                            AwaitId(value, id =>
+                            {
+                                if (field.Value == null || field.Value == "")
+                                {
+                                    field.Value = "";
+                                }
+                                else
+                                {
+                                    field.Value = $"{field.Value},";
+                                }
+                                    
+                                field.Value = $"{field.Value}{id}:{count}";
                             });
                         }
-                        else
-                        {
-                            field.Value = mod.GetValue<int>(key);
-                        }
-                        
-                        break;
                     }
-                    case DataType.Float:
-                        field.Value = mod.GetValue<float>(key);
-                        break;
-                    case DataType.Varchar:
-                    case DataType.Text:
-                        field.Value = ParseValue(objValue.ToString()!);
-                        break;
-                    case DataType.Boolean:
-                        field.Value = mod.GetValue<bool>(key);
-                        break;
-                    case DataType.Bigint:
-                        field.Value = mod.GetValue<long>(key);
-                        break;
+                    else
+                    {
+                        field.Value = ParseValue(objValue.ToString()!, columnName: info.Name);
+                    }
                 }
+                    break;
+                case DataType.Boolean:
+                    field.Value = mod.GetValue<bool>(key);
+                    break;
+                case DataType.Bigint:
+                    field.Value = mod.GetValue<long>(key);
+                    break;
             }
         }
     }

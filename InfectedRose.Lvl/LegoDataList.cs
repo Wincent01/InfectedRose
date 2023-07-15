@@ -113,11 +113,11 @@ namespace InfectedRose.Lvl
                         break;
 
                     case Vector3 vec3:
-                        val = $"{vec3.X}{InfoSeparator}{vec3.Z}{InfoSeparator}{vec3.Y}";
+                        val = $"{vec3.X}{InfoSeparator}{vec3.Y}{InfoSeparator}{vec3.Z}";
                         break;
 
                     case Vector4 vec4:
-                        val = $"{vec4.X}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.W}";
+                        val = $"{vec4.X}{InfoSeparator}{vec4.Y}{InfoSeparator}{vec4.Z}{InfoSeparator}{vec4.W}";
                         break;
 
                     case LegoDataList list:

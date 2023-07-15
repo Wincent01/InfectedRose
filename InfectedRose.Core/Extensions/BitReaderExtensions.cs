@@ -9,6 +9,12 @@ namespace InfectedRose.Core
         public static string ReadNiString(this BitReader @this, bool wide = false, bool small = false)
         {
             var len = small ? @this.Read<byte>() : @this.Read<uint>();
+            
+            if (len == uint.MaxValue)
+            {
+                return string.Empty;
+            }
+            
             var str = new char[len];
 
             for (var i = 0; i < len; i++)
